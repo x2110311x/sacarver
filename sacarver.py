@@ -569,9 +569,9 @@ async def on_message(message):
 			os.system('/bots/sacarver/bashscripts/restart.sh')
 
 		if message.content.startswith("$updatebot") and staff in message.author.roles:
-			await client.send_message(message.channel,"***BOT IS UPDATING***"
+			await client.send_message(message.channel,"***BOT IS UPDATING***")
 			os.system('/bots/sacarver/bashscripts/update.sh')
-		    restart()
+			restart()
 
 		#Uptime of bot, and time till restart
 		if message.content.startswith('$uptime'):
