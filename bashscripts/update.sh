@@ -3,5 +3,5 @@ cd /bots/sacarver
 git fetch --all
 git reset --hard origin/master
 git pull origin master
-chown root:root /bots/sacarver/bashscripts/*
-chmod 777 /bots/sacarver/bashscripts/*
+sudo chown root:root /bots/sacarver/bashscripts/*
+sudo chmod 777 /bots/sacarver/bashscripts/*

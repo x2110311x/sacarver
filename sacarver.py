@@ -569,12 +569,12 @@ async def on_message(message):
 				await client.send_message(channel,"Please use this in {}".format(commandschan.mention))
 
 		if message.content.startswith("$restartbot") and staff in message.author.roles:
-	        await client.send_message(message.channel,"***BOT IS RESTARTING***")
-	        restart()
+			await client.send_message(message.channel,"***BOT IS RESTARTING***")
+			restart()
 
 	    if message.content.startswith("$updatebot") and staff in message.author.roles:
-	        await client.send_message(message.channel,"***BOT IS UPDATING***")
-	        update()
+			await client.send_message(message.channel,"***BOT IS UPDATING***"
+			update()
 
 		#Uptime of bot, and time till restart
 		if message.content.startswith('$uptime'):
