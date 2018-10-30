@@ -1,6 +1,7 @@
 import discord
 import os
 from include import config
+from threading import Timer
 
 client = discord.Client()
 def restart(): #restart
