@@ -362,10 +362,6 @@ async def on_message(message):
 				await client.send_message(channel,"Unable to find channel `{}`".format(channelname))
 			await client.delete_message(message) #Delete the message that invokes the command
 
-		#Restart the bot server
-		if message.content.startswith("$restartbot") and staff in message.author.roles:
-			await client.send_message(message.channel,"Bot Restarting")
-			os.system('reboot')
 
 		if message.content.startswith("$report"):
 			cancel = False
