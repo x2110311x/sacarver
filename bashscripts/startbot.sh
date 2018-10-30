@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo python3 sacarver.py
+sudo python3 /bots/sacarver/sacarver.py
