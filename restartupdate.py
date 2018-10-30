@@ -35,3 +35,5 @@ async def on_ready():
     print('Logged in')
     await client.send_message(testchannel,"Bot restarter/updater online")
     restartT.start()
+
+client.run(config.bottoken) #run the bot
