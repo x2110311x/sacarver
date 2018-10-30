@@ -1,10 +1,12 @@
 import discord
+import os
 from include import config
 
 client = discord.Client()
-def restart(): #restart function
-	os.system('/bots/sacarver/bashscripts/restart.sh')
+def restart(): #restart
+    os.system('/bots/sacarver/bashscripts/restart.sh')
     os.system('/bots/sacarver/bashscripts/restartupdater.sh')
+
 restartT = Timer(43200.0, restart)
 
 def update(): #update bot
@@ -14,7 +16,7 @@ def update(): #update bot
 @client.event
 async def on_message(message):
     server = client.get_server(config.serverid)
-	staff = discord.utils.get(server.roles, id=config.roles['staff'])
+    staff = discord.utils.get(server.roles, id=config.roles['staff'])
 
     if message.content.startswith("$restartbot") and staff in message.author.roles:
         await client.send_message(message.channel,"***BOT IS RESTARTING***")
@@ -28,7 +30,7 @@ async def on_message(message):
 async def on_ready():
     testchannel = client.get_channel(config.channels['testchannel'])
 
-	#Acknowledge that it's online
-	print('Logged in')
-	await client.send_message(testchannel,"Bot restarter/updater online")
+    #Acknowledge that it's online
+    print('Logged in')
+    await client.send_message(testchannel,"Bot restarter/updater online")
     restartT.start()
