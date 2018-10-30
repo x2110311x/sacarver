@@ -376,7 +376,6 @@ async def on_message(message):
 			chosenquotenum = random.randint(0,quotelen)
 			chosenquote = hackerman.quotes[chosenquotenum]
 			hackem = discord.Embed(title=chosenquote,type="rich",colour=0x493388)
-			hackem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
 			hackem.set_author(name="Hackerman", icon_url="https://i.kym-cdn.com/entries/icons/original/000/021/807/4d7.png")
 			await client.send_message(channel,embed=hackem)
 
