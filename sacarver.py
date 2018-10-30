@@ -575,7 +575,7 @@ async def on_message(message):
 	    if message.content.startswith("$updatebot") and message.author.id == "207129652345438211":
 	        await client.send_message(message.channel,"***BOT IS UPDATING***")
 	        update()
-		
+
 		#Uptime of bot, and time till restart
 		if message.content.startswith('$uptime'):
 			if channel != hometown or staff in message.author.roles:
@@ -585,6 +585,8 @@ async def on_message(message):
 				await client.send_message(channel,"Sacarver has been online for `{}`.\n{}".format(uptime,tillrestart))
 			else:
 				await client.send_message(channel,"Please use this in {}".format(commandschan.mention))
+		if message.content.startswith("$woot"):
+			await client.send_message(channel,"woot!")
 
 		if message.content.startswith("$image") and staff in message.author.roles:
 			args = message.content[7:]
