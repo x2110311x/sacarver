@@ -1,5 +1,7 @@
 #!/bin/bash
 cd /bots/sacarver
-git fetch git@github.com:x2110311x/sacarver.git
+git fetch --all
+git reset --hard origin/master
+git pull origin master
 chown root:root /bots/sacarver/bashscripts/*
 chmod 777 /bots/sacarver/bashscripts/*
