@@ -572,7 +572,7 @@ async def on_message(message):
 			await client.send_message(message.channel,"***BOT IS RESTARTING***")
 			restart()
 
-	    if message.content.startswith("$updatebot") and staff in message.author.roles:
+		if message.content.startswith("$updatebot") and staff in message.author.roles:
 			await client.send_message(message.channel,"***BOT IS UPDATING***"
 			update()
 
