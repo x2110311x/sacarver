@@ -315,7 +315,7 @@ async def on_message(message):
 
 			elif message.content.find("$hackerman") != -1:
 				helpembed.add_field(name="$hackerman", value="Get a quote from hackerman",inline=False)
-				helpembed.add_field(name="Usage", value="`$hackerman",inline=False)
+				helpembed.add_field(name="Usage", value="`$hackerman`",inline=False)
 
 			else:
 				helpembed.add_field(name="Unknown command", value="I'm not sure what commmand that is",inline=False)
