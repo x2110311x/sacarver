@@ -20,6 +20,14 @@ with open('chanban.csv') as File:
 	for row in csvreader:
 		chanbandict.append(row)
 
+def restart(): #restart
+    os.system('/bots/sacarver/bashscripts/restart.sh')
+restartT = Timer(43200.0, restart)
+
+def update(): #update bot
+    os.system('/bots/sacarver/bashscripts/update.sh')
+    restart()
+
 #update status and check for channel bans
 @client.event
 async def on_member_join(member):
@@ -560,6 +568,14 @@ async def on_message(message):
 			else:
 				await client.send_message(channel,"Please use this in {}".format(commandschan.mention))
 
+		if message.content.startswith("$restartbot") and staff in message.author.roles:
+	        await client.send_message(message.channel,"***BOT IS RESTARTING***")
+	        restart()
+
+	    if message.content.startswith("$updatebot") and message.author.id == "207129652345438211":
+	        await client.send_message(message.channel,"***BOT IS UPDATING***")
+	        update()
+		
 		#Uptime of bot, and time till restart
 		if message.content.startswith('$uptime'):
 			if channel != hometown or staff in message.author.roles:
@@ -594,6 +610,7 @@ async def on_ready():
 	#Acknowledge that it's online
 	print('Logged in')
 	await client.send_message(testchannel,"Bot is back online. Bot auto restarts every 12 hours.")
+	restartT.start()
 
 	#Set the status
 	await client.change_presence(game=discord.Game(name='with {} members'.format(server.member_count)))
