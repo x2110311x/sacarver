@@ -582,8 +582,6 @@ async def on_message(message):
 				await client.send_message(channel,"Sacarver has been online for `{}`.\n{}".format(uptime,tillrestart))
 			else:
 				await client.send_message(channel,"Please use this in {}".format(commandschan.mention))
-		if message.content.startswith("$woot"):
-			await client.send_message(channel,"woot!")
 
 		if message.content.startswith("$image") and staff in message.author.roles:
 			args = message.content[7:]
