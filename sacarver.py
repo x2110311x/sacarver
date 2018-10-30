@@ -8,7 +8,7 @@ from threading import Timer
 import csv
 import string
 from google_images_download import google_images_download
-from include import config, utilities
+from include import config, utilities, hackerman
 
 #General variables for code execution
 starttime = time()
@@ -251,6 +251,7 @@ async def on_message(message):
 				helpembed.add_field(name="$rate", value="Find out what I think about something",inline=False)
 				helpembed.add_field(name="$8ball", value="Ask a question and see what I think",inline=False)
 				helpembed.add_field(name="$mock", value="Mock a statement",inline=False)
+				helpembed.add_field(name="$hackerman", value="Get a quote from hackerman",inline=False)
 
 			elif message.content.find("staff") != -1:
 				helpembed.add_field(name="$say", value="Say something using the bot. [STAFF ONLY]",inline=False)
@@ -312,6 +313,10 @@ async def on_message(message):
 				helpembed.add_field(name="$ban", value="Fake bans a user [STAFF ONLY]",inline=False)
 				helpembed.add_field(name="Usage", value="`$ban <user>` **You Must Tag Them**",inline=False)
 
+			elif message.content.find("$hackerman") != -1:
+				helpembed.add_field(name="$hackerman", value="Get a quote from hackerman",inline=False)
+				helpembed.add_field(name="Usage", value="`$hackerman",inline=False)
+
 			else:
 				helpembed.add_field(name="Unknown command", value="I'm not sure what commmand that is",inline=False)
 
@@ -366,6 +371,14 @@ async def on_message(message):
 				await client.send_message(channel,"Unable to find channel `{}`".format(channelname))
 			await client.delete_message(message) #Delete the message that invokes the command
 
+		if message.content.startswith("$hackerman") and channel != hometown:
+			quotelen = len(hackerman.quotes) -1
+			chosenquotenum = random.randint(0,quotelen)
+			chosenquote = hackerman.quotes[chosenquotenum]
+			hackem = discord.Embed(title=chosenquote,type="rich",colour=0x493388)
+			hackem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
+			hackem.set_author(name="Hackerman", icon_url="https://i.kym-cdn.com/entries/icons/original/000/021/807/4d7.png")
+			await client.send_message(channel,embed=hackem)
 
 		if message.content.startswith("$report"):
 			cancel = False
