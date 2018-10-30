@@ -7,7 +7,7 @@ def restart(): #restart function
     os.system('/bots/sacarver/bashscripts/restartupdater.sh')
 restartT = Timer(43200.0, restart)
 
-def update():
+def update(): #update bot
     os.system('/bots/sacarver/bashscripts/update.sh')
     restart()
 
