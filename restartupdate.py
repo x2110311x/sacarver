@@ -6,7 +6,6 @@ from threading import Timer
 client = discord.Client()
 def restart(): #restart
     os.system('/bots/sacarver/bashscripts/restart.sh')
-    os.system('/bots/sacarver/bashscripts/restartupdater.sh')
 
 restartT = Timer(43200.0, restart)
 
