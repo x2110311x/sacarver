@@ -1,4 +1,3 @@
-from random_word import RandomWords
 import string
 import random
 
@@ -35,10 +34,6 @@ def bigtext(text):
 
     return saymsg
 
-def function():
-    noun = r.get_random_word(hasDictionaryDef="true", includePartOfSpeech="noun")
-    verb = r.get_random_word(hasDictionaryDef="true", includePartOfSpeech="verb")
-    function = "{}.{}()".format(noun,verb)
 
 def magic8ball():
     quotes = [
