@@ -9,6 +9,7 @@ def mock(mockmsg):
             returnmsg = "{}{}".format(returnmsg,mockmsg[x:x+1].upper())
         elif x%2 == 1:
             returnmsg = "{}{}".format(returnmsg,mockmsg[x:x+1].lower())
+    return returnmsg
 
 def bigtext(text):
     lowerletters = string.ascii_lowercase
@@ -27,7 +28,7 @@ def bigtext(text):
     saymsg = ""
     for character in text:
         saymsg = "{} {}".format(saymsg,character)
-    for x in range(0,9):
+    for x in range(0,10):
         saymsg = saymsg.replace(numbers[x],numemoji[x])
 
     return saymsg
