@@ -98,7 +98,7 @@ async def on_message(message):
 					userlist = f.read().splitlines()
 					f.close()
 				winner = random.randint(0,len(userlist)-1)
-				await client.send_message(channel,"The winner is <@{}>. \n Please DM <@207129652345438211> within 24 hours to accept or reject".format(userlist[winner]))
+				await client.send_message(channel,"The winner is <@{}>. \nPlease DM <@207129652345438211> within 24 hours to accept or reject".format(userlist[winner]))
 			except:
 				await client.send_message(channel,"Error <@207129652345438211>")
 
