@@ -405,7 +405,7 @@ async def on_message(message):
 		if message.content.startswith("$mock") and message.channel != hometown:
 			mockmsg = message.content[5:]
 			returnmsg = txtutils.mock(mockmsg)
-			await client.send_file(channel,"/bots/images/mocking-spongebob.jpg")
+			await client.send_file(channel,"/bots/sacarver/images/mocking-spongebob.jpg")
 			await client.send_message(channel,returnmsg)
 
 		#Set the status of bot
