@@ -76,23 +76,31 @@ async def on_message(message):
 				await client.send_message(channel,saymsg)
 
 		if message.content.startswith("$genlist") and staff in message.author.roles:
+			await client.send_message(channel,"Generating list")
 			spookyrole = discord.utils.get(server.roles,id='496317145806798848')
-			with open('spookies.txt', 'w') as f:
-				for user in server.members:
-					if spookyrole in user.roles:
-						userid = user.id
-						f.write("%s\n" % userid)
-				f.close()
+			try:
+				with open('spookies.txt', 'w') as f:
+					for user in server.members:
+						if spookyrole in user.roles:
+							userid = user.id
+							f.write("%s\n" % userid)
+					f.close()
+				await client.send_message(channel,"Done! <@207129652345438211>")
+			except:
+				await client.send_message(channel,"Error <@207129652345438211>")
 		
 		if message.content.startswith("$giveaway") and staff in message.author.roles:
 			announcements = client.get_channel("470323036688613396")
-			await client.send_message(testchannel,"Choosing winner")
+			await client.send_message(channel,"Choosing winner")
 			userlist = []
-			with open('spookies.txt', 'r') as f:
-				userlist = f.read().splitlines()
-				f.close()
-			winner = random.randint(0,len(userlist)-1)
-			await client.send_message(testchannel,"The winner is <@{}>. Please DM <@207129652345438211> within 24 hours to accept or reject".format(userlist[winner]))
+			try:
+				with open('spookies.txt', 'r') as f:
+					userlist = f.read().splitlines()
+					f.close()
+				winner = random.randint(0,len(userlist)-1)
+				await client.send_message(channel,"The winner is <@{}>. Please DM <@207129652345438211> within 24 hours to accept or reject".format(userlist[winner]))
+			except:
+				await client.send_message(channel,"Error <@207129652345438211>")
 
 		if message.content.startswith("$help") and channel != hometown:
 			helpembed = discord.Embed(title='Bot Commands', type="rich",colour=0x8C0000)
