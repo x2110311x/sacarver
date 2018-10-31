@@ -1,0 +1,54 @@
+from random_word import RandomWords
+import string
+import random
+
+r = RandomWords()
+
+def mock(mockmsg):
+    mocklen = len(mockmsg)
+    returnmsg = ""
+    for x in range(1,mocklen):
+        if x%2 == 0:
+            returnmsg = "{}{}".format(returnmsg,mockmsg[x:x+1].upper())
+        elif x%2 == 1:
+            returnmsg = "{}{}".format(returnmsg,mockmsg[x:x+1].lower())
+
+def bigtext(text):
+    lowerletters = string.ascii_lowercase
+    upperletters = string.ascii_uppercase
+    numbers = string.digits
+    lettersym = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲",
+                "🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
+    numemoji = [":zero:",":one:",":two:",":three:",":four:",":five:"
+            ,":six:",":seven:",":eight:",":nine:"]
+
+    for x in range(0,26):
+        text = text.replace(lowerletters[x],lettersym[x])
+        text = text.replace(upperletters[x],lettersym[x])
+
+    text = text.replace(" ","🛑")
+    saymsg = ""
+    for character in text:
+        saymsg = "{} {}".format(saymsg,character)
+    for x in range(0,9):
+        saymsg = saymsg.replace(numbers[x],numemoji[x])
+
+    return saymsg
+
+def function():
+    noun = r.get_random_word(hasDictionaryDef="true", includePartOfSpeech="noun")
+    verb = r.get_random_word(hasDictionaryDef="true", includePartOfSpeech="verb")
+    function = "{}.{}()".format(noun,verb)
+
+def magic8ball():
+    quotes = [
+        "It is certain",
+        "Outlook good",
+        "You may rely on it",
+        "Hell no",
+        "Concentrate and ask again",
+        "My sources say no",
+        "My answer is no",
+        "Outlook not good"
+    ]
+    return quotes[random.randint(0,len(quotes))]

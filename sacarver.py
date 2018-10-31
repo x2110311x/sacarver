@@ -15,6 +15,7 @@ starttime = time()
 client = discord.Client()
 memberstatus = True
 chanbandict = []
+
 with open('chanban.csv') as File:
 	csvreader = csv.DictReader(File)
 	for row in csvreader:
@@ -71,133 +72,8 @@ async def on_message(message):
 		if message.content.startswith("$bigtext") and channel != hometown:
 			text = message.content[9:]
 			if text.find("<") == -1 and text.find(">") == -1 and text.find(":") == -1:
-				letters = string.ascii_lowercase + string.ascii_uppercase
-				numbers = string.digits
-				saymsg = ""
-
-				for letter in letters:
-					if letter == "a" or letter == "A":
-						text = text.replace(letter,"🇦")
-
-					elif letter == "b" or letter == "B":
-						text = text.replace(letter,"🇧")
-
-					elif letter == "c" or letter == "C":
-						text = text.replace(letter,"🇨")
-
-					elif letter == "d" or letter == "D":
-						text = text.replace(letter,"🇩")
-
-					elif letter == "e" or letter == "E":
-						text = text.replace(letter,"🇪")
-
-					elif letter == "f" or letter == "F":
-						text = text.replace(letter,"🇫")
-
-					elif letter == "g" or letter == "G":
-						text = text.replace(letter,"🇬")
-
-					elif letter == "h" or letter == "H":
-						text = text.replace(letter,"🇭")
-
-					elif letter == "i" or letter == "I":
-						text = text.replace(letter,"🇮")
-
-					elif letter == "j" or letter == "J":
-						text = text.replace(letter,"🇯")
-
-					elif letter == "k" or letter == "K":
-						text = text.replace(letter,"🇰")
-
-					elif letter == "l" or letter == "L":
-						text = text.replace(letter,"🇱")
-
-					elif letter == "m" or letter == "M":
-						text = text.replace(letter,"🇲")
-
-					elif letter == "n" or letter == "N":
-						text = text.replace(letter,"🇳")
-
-					elif letter == "o" or letter == "O":
-						text = text.replace(letter,"🇴")
-
-					elif letter == "p" or letter == "P":
-						text = text.replace(letter,"🇵")
-
-					elif letter == "q" or letter == "Q":
-						text = text.replace(letter,"🇶")
-
-					elif letter == "r" or letter == "R":
-						text = text.replace(letter,"🇷")
-
-					elif letter == "s" or letter == "S":
-						text = text.replace(letter,"🇸")
-
-					elif letter == "t" or letter == "T":
-						text = text.replace(letter,"🇹")
-
-					elif letter == "u" or letter == "U":
-						text = text.replace(letter,"🇺")
-
-					elif letter == "v" or letter == "V":
-						text = text.replace(letter,"🇻")
-
-					elif letter == "w" or letter == "W":
-						text = text.replace(letter,"🇼")
-
-					elif letter == "x" or letter == "X":
-						text = text.replace(letter,"🇽")
-
-					elif letter == "y" or letter == "Y":
-						text = text.replace(letter,"🇾")
-
-					elif letter == "z" or letter == "Z":
-						text = text.replace(letter,"🇿")
-				text = text.replace(" ","🛑")
-				for character in text:
-					saymsg = "{} {}".format(saymsg,character)
-				for number in numbers:
-					if number == "1":
-						saymsg = saymsg.replace(number,":one:")
-
-					elif number == "2":
-						saymsg = saymsg.replace(number,":two:")
-
-					elif number == "3":
-						saymsg = saymsg.replace(number,":three:")
-
-					elif number == "4":
-						saymsg = saymsg.replace(number,":four:")
-
-					elif number == "5":
-						saymsg = saymsg.replace(number,":five:")
-
-					elif number == "6":
-						saymsg = saymsg.replace(number,":six:")
-
-					elif number == "7":
-						saymsg = saymsg.replace(number,":seven:")
-
-					elif number == "8":
-						saymsg = saymsg.replace(number,":eight:")
-
-					elif number == "9":
-						saymsg = saymsg.replace(number,":nine:")
-
-					elif number == "0":
-						saymsg = saymsg.replace(number,":zero:")
-				saymsg = saymsg.replace("?","❓")
-				saymsg = saymsg.replace("!","❗")
-				saymsg = saymsg.replace(".","⚫")
-				saymsg = saymsg.replace("+","➕")
-				saymsg = saymsg.replace("-","➖")
-				saymsg = saymsg.replace("/","➗")
-				saymsg = saymsg.replace("*","✖️")
-				saymsg = saymsg.replace("$","💲")
-			else:
-				saymsg = "Please do not use emojis!"
-
-			await client.send_message(channel,saymsg)
+				saymsg = txtutils.bigtext(text)
+				await client.send_message(channel,saymsg)
 
 		if message.content.startswith("$spooky") and message.channel == commandschan:
 			spookyrole = discord.utils.get(server.roles,id='496317145806798848')
@@ -337,23 +213,7 @@ async def on_message(message):
 		#8ball thing. Checks if user mentioned Sacarver, and if the message had a question mark
 		if message.content.startswith("$8ball"):
 			if channel != hometown or staff in message.author.roles:
-				answer = random.randint(1,8) #Generate random integer and respond accordingly
-				if answer == 1:
-					await client.send_message(channel, "It is certain")
-				elif answer == 2:
-					await client.send_message(channel, "Outlook good")
-				elif answer == 3:
-					await client.send_message(channel, "You may rely on it")
-				elif answer == 4:
-					await client.send_message(channel, "Hell no")
-				elif answer == 5:
-					await client.send_message(channel, "Concentrate and ask again")
-				elif answer == 6:
-					await client.send_message(channel, "My sources say no")
-				elif answer == 7:
-					await client.send_message(channel, "My answer is no")
-				elif answer == 8:
-					await client.send_message(channel, "Outlook not good")
+				await client.send_message(channel, txtutils.magic8ball())
 			else:
 				await client.send_message(channel,"Please use this in {}".format(commandschan.mention))
 
@@ -544,13 +404,7 @@ async def on_message(message):
 
 		if message.content.startswith("$mock") and message.channel != hometown:
 			mockmsg = message.content[5:]
-			mocklen = len(mockmsg)
-			returnmsg = ""
-			for x in range(1,mocklen):
-				if x%2 == 0:
-					returnmsg = "{}{}".format(returnmsg,mockmsg[x:x+1].upper())
-				elif x%2 == 1:
-					returnmsg = "{}{}".format(returnmsg,mockmsg[x:x+1].lower())
+			returnmsg = txtutils.mock(mockmsg)
 			await client.send_file(channel,"/bots/images/mocking-spongebob.jpg")
 			await client.send_message(channel,returnmsg)
 
@@ -566,13 +420,8 @@ async def on_message(message):
 		#ping command
 		if message.content.startswith('$ping'):
 			if channel != hometown or staff in message.author.roles:
-				msg1 = message.timestamp #grab the timestamp of the message invoking the command
-				msg2 = await client.send_message(channel,"Bot is Up!") #reply
-				msg2time = msg2.timestamp #find the timestamp of the reply
-				difftime = msg2time - msg1 #find the difference
-				datetime.timedelta(0, 4, 316543)
-				diffms = int(difftime.microseconds/1000) #convert to milliseconds
-				await client.edit_message(msg2 ,"Pong! `{}ms`".format(diffms)) #edit message
+				msg = await client.send_message(channel,"Bot is Up!") #reply
+				await client.edit_message(msg ,"Pong! `{}ms`".format(utilities.msdiff(message.timestamp,msg.timestamp)))
 			else:
 				await client.send_message(channel,"Please use this in {}".format(commandschan.mention))
 
