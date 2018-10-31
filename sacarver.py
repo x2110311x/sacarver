@@ -92,20 +92,20 @@ async def on_message(message):
 		if message.content.startswith("$spooky"):
 			spookyuser = message.author
 			spookyrole = discord.utils.get(server.roles,id='496317145806798848')
- 			if staff in spookyuser.roles:
+			if staff in spookyuser.roles:
 				spookyem = discord.Embed(title="I can't make staff spooky :(",type="rich",colour=0x8C0000)
 				spookyem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
 				spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
 				await client.send_message(channel,embed=spookyem)
- 			else:
+			else:
 				if spookyrole not in spookyuser.roles:
 					await client.add_roles(spookyuser,spookyrole)
- 					currentname = spookyuser.nick
+					currentname = spookyuser.nick
 					if currentname is None:
 						currentname = spookyuser.name
 					newname = "👻🎃{}🎃👻".format(currentname)
 					await client.change_nickname(spookyuser,newname)
- 					spookyem = discord.Embed(title="You have been Spookified",type="rich",colour=0x8C0000)
+					spookyem = discord.Embed(title="You have been Spookified",type="rich",colour=0x8C0000)
 					spookyem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
 					spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
 					await client.send_message(channel,embed=spookyem)
