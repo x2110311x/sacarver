@@ -1,8 +1,6 @@
 import string
 import random
 
-r = RandomWords()
-
 def mock(mockmsg):
     mocklen = len(mockmsg)
     returnmsg = ""
