@@ -89,7 +89,7 @@ async def on_message(message):
 			except:
 				await client.send_message(channel,"Error <@207129652345438211>")
 				
-		if message.content.startswith($spooky):
+		if message.content.startswith("$spooky"):
 			spookyuser = message.author
 			spookyrole = discord.utils.get(server.roles,id='496317145806798848')
  			if staff in spookyuser.roles:
