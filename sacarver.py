@@ -88,6 +88,14 @@ async def on_message(message):
 				await client.send_message(channel,"Done! <@207129652345438211>")
 			except:
 				await client.send_message(channel,"Error <@207129652345438211>")
+				
+		if message.content.startswith("$spooky"):
+			spookyuser = message.author
+			spookyem = discord.Embed(title="You are too late!",type="rich",colour=0x8C0000)
+			spookyem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
+			spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
+			await client.send_message(channel,embed=spookyem)
+
 		
 		if message.content.startswith("$giveaway") and staff in message.author.roles:
 			announcements = client.get_channel("470323036688613396")
