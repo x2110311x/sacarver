@@ -75,35 +75,24 @@ async def on_message(message):
 				saymsg = txtutils.bigtext(text)
 				await client.send_message(channel,saymsg)
 
-		if message.content.startswith("$spooky") and message.channel == commandschan:
+		if message.content.startswith("$genlist") and staff in message.author.roles:
 			spookyrole = discord.utils.get(server.roles,id='496317145806798848')
-			spookyuser = message.author
-
-			if staff in spookyuser.roles:
-				spookyem = discord.Embed(title="I can't make staff spooky :(",type="rich",colour=0x8C0000)
-				spookyem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
-				spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
-				await client.send_message(channel,embed=spookyem)
-
-			else:
-				if spookyrole not in spookyuser.roles:
-					await client.add_roles(spookyuser,spookyrole)
-
-					currentname = spookyuser.nick
-					if currentname is None:
-						currentname = spookyuser.name
-					newname = "👻🎃{}🎃👻".format(currentname)
-					await client.change_nickname(spookyuser,newname)
-
-					spookyem = discord.Embed(title="You have been Spookified",type="rich",colour=0x8C0000)
-					spookyem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
-					spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
-					await client.send_message(channel,embed=spookyem)
-				else:
-					spookyem = discord.Embed(title="You were already spookified earlier!",type="rich",colour=0x8C0000)
-					spookyem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
-					spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
-					await client.send_message(channel,embed=spookyem)
+			with open('spookies.txt', 'w') as f:
+				for user in server.members:
+					if spookyrole in user.roles:
+						userid = user.id
+						f.write("%s\n" % userid)
+				f.close()
+		
+		if message.content.startswith("$giveaway") and staff in message.author.roles:
+			announcements = client.get_channel("470323036688613396")
+			await client.send_message(testchannel,"Choosing winner")
+			userlist = []
+			with open('spookies.txt', 'r') as f:
+				userlist = f.read().splitlines()
+				f.close()
+			winner = random.randint(0,len(userlist)-1)
+			await client.send_message(testchannel,"The winner is <@{}>. Please DM <@207129652345438211> within 24 hours to accept or reject".format(userlist[winner]))
 
 		if message.content.startswith("$help") and channel != hometown:
 			helpembed = discord.Embed(title='Bot Commands', type="rich",colour=0x8C0000)
@@ -123,7 +112,6 @@ async def on_message(message):
 				helpembed.add_field(name="$report", value="Report a user that is misbehaving",inline=False)
 
 			elif message.content.find("fun") != -1:
-				helpembed.add_field(name="$spooky", value="Gives you spooky name and role for halloween",inline=False)
 				helpembed.add_field(name="$rate", value="Find out what I think about something",inline=False)
 				helpembed.add_field(name="$8ball", value="Ask a question and see what I think",inline=False)
 				helpembed.add_field(name="$mock", value="Mock a statement",inline=False)
@@ -145,9 +133,6 @@ async def on_message(message):
 				helpembed.add_field(name="$uptime", value="Checks how long the bot has been online",inline=False)
 				helpembed.add_field(name="Usage", value="`$uptime`",inline=False)
 
-			elif message.content.find("$spooky") != -1:
-				helpembed.add_field(name="$spooky", value="Gives you spooky name and role for halloween",inline=False)
-				helpembed.add_field(name="Usage", value="`$spooky`",inline=False)
 
 			elif message.content.find("$rate") !=-1:
 				helpembed.add_field(name="$rate", value="Find out what I think about something",inline=False)
