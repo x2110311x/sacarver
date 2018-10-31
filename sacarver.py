@@ -88,32 +88,6 @@ async def on_message(message):
 				await client.send_message(channel,"Done! <@207129652345438211>")
 			except:
 				await client.send_message(channel,"Error <@207129652345438211>")
-				
-		if message.content.startswith("$spooky"):
-			spookyuser = message.author
-			spookyrole = discord.utils.get(server.roles,id='496317145806798848')
-			if staff in spookyuser.roles:
-				spookyem = discord.Embed(title="I can't make staff spooky :(",type="rich",colour=0x8C0000)
-				spookyem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
-				spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
-				await client.send_message(channel,embed=spookyem)
-			else:
-				if spookyrole not in spookyuser.roles:
-					await client.add_roles(spookyuser,spookyrole)
-					currentname = spookyuser.nick
-					if currentname is None:
-						currentname = spookyuser.name
-					newname = "👻🎃{}🎃👻".format(currentname)
-					await client.change_nickname(spookyuser,newname)
-					spookyem = discord.Embed(title="You have been Spookified",type="rich",colour=0x8C0000)
-					spookyem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
-					spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
-					await client.send_message(channel,embed=spookyem)
-				else:
-					spookyem = discord.Embed(title="You were already spookified earlier!",type="rich",colour=0x8C0000)
-					spookyem.set_footer(text="©2018 x2110311x. All Rights Reserved.",icon_url=client.user.avatar_url)
-					spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
-					await client.send_message(channel,embed=spookyem)
 		
 		if message.content.startswith("$giveaway") and staff in message.author.roles:
 			announcements = client.get_channel("470323036688613396")
