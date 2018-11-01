@@ -88,7 +88,7 @@ async def on_message(message):
 				await client.send_message(channel,"Done! <@207129652345438211>")
 			except:
 				await client.send_message(channel,"Error <@207129652345438211>")
-				
+
 		if message.content.startswith("$spooky"):
 			spookyuser = message.author
 			spookyem = discord.Embed(title="You are too late!",type="rich",colour=0x8C0000)
@@ -96,7 +96,7 @@ async def on_message(message):
 			spookyem.set_author(name=spookyuser.nick, icon_url=spookyuser.avatar_url)
 			await client.send_message(channel,embed=spookyem)
 
-		
+
 		if message.content.startswith("$giveaway") and staff in message.author.roles:
 			announcements = client.get_channel("470323036688613396")
 			await client.send_message(channel,"Choosing winner")
@@ -448,7 +448,7 @@ async def on_message(message):
 		if message.content.startswith("$image") and staff in message.author.roles:
 			args = message.content[7:]
 			response = google_images_download.googleimagesdownload()
-			absolute_image_paths = response.download({"keywords":"{}".format(args),"limit":1,"output_directory":"images"})
+			absolute_image_paths = response.download({"keywords":"{}".format(args),"limit":1,"output_directory":"/bots/sacarver/images"})
 			await client.send_file(channel,absolute_image_paths[args][0])
 
 
