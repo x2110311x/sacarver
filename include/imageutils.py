@@ -10,6 +10,7 @@ class Colours:
     BLUE = (36, 113, 229)
     WHITE = (255,) * 3
 
+
 def invert(imgname,newimgname):
     image = Image.open(imgname)
     if image.mode == 'RGBA':
@@ -33,11 +34,19 @@ async def downloadimg(imgurl,imgname):
                 await f.close()
 
 def deepfry(imgname,newimgname):
-    eye_cascade = cv2.CascadeClassifier('/bots/sacarver/include/haarcascade_eye.xml')
-    eyes = eye_cascade.detectMultiScale(roi_gray)
+    #face_cascade = cv2.CascadeClassifier('/bot/include/haarcascade_frontalface_default.xml')
+    #eye_cascade = cv2.CascadeClassifier('/bot/include/haarcascade_eye.xml')
 
     img = Image.open(imgname)
     img = img.convert('RGB')
+    '''imgcv = np.asarray(img)
+    gray = cv2.cvtColor(imgcv, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    roi_gray = None
+    for (x,y,w,h) in faces:
+        roi_gray = gray[y:y+h, x:x+w]
+    eyes = eye_cascade.detectMultiScale(roi_gray)
+
     eyepos = []
     eyesizes = []
     for (ex,ey,ew,eh) in eyes:
@@ -51,10 +60,10 @@ def deepfry(imgname,newimgname):
     eye2size = eyesizes[1] *4
     eye1corner = tuple(math.floor(x - eye1size / 2.5 + 5) for x in eye1)
     eye2corner = tuple(math.floor(x - eye2size / 2.5 + 5) for x in eye2)
-    flare = Image.open('/bots/sacarver/include/flare.png')
+    flare = Image.open('/bot/include/flare.png')
     flare1 = flare.copy().resize((eye1size,) * 2, resample=Image.BILINEAR)
     flare2 = flare.copy().resize((eye2size) * 2, resample=Image.BILINEAR)
-    del flare
+    del flare'''
 
     width, height = img.width, img.height
     img = img.resize((int(width ** .75), int(height ** .75)), resample=Image.LANCZOS)
@@ -69,6 +78,6 @@ def deepfry(imgname,newimgname):
     img = Image.blend(img, r, 0.75)
     img = ImageEnhance.Sharpness(img).enhance(100.0)
 
-    img.paste(flare1, eye1corner, flare1)
-    img.paste(flare2, eye2corner, flare2)
+    #img.paste(flare1, eye1corner, flare1)
+    #img.paste(flare2, eye2corner, flare2)
     img.save(newimgname)
