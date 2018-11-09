@@ -68,17 +68,16 @@ async def on_message(message):
 
 @client.event
 async def on_message_edit(before,after):
-    message = after
-    if message.author.id not in config.botids:
+    if after.author.id not in config.botids:
         messageentry = {
-            "time" : int(message.edited_timestamp.timestamp()),
-            "authorid" : message.author.id,
-            "channel" : message.channel.id,
-            "messageid" : message.id
+            "time" : int(after.edited_timestamp.timestamp()),
+            "authorid" : after.author.id,
+            "channel" : after.channel.id,
+            "messageid" : after.id
         }
-        if message.channel.id not in config.staffchannels and message.channel.id not in config.infochannels:
+        if after.channel.id not in config.staffchannels and after.channel.id not in config.infochannels:
             insert = editdb.insert_one(messageentry)
-        elif message.channel.id in config.staffchannels:
+        elif after.channel.id in config.staffchannels:
             insert = Seditdb.insert_one(messageentry)
 
 @client.event
