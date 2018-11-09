@@ -54,6 +54,7 @@ async def on_message(message):
                 "created" : member.created_at
             }
             insert = userdb.insert_one(userentry)
+        await client.send_message(message.channel,"Done!")
     if message.author.id not in config.botids:
         messageentry = {
             "time" : int(message.timestamp.timestamp()),
