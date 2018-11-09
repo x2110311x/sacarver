@@ -3,7 +3,7 @@ import discord
 import datetime
 import os
 from threading import Timer
-from include import config
+from include import config, utilities
 from pymongo import MongoClient
 from time import time, sleep
 from threading import Timer
@@ -42,6 +42,9 @@ Snicknamedb = sdb.nicknames
 
 @client.event
 async def on_message(message):
+    if message.content.startswith("$logping"):
+        msg = await client.send_message(channel,"Bot is Up!") #reply
+        await client.edit_message(msg ,"Pong! `{}ms`".format(utilities.msdiff(message.timestamp,msg.timestamp)))
     if message.content.startswith("$usersdb") and message.author.id == "207129652345438211":
         await client.send_message(message.channel,"Rebuilding User Database")
         userdb.drop()
