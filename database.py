@@ -10,7 +10,11 @@ from threading import Timer
 
 client = discord.Client() #Discord Client Object
 try:
-    mclient = MongoClient("mongodb://localhost:27017/") #mongoclient object
+    mclient = MongoClient('localhost',
+...                      username='root',
+...                      password=config.mongodbpass,
+...                      authSource='admin',
+...                      authMechanism='SCRAM-SHA-256') #mongoclient object
 except:
     print("Could not connect")
     quit()
