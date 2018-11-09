@@ -43,8 +43,9 @@ Snicknamedb = sdb.nicknames
 @client.event
 async def on_message(message):
     if message.content.startswith("$logping"):
-        msg = await client.send_message(channel,"Bot is Up!") #reply
+        msg = await client.send_message(message.channel,"Bot is Up!") #reply
         await client.edit_message(msg ,"Pong! `{}ms`".format(utilities.msdiff(message.timestamp,msg.timestamp)))
+        
     if message.content.startswith("$usersdb") and message.author.id == "207129652345438211":
         await client.send_message(message.channel,"Rebuilding User Database")
         userdb.drop()
