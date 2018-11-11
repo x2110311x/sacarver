@@ -30,7 +30,7 @@ def messyesterday(imgname):
         result = cursor.fetchall()
         for row in result:
             rowtime = datetime.fromtimestamp(int(row['time'])).hour
-            messagenum[hour] += 1
+            messagenum[rowtime] += 1
 
 
 
