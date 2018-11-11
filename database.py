@@ -54,7 +54,7 @@ async def on_message(message):
         for member in server.members:
             userentry = {
                 "time" : int(member.joined_at.timestamp()),
-                "id" : member.id,
+                "id" :str(member.id),
                 "name" : member.name + str(member.discriminator),
                 "created" : member.created_at
             }
@@ -63,9 +63,9 @@ async def on_message(message):
     if message.author.id not in config.botids:
         messageentry = {
             "time" : int(message.timestamp.timestamp()),
-            "authorid" : message.author.id,
-            "channel" : message.channel.id,
-            "messageid" : message.id
+            "authorid" : str(message.author.id),
+            "channel" : str(message.channel.id),
+            "messageid" : str(message.id)
         }
         if message.channel.id not in config.staffchannels and message.channel.id not in config.infochannels:
             insert = messagedb.insert_one(messageentry)
@@ -77,9 +77,9 @@ async def on_message_edit(before,after):
     if after.author.id not in config.botids:
         messageentry = {
             "time" : int(after.edited_timestamp.timestamp()),
-            "authorid" : after.author.id,
-            "channel" : after.channel.id,
-            "messageid" : after.id
+            "authorid" : str(after.author.id),
+            "channel" : str(after.channel.id),
+            "messageid" : str(after.id)
         }
         if after.channel.id not in config.staffchannels and after.channel.id not in config.infochannels:
             insert = editdb.insert_one(messageentry)
@@ -92,17 +92,17 @@ async def on_message_delete(message):
         if message.channel.id not in config.staffchannels and message.channel.id not in config.infochannels:
             messageentry = {
                 "time" : int(time()),
-                "authorid" : message.author.id,
-                "channel" : message.channel.id,
-                "messageid" : message.id
+                "authorid" : str(message.author.id),
+                "channel" : str(message.channel.id),
+                "messageid" : str(message.id)
             }
             insert = deletedb.insert_one(messageentry)
         elif message.channel.id in config.staffchannels:
             messageentry = {
                 "time" : int(time()),
-                "authorid" : message.author.id,
-                "channel" : message.channel.id,
-                "messageid" : message.id
+                "authorid" : str(message.author.id),
+                "channel" : str(message.channel.id),
+                "messageid" : str(message.id)
             }
             insert = Sdeletedb.insert_one(messageentry)
 
@@ -110,7 +110,7 @@ async def on_message_delete(message):
 async def on_member_join(member):
     userentry = {
         "time" : int(member.joined_at.timestamp()),
-        "id" : member.id,
+        "id" : str(member.id),
         "name" : member.name + str(member.discriminator),
         "created" : member.created_at
     }
@@ -121,7 +121,7 @@ async def on_member_join(member):
 async def on_member_remove(member):
     userentry = {
         "time" : int(time()),
-        "id" : member.id,
+        "id" : str(member.id),
         "name" : member.name + str(member.discriminator),
         "created" : member.created_at
     }
@@ -136,7 +136,7 @@ async def on_member_update(before,after):
     if before.nick != after.nick:
         userentry = {
             "time" : int(time()),
-            "id" : after.id,
+            "id" : str(after.id),
             "name" : after.display_name,
         }
         if staff in after.roles:
