@@ -19,16 +19,20 @@ except:
 def messyesterday(imgname):
     times = ["12am","1am","2am","3am","4am","5am","6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm","10pm","11pm"]
     messagenum = []
-    yesterday = datetime.now() - timedelta(days=1)
-    yesterday = int(datetime.combine(yesterday, datetime.min.time()).timestamp())
-    for x in range(0,24):
-        starttime = yesterday + (3600 * (x - 1))
-        endtime = yesterday + (3600 * x)
-        with mysqldb.cursor() as cursor:
-            sql = "SELECT * FROM messages WHERE time >= %s AND time <= %s"
-            count = cursor.execute(sql,(starttime,endtime))
-            messagenum.append(count)
+    for x in range(0,23):
+        messagenum.append(0)
+    starttime = datetime.now() - timedelta(days=1)
+    endtime = int(datetime.combine(yesterday, datetime.max.time()).timestamp())
+    starttime = int(datetime.combine(yesterday, datetime.min.time()).timestamp())
+    with mysqldb.cursor() as cursor:
+    sql = "SELECT * FROM messages WHERE time >= %s AND time <= %s"
+    cursor.execute(sql,(starttime,endtime))
+    result = cursor.fetchall()
+    for row in result:
+        rowtime = datetime.fromtimestamp(int(row['time'])).hour
+        messagenum[hour] += 1
 
+    
 
     plt.plot(times, messagenum, color='black')
     plt.xticks(rotation=45)
