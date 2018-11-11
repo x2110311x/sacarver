@@ -38,7 +38,7 @@ async def on_message(message):
         await client.send_message(message.channel,"Rebuilding User Database")
         server = client.get_server(config.serverid)
         with mysqldb.cursor() as cursor:
-            sql = "DELETE FROM USERS"
+            sql = "DELETE FROM users"
             cursor.execute(sql)
         mysqldb.commit()
         for member in server.members:
