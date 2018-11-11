@@ -41,18 +41,21 @@ async def on_message(message):
             sql = "DELETE FROM users"
             cursor.execute(sql)
         mysqldb.commit()
-        for member in server.members:
-            userentry = {
-                "time" : int(member.joined_at.timestamp()),
-                "id" :str(member.id),
-                "name" : member.name + str(member.discriminator),
-                "created" : str(member.created_at)
-            }
-            with mysqldb.cursor() as cursor:
-                sql2 = "INSERT INTO users (id,name,jointime,created) VALUES ({},{},{},{})".format(userentry['id'],userentry['name'],userentry['time'],userentry['created'])
-                cursor.execute(sql)
-        mysqldb.commit()
-        await client.send_message(message.channel,"Done!")
+        try:
+            for member in server.members:
+                userentry = {
+                    "time" : int(member.joined_at.timestamp()),
+                    "id" :str(member.id),
+                    "name" : member.name + str(member.discriminator),
+                    "created" : str(member.created_at)
+                }
+                with mysqldb.cursor() as cursor:
+                    sql2 = "INSERT INTO users (id,name,jointime,created) VALUES ({},{},{},{})".format(userentry['id'],userentry['name'],userentry['time'],userentry['created'])
+                    cursor.execute(sql)
+                mysqldb.commit()
+            await client.send_message(message.channel,"Done!")
+        except:
+            await client.send_message(message.channel,"Error :(")
 
     if message.author.id not in config.botids: #actual logging
         messageentry = { #messageinfo
