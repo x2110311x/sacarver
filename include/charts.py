@@ -35,5 +35,3 @@ def messyesterday(imgname):
     plt.ylabel('Number of messages')
     plt.title('Messages per hour yesterday')
     plt.savefig(imgname)
-
-mysqldb.close()
