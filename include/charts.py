@@ -22,8 +22,8 @@ def messyesterday(imgname):
     for x in range(0,23):
         messagenum.append(0)
     starttime = datetime.now() - timedelta(days=1)
-    endtime = int(datetime.combine(yesterday, datetime.max.time()).timestamp())
-    starttime = int(datetime.combine(yesterday, datetime.min.time()).timestamp())
+    endtime = int(datetime.combine(starttime, datetime.max.time()).timestamp())
+    starttime = int(datetime.combine(starttime, datetime.min.time()).timestamp())
     with mysqldb.cursor() as cursor:
         sql = "SELECT * FROM messages WHERE time >= %s AND time <= %s"
         cursor.execute(sql,(starttime,endtime))
