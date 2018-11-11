@@ -50,8 +50,8 @@ async def on_message(message):
                     "created" : str(member.created_at)
                 }
                 with mysqldb.cursor() as cursor:
-                    sql2 = "INSERT INTO users (id,name,jointime,created) VALUES ({},{},{},{})".format(userentry['id'],userentry['name'],userentry['time'],userentry['created'])
-                    cursor.execute(sql)
+                    sql2 = "INSERT INTO users (id,name,jointime,created) VALUES (%s,%s,%s,%s)"
+                    cursor.execute(sql,(userentry['id'],userentry['name'],userentry['time'],userentry['created']))
                 mysqldb.commit()
             await client.send_message(message.channel,"Done!")
         except:
