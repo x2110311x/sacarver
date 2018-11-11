@@ -66,10 +66,10 @@ async def on_message(message):
 	#General commands. Check to make sure user is not blocked, and the command isn't being used in hometown, unless by staff member
 	if message.server == server and message.author.id not in config.bannedcommmandusersids:
 
-		'''if message.content.startswith("$howmanymess") and staff in message.author.roles:
+		if message.content.startswith("$howmanymess") and staff in message.author.roles:
 			imgname = "/bots/sacarver/images/" + str(int(time())) + ".png"
 			charts.messyesterday(imgname)
-			await client.send_file(message.channel,imgname)'''
+			await client.send_file(message.channel,imgname)
 
 		if message.content == "F" or message.content == "f":
 			if channel == DE or channel == stafffun:
