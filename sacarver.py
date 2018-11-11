@@ -72,13 +72,17 @@ async def on_message(message):
 			charts.messyesterday(imgname)
 			await client.delete_message(msg1)
 			await client.send_file(message.channel,imgname)
+
 		if message.content.startswith("$mymessagesyesterday") and staff in message.author.roles:
 			msg1 = await client.send_message(channel,"Generating image...\nThis may take some time")
-			authorid = message.author.id
+			authorid = str(message.author.id)
 			imgname = "/bots/sacarver/images/" + str(int(time())) + authorid + ".png"
-			charts.messyesterday(imgname,authorid)
-			await client.delete_message(msg1)
-			await client.send_file(message.channel,imgname)
+			try:
+				charts.mymessyesterday(imgname,authorid)
+				await client.delete_message(msg1)
+				await client.send_file(message.channel,imgname)
+			except:
+				await client.send_message(message.channel,"error!")
 
 		if message.content == "F" or message.content == "f":
 			if channel == DE or channel == stafffun:
