@@ -26,7 +26,6 @@ def restart(): #restart
 restartT = Timer(172800.0, restart)
 
 
-
 @client.event
 async def on_message(message):
 
@@ -37,48 +36,52 @@ async def on_message(message):
     if message.content.startswith("$rebuildusers") and message.author.id == "207129652345438211": #rebuild user table
         await client.send_message(message.channel,"Rebuilding User Database")
         server = client.get_server(config.serverid)
-        with mysqldb.cursor() as cursor:
-            sql = "DELETE FROM users"
-            cursor.execute(sql)
-        mysqldb.commit()
-        for member in server.members:
-            jointime = int(member.joined_at.timestamp())
-            userid = str(member.id)
-            username = str(member.name + "#" + str(member.discriminator))
-            created = str(int(member.created_at.timestamp()))
-
+        try:
             with mysqldb.cursor() as cursor:
-                sql = "INSERT INTO users (id,name,created,jointime) VALUES (%s,%s,%s,%s)"
-                cursor.execute(sql, (userid,username,created,jointime))
+                sql = "DELETE FROM users"
+                cursor.execute(sql)
+                mysqldb.commit()
+                for member in server.members:
+                    jointime = int(member.joined_at.timestamp())
+                    userid = str(member.id)
+                    username = str(member.name + "#" + str(member.discriminator))
+                    created = str(int(member.created_at.timestamp()))
+                    print(jointime,userid,username,created)
+                    sql = "INSERT INTO users (id,name,created,jointime) VALUES (%s,%s,%s,%s)"
+                    cursor.execute(sql, (userid,username,created,jointime))
             mysqldb.commit()
-        await client.send_message(message.channel,"Done!")
+            await client.send_message(message.channel,"Done!")
+        except:
+            await client.send_message(message.channel,"Error!")
 
     if message.author.id not in config.botids: #actual logging
         msgtime = int(message.timestamp.timestamp())
         authorid = str(message.author.id)
         channelid = str(message.channel.id)
         messageid = str(message.id)
-
-
-        with mysqldb.cursor() as cursor: #insert record
-            sql = "INSERT INTO messages (messageid,time,author,channel) VALUES (%s,%s,%s,%s)"
-            cursor.execute(sql,(messageid,msgtime,authorid,channelid))
-        mysqldb.commit() #commit
+        try:
+            with mysqldb.cursor() as cursor: #insert record
+                sql = "INSERT INTO messages (messageid,time,author,channel) VALUES (%s,%s,%s,%s)"
+                cursor.execute(sql,(messageid,msgtime,authorid,channelid))
+            mysqldb.commit() #commit
+        except:
+            print("error in message")
 
 @client.event
 async def on_message_edit(before,after):
     if after.author.id not in config.botids:
-        msgtime = int(message.timestamp.timestamp())
-        authorid = str(message.author.id)
-        channelid = str(message.channel.id)
-        messageid = str(message.id)
+        msgtime = int(after.timestamp.timestamp())
+        authorid = str(after.author.id)
+        channelid = str(after.channel.id)
+        messageid = str(after.id)
 
-
-        with mysqldb.cursor() as cursor: #insert record
-            sql = "INSERT INTO edited (messageid,time,author,channel) VALUES (%s,%s,%s,%s)"
-            cursor.execute(sql,(messageid,msgtime,authorid,channelid))
-
-        mysqldb.commit() #commit
+        try:
+            with mysqldb.cursor() as cursor: #insert record
+                sql = "INSERT INTO edited (messageid,time,author,channel) VALUES (%s,%s,%s,%s)"
+                cursor.execute(sql,(messageid,msgtime,authorid,channelid))
+            mysqldb.commit() #commit
+        except:
+            print("error in edit")
 
 @client.event
 async def on_message_delete(message):
@@ -87,13 +90,13 @@ async def on_message_delete(message):
         authorid = str(message.author.id)
         channelid = str(message.channel.id)
         messageid = str(message.id)
-
-
-        with mysqldb.cursor() as cursor: #insert record
-            sql = "INSERT INTO deleted (messageid,time,author,channel) VALUES (%s,%s,%s,%s)"
-            cursor.execute(sql,(messageid,msgtime,authorid,channelid))
-
-        mysqldb.commit()#commit
+        try:
+            with mysqldb.cursor() as cursor: #insert record
+                sql = "INSERT INTO deleted (messageid,time,author,channel) VALUES (%s,%s,%s,%s)"
+                cursor.execute(sql,(messageid,msgtime,authorid,channelid))
+            mysqldb.commit()#commit
+        except:
+            print("edit in delete")
 
 @client.event
 async def on_member_join(member):
@@ -101,13 +104,15 @@ async def on_member_join(member):
     userid = str(member.id)
     username = str(member.name + str(member.discriminator))
     created = str(member.created_at.timestamp())
-
-    with mysqldb.cursor() as cursor: #insert
-        sql = "INSERT INTO joinedusers (id,name,joined) VALUES (%s,%s,%s)"
-        cursor.execute(sql,(userid,username,jointime))
-        sql2 = "INSERT INTO users (id,name,jointime,created) VALUES (%s,%s,%s,%s)"
-        cursor.execute(sql2,(userid,username,jointime,created))
-    mysqldb.commit() #commit
+    try:
+        with mysqldb.cursor() as cursor: #insert
+            sql = "INSERT INTO joinedusers (id,name,joined) VALUES (%s,%s,%s)"
+            cursor.execute(sql,(userid,username,jointime))
+            sql2 = "INSERT INTO users (id,name,jointime,created) VALUES (%s,%s,%s,%s)"
+            cursor.execute(sql2,(userid,username,jointime,created))
+        mysqldb.commit() #commit
+    except:
+        print("error in join")
 
 @client.event
 async def on_member_remove(member):
@@ -115,13 +120,15 @@ async def on_member_remove(member):
     userid = str(member.id)
     username = str(member.name + "#"  + member.discriminator)
     created = str(member.created_at.timestamp())
-
-    with mysqldb.cursor() as cursor: #insert
-        sql2 = "DELETE FROM users where id = {}".format(userentry["id"])
-        sql = "INSERT INTO leftusers (id,name,joined) VALUES (%s,%s,%s)"
-        cursor.execute(sql,(userid,username,jointime))
-        cursor.execute(sql2)
-    mysqldb.commit()#commit
+    try:
+        with mysqldb.cursor() as cursor: #insert
+            sql2 = "DELETE FROM users where id = %s"
+            sql = "INSERT INTO leftusers (id,name,joined) VALUES (%s,%s,%s)"
+            cursor.execute(sql,(userid,username,jointime))
+            cursor.execute(sql2,(userid))
+        mysqldb.commit()#commit
+    except:
+        print("edit in leave")
 
 @client.event
 async def on_member_update(before,after):
@@ -130,10 +137,13 @@ async def on_member_update(before,after):
     if before.nick != after.nick:
         nicktime = int(time())
         userid = str(after.id)
-        with mysqldb.cursor() as cursor:
-            sql = "INSERT INTO nicknames ('id','time') VALUES (%s,%s)"
-            cursor.execute(sql,(userid,nicktime))
-        mysqldb.commit()
+        try:
+            with mysqldb.cursor() as cursor:
+                sql = "INSERT INTO nicknames ('id','time') VALUES (%s,%s)"
+                cursor.execute(sql,(userid,nicktime))
+            mysqldb.commit()
+        except:
+            print("error in nickname")
 
 @client.event
 async def on_ready():
