@@ -52,7 +52,7 @@ async def on_message(message):
                 sql2 = "INSERT INTO users ('id','name','joimtime','created') VALUES ({},{},{},{})".\
                 format(userentry['id'],userentry['name'],userentry['time'],userentry['created'])
                 cursor.execute(sql)
-            mysqldb.commit()
+        mysqldb.commit()
         await client.send_message(message.channel,"Done!")
 
     if message.author.id not in config.botids: #actual logging
@@ -147,11 +147,11 @@ async def on_member_update(before,after):
             "time" : int(time()),
             "id" : str(after.id)
         }
-    with mysqldb.cursor() as cursor:
-        sql = "INSERT INTO nicknames ('id','time') VALUES ({},{})".\
-        format(userentry['id'],userentry['time'])
-        cursor.execute(sql)
-    mysqldb.commit()
+        with mysqldb.cursor() as cursor:
+            sql = "INSERT INTO nicknames ('id','time') VALUES ({},{})".\
+            format(userentry['id'],userentry['time'])
+            cursor.execute(sql)
+        mysqldb.commit()
 
 @client.event
 async def on_ready():
