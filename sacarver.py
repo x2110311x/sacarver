@@ -67,8 +67,10 @@ async def on_message(message):
 	if message.server == server and message.author.id not in config.bannedcommmandusersids:
 
 		if message.content.startswith("$howmanymess") and staff in message.author.roles:
+			msg1 = await client.send_message(channel,"Generating image...\nThis may take some time")
 			imgname = "/bots/sacarver/images/" + str(int(time())) + ".png"
 			charts.messyesterday(imgname)
+			await client.delete_message(msg1)
 			await client.send_file(message.channel,imgname)
 
 		if message.content == "F" or message.content == "f":
