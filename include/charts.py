@@ -25,14 +25,14 @@ def messyesterday(imgname):
     endtime = int(datetime.combine(yesterday, datetime.max.time()).timestamp())
     starttime = int(datetime.combine(yesterday, datetime.min.time()).timestamp())
     with mysqldb.cursor() as cursor:
-    sql = "SELECT * FROM messages WHERE time >= %s AND time <= %s"
-    cursor.execute(sql,(starttime,endtime))
-    result = cursor.fetchall()
-    for row in result:
-        rowtime = datetime.fromtimestamp(int(row['time'])).hour
-        messagenum[hour] += 1
+        sql = "SELECT * FROM messages WHERE time >= %s AND time <= %s"
+        cursor.execute(sql,(starttime,endtime))
+        result = cursor.fetchall()
+        for row in result:
+            rowtime = datetime.fromtimestamp(int(row['time'])).hour
+            messagenum[hour] += 1
 
-    
+
 
     plt.plot(times, messagenum, color='black')
     plt.xticks(rotation=45)
