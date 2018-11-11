@@ -9,7 +9,7 @@ from threading import Timer
 import csv
 import string
 from google_images_download import google_images_download
-from include import hackerman, utilities, config, txtutils
+from include import hackerman, utilities, config, txtutils, charts
 
 #General variables for code execution
 starttime = time()
