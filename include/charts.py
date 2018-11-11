@@ -25,9 +25,8 @@ def messyesterday(imgname):
         starttime = yesterday + (3600 * (x - 1))
         endtime = yesterday + (3600 * x)
         with mysqld.cursor() as cursor:
-            sql = "SELECT count(*) FROM messages WHERE time BETWEEN %s AND %s"
-            cursor.execute(sql,(starttime,endtime))
-            count = cursor.fetchone()
+            sql = "SELECT count(*) FROM messages WHERE time >= %s AND time <= %s"
+            count = cursor.execute(sql,(starttime,endtime))
             messagenum.append(count)
 
     plt.plot(times, messagenum, color='black')
