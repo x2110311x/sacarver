@@ -49,7 +49,7 @@ async def on_message(message):
                 "created" : str(member.created_at)
             }
             with mysqldb.cursor() as cursor:
-                sql2 = "INSERT INTO users ('id','name','joimtime','created') VALUES ({},{},{},{})".format(userentry['id'],userentry['name'],userentry['time'],userentry['created'])
+                sql2 = "INSERT INTO users (id,name,jointime,created) VALUES ({},{},{},{})".format(userentry['id'],userentry['name'],userentry['time'],userentry['created'])
                 cursor.execute(sql)
         mysqldb.commit()
         await client.send_message(message.channel,"Done!")
@@ -63,7 +63,7 @@ async def on_message(message):
         }
 
         with mysqldb.cursor() as cursor: #insert record
-            sql = "INSERT INTO messages ('messageid','time','author','channel') VALUES ({},{},{},{})".format(messageentry['messageid'],messageentry['time'],messageentry['authorid'],messageentry['channel'])
+            sql = "INSERT INTO messages (messageid,time,author,channel) VALUES ({},{},{},{})".format(messageentry['messageid'],messageentry['time'],messageentry['authorid'],messageentry['channel'])
             cursor.execute(sql)
 
         mysqldb.commit() #commit
@@ -79,7 +79,7 @@ async def on_message_edit(before,after):
         }
 
         with mysqldb.cursor() as cursor: #insert
-            sql = "INSERT INTO edited ('messageid','time','author','channel') VALUES ({},{},{},{})".format(messageentry['messageid'],messageentry['time'],messageentry['authorid'],messageentry['channel'])
+            sql = "INSERT INTO edited (messageid,time,author,channel) VALUES ({},{},{},{})".format(messageentry['messageid'],messageentry['time'],messageentry['authorid'],messageentry['channel'])
             cursor.execute(sql)
 
         mysqldb.commit() #commit
@@ -95,7 +95,7 @@ async def on_message_delete(message):
         }
 
         with mysqldb.cursor() as cursor: #insert
-            sql = "INSERT INTO deleted ('messageid','time','author','channel') VALUES ({},{},{},{})".format(messageentry['messageid'],messageentry['time'],messageentry['authorid'],messageentry['channel'])
+            sql = "INSERT INTO deleted (messageid,time,author,channel) VALUES ({},{},{},{})".format(messageentry['messageid'],messageentry['time'],messageentry['authorid'],messageentry['channel'])
             cursor.execute(sql)
 
         mysqldb.commit()#commit
@@ -110,8 +110,8 @@ async def on_member_join(member):
     }
 
     with mysqldb.cursor() as cursor: #insert
-        sql = "INSERT INTO joinedusers ('id','name','joined') VALUES ({},{},{})".format(userentry['id'],userentry['name'],userentry['time'])
-        sql2 = "INSERT INTO users ('id','name','joimtime','created') VALUES ({},{},{},{})".format(userentry['id'],userentry['name'],userentry['time'],userentry['created'])
+        sql = "INSERT INTO joinedusers (id,name,joined) VALUES ({},{},{})".format(userentry['id'],userentry['name'],userentry['time'])
+        sql2 = "INSERT INTO users (id,name,jointime,created) VALUES ({},{},{},{})".format(userentry['id'],userentry['name'],userentry['time'],userentry['created'])
         cursor.execute(sql)
         cursor.execute(sql2)
     mysqldb.commit() #commit
@@ -125,7 +125,7 @@ async def on_member_remove(member):
     }
 
     with mysqldb.cursor() as cursor: #insert
-        sql = "INSERT INTO leftusers ('id','name','joined') VALUES ({},{},{})".format(userentry['id'],userentry['name'],userentry['time'])
+        sql = "INSERT INTO leftusers (id,name,left) VALUES ({},{},{})".format(userentry['id'],userentry['name'],userentry['time'])
         sql2 = "DELETE FROM users where id = {}".format(userentry["id"])
         cursor.execute(sql)
         cursor.execute(sql2)
