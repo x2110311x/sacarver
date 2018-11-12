@@ -41,7 +41,7 @@ def mymessyesterday(imgname,ID):
     endtime = int(datetime.combine(starttime, datetime.max.time()).timestamp())
     starttime = int(datetime.combine(starttime, datetime.min.time()).timestamp())
     with mysqldb.cursor() as cursor:
-        sql = "SELECT * FROM messages WHERE time >= %s AND time <= %s AND author %s"
+        sql = "SELECT * FROM messages WHERE time >= %s AND time <= %s AND author = %s"
         cursor.execute(sql,(starttime,endtime,ID))
         result = cursor.fetchall()
         for row in result:

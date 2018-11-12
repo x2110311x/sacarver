@@ -77,12 +77,10 @@ async def on_message(message):
 			msg1 = await client.send_message(channel,"Generating image...\nThis may take some time")
 			authorid = str(message.author.id)
 			imgname = "/bots/sacarver/images/" + str(int(time())) + authorid + ".png"
-			try:
-				charts.mymessyesterday(imgname,authorid)
-				await client.delete_message(msg1)
-				await client.send_file(message.channel,imgname)
-			except:
-				await client.send_message(message.channel,"error!")
+			charts.mymessyesterday(imgname,authorid)
+			await client.delete_message(msg1)
+			await client.send_file(message.channel,imgname)
+
 
 		if message.content == "F" or message.content == "f":
 			if channel == DE or channel == stafffun:
