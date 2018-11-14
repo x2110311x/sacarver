@@ -5,7 +5,7 @@ from time import sleep
 from include import config
 
 try:
-    mysqldb = pymysql.connect(host="149.28.49.5",
+    mysqldb = pymysql.connect(host="localhost",
                              user=config.mysqlcreds["username"],
                              password=config.mysqlcreds["password"],
                              db=config.mysqlcreds["database"],
@@ -215,7 +215,7 @@ weekdayboyos = [monday,tuesday,wednesday,thursday,friday,saturday,sunday]
 print("I'm about to execute the query")
 try:
     with mysqldb.cursor() as cursor:
-        sql = "SELECT time from messages"
+        sql = "SELECT time FROM messages WHERE time < 1542153600 "
         cursor.execute(sql)
         print("Query Executed...Grabbing Results")
         result = cursor.fetchall()
