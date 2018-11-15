@@ -229,7 +229,7 @@ try:
 
             if bigdateboy.date not in dates:
                 dates.append(bigdateboy.date)
-                daycount[dayofweekname] += 1
+                daycount[dayofweekname] += 1 
 
             weekdayboyos[dayofweek][hourboy] += 1
 

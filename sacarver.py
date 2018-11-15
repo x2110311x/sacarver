@@ -54,7 +54,7 @@ async def on_message(message):
 	stafffun = client.get_channel(config.channels['staffcasual'])
 	testchannel = client.get_channel(config.channels['testchannel'])
 	submittedsuggestions = client.get_channel(config.channels['submittedsuggestions'])
-	DE = client.get_channel(config.roles['DE'])
+	DE = client.get_channel(config.channels['dema-council'])
 
 	channel = message.channel
 
@@ -85,6 +85,23 @@ async def on_message(message):
 		if message.content == "F" or message.content == "f":
 			if channel == DE or channel == stafffun:
 				await client.send_message(channel,"Respect has been paid")
+
+		if message.content.lower() == "uwu" and channel == DE:
+			try:
+				await client.change_nickname(message.author,"Cancelled")
+			except:
+				pass
+
+			await client.send_message(channel,"{} has been cancelled.".format(message.author.mention))
+
+		if message.content.startswith("$cancel") and staff in message.author.roles:
+			canceluser = message.mentions[0]
+			try:
+				await client.change_nickname(canceluser,"Cancelled")
+			except:
+				pass
+			await client.send_message(channel,"{} has been cancelled.".format(canceluser.mention))
+
 
 		if message.content.startswith("$bigtext") and channel != hometown:
 			text = message.content[9:]
