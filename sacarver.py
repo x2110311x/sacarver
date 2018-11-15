@@ -87,20 +87,19 @@ async def on_message(message):
 				await client.send_message(channel,"Respect has been paid")
 
 		if message.content.lower() == "uwu" and channel == DE:
+			await client.send_message(channel,"{} has been cancelled.".format(message.author.mention))
 			try:
 				await client.change_nickname(message.author,"Cancelled")
 			except:
 				pass
 
-			await client.send_message(channel,"{} has been cancelled.".format(message.author.mention))
-
 		if message.content.startswith("$cancel") and staff in message.author.roles:
 			canceluser = message.mentions[0]
+			await client.send_message(channel,"{} has been cancelled.".format(canceluser.mention))
 			try:
 				await client.change_nickname(canceluser,"Cancelled")
 			except:
 				pass
-			await client.send_message(channel,"{} has been cancelled.".format(canceluser.mention))
 
 
 		if message.content.startswith("$bigtext") and channel != hometown:
@@ -270,8 +269,8 @@ async def on_message(message):
 
 		if message.content.startswith('$ban') and staff in message.author.roles:
 			banuser = message.mentions[0]
-			await client.change_nickname(banuser, "banned_user")
 			await client.send_message(message.channel,"{} has been banned".format(banuser.mention))
+			await client.change_nickname(banuser, "banned_user")
 
 		#8ball thing. Checks if user mentioned Sacarver, and if the message had a question mark
 		if message.content.startswith("$8ball"):
