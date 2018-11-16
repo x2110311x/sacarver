@@ -23,6 +23,7 @@ def gettotal(total,timetoquery):
         result = cursor.fetchone()
         total.value = int(result['count(*)'])
     print("Total Grabbed. Beginning processing")
+    thesqlboi.close()
 
 def calcavgs(arrWeekDay,strWeekday,Progresscounter,intTimeforquery,daycount,querydone):
     dates = []
@@ -46,6 +47,7 @@ def calcavgs(arrWeekDay,strWeekday,Progresscounter,intTimeforquery,daycount,quer
                 daycount += 1
             arrWeekDay[hourboy] += 1
             Progresscounter.value += 1
+    mysqldb.close()
 
 def progressbar(progresscounter,total,starttime,queriesdone):
     modulothing = int(total.value/1000)
@@ -118,14 +120,35 @@ if __name__ == "__main__":
     sundayproc.join()
     progresspoc.terminate()
 
+    print('\n')
     print("Done Processing. Inserting into DB")
+
+    thesqlboi = pymysql.connect(host="149.28.49.5",
+                             user=config.mysqlcreds["username"],
+                             password=config.mysqlcreds["password"],
+                             db=config.mysqlcreds["database"],
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
     with thesqlboi.cursor() as cursor:
-        sqlinsert = "INSERT INTO houraverages (dayhour,averagemsg,dayscounted) VALUES(%s,%s,%s,%s)"
-        for daything in weekdayboyos:
-            weekdayname = calendar.day_name[weekdayboyos.index(daything)].lower()
-            for hourdad in daything:
-                thisdaycount = daycount[weekdayboyos.index(daything)]
-                average = int(daything[hourdad] / thisdaycount)
-                dayhourid = weekdayname + str(hourdad)
-                cursor.execute(sqlinsert, (dayhourid,average,thisdaycount))
-                thesqlboi.commit()
+        with open('results.csv', mode='w') as resultscsv:
+            fieldnames = ['dayhour', 'averagemsg', 'dayscounted']
+            resultswriter = csv.DictWriter(resultscsv, fieldnames=fieldnames)
+            resultswriter.writeheader()
+            sqlinsert = "INSERT INTO houraverages (dayhour,averagemsg,dayscounted) VALUES(%s,%s,%s,%s)"
+
+            for daything in weekdayboyos:
+                weekdayname = calendar.day_name[weekdayboyos.index(daything)].lower()
+                for hourdad in daything:
+
+                    thisdaycount = daycount[weekdayboyos.index(daything)]
+                    average = int(daything[hourdad] / thisdaycount)
+                    dayhourid = weekdayname + str(hourdad)
+                    csventry = {
+                        "dayhour": dayhourid,
+                        "averagemsg":average,
+                        "dayscounted":thisdaycount
+                        }
+                    resultswriter.writerow(csventry)
+                    cursor.execute(sqlinsert, (dayhourid,average,thisdaycount))
+                    thesqlboi.commit()
+    print("Done!")
