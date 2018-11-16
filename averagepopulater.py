@@ -1,11 +1,11 @@
 import pymysql.cursors
 import datetime
 import calendar
-from time import sleep
+from time import time
 from include import config
 
 try:
-    mysqldb = pymysql.connect(host="localhost",
+    mysqldb = pymysql.connect(host="149.28.49.5",
                              user=config.mysqlcreds["username"],
                              password=config.mysqlcreds["password"],
                              db=config.mysqlcreds["database"],
@@ -211,7 +211,7 @@ sunday = {
 }
 weekdayboyos = [monday,tuesday,wednesday,thursday,friday,saturday,sunday]
 
-
+starttime = time()
 print("I'm about to execute the query")
 try:
     with mysqldb.cursor() as cursor:
@@ -219,7 +219,8 @@ try:
         cursor.execute(sql)
         print("Query Executed...Grabbing Results")
         result = cursor.fetchall()
-        print("Results Grabbed...Processing...")
+        querytime = time()
+        print("Results Grabbed... Took {}s. Processing...".format(int(querytime-starttime)))
 
         for row in result:
             bigdateboy = datetime.datetime.fromtimestamp(row['time'])
@@ -232,8 +233,8 @@ try:
                 daycount[dayofweekname] += 1
 
             weekdayboyos[dayofweek][hourboy] += 1
-
-        print("Done calculating...Inserting into database...")
+        calculatetime = time()
+        print("Done calculating...Took {}s Inserting into database...".format(int(calculatetime-querytime)))
         sqlinsert = "INSERT INTO houraverages (dayhour,averagemsg,dayscounted) VALUES(%s,%s,%s,%s)"
         for daything in weekdayboyos:
             weekdayname = calendar.day_name[weekdayboyos.index(daything)].lower()
@@ -243,7 +244,8 @@ try:
                 dayhourid = weekdayname + str(hourdad)
                 cursor.execute(sqlinsert, (dayhourid,average,thisdaycount))
                 mysqldb.commit()
-    print("Done!")
+    donetime = time()
+    print("Done! Insert took {}s. Full process took{}".format(int(donetime-calculatetime),int(donetime-starttime)))
 except Exception as e:
     print(e)
     print("Fail!")
