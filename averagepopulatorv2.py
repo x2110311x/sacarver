@@ -6,6 +6,7 @@ from time import time,sleep
 from include import config, utilities
 from progress.bar import Bar
 import sys
+import csv
 
 
 def gettotal(total,timetoquery):
