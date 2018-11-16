@@ -3,7 +3,7 @@ import pymysql.cursors
 import datetime
 import calendar
 from time import time,sleep
-from include import config
+from include import config, utilities
 from progress.bar import Bar
 import sys
 
@@ -49,16 +49,20 @@ def calcavgs(arrWeekDay,strWeekday,Progresscounter,intTimeforquery,daycount,quer
 
 def progressbar(progresscounter,total,starttime,queriesdone):
     modulothing = int(total.value/1000)
-    while(progresscounter.value < total.value):
-        if queriesdone.value >=7:
-            curtime = int(time())
-            elapsed = curtime - starttime
-            eta = (elapsed/total.value) * (total.value-progresscounter.value)
-            if (progresscounter.value % modulothing) == 0:
-                print("{} Completed. Elapsed: {}s. ETA: {}s".format(progresscounter.value,elapsed,eta))
+    while True:
+        curtime = int(time())
+        elapsed = curtime - starttime
+        elapsedstr = utilities.seconds_to_units(elapsed)
+        if progresscounter.value > 0:
+            eta = utilities.seconds_to_units(int((elapsed/progresscounter.value) * (total.value-progresscounter.value)))
         else:
-            print("Querying Database....{} Queries done".format(queriesdone.value))
-        sleep(5)
+            eta= "?"
+        status = "{} Completed. Elapsed: {}. ETA: {}".format(progresscounter.value,elapsedstr,eta)
+        sys.stdout.write("\b" * (len(status)+1))
+        sys.stdout.flush()
+        sys.stdout.write(status)
+        sys.stdout.flush()
+        sleep(1)
 
 if __name__ == "__main__":
 
@@ -112,7 +116,7 @@ if __name__ == "__main__":
     fridayproc.join()
     saturdayproc.join()
     sundayproc.join()
-    progresspoc.join()
+    progresspoc.terminate()
 
     print("Done Processing. Inserting into DB")
     with thesqlboi.cursor() as cursor:
