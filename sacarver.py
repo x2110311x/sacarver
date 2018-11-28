@@ -4,6 +4,7 @@ from time import time, sleep
 import datetime
 import random
 import os
+import unidecode
 import re
 from threading import Timer
 import csv
