@@ -89,7 +89,7 @@ async def on_message(message):
 
 		if message.content.lower().find("u") != -1 and channel == DE and message.content.lower().find("w") != 1:
 			uwumsg = message.content.lower()
-			uwumsg = str(unidecode.unidecode(uwumsg).encode('ascii'))
+			uwumsg = str(unidecode.unidecode(uwumsg))
 			uwumsg = uwumsg.replace(" ","")
 			uwumsg = uwumsg.replace(".","")
 			uwumsg = uwumsg.replace(",","")
