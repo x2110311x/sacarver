@@ -92,7 +92,7 @@ async def on_message(message):
 			uwumsg = uwumsg.replace(" ","")
 			uwumsg = uwumsg.replace(".","")
 			uwumsg = uwumsg.replace(",","")
-			uwumsg = unidecode.unidecode(uwumsg).encode('ascii')
+			uwumsg = str(unidecode.unidecode(uwumsg).encode('ascii'))
 			if uwumsg.find("uwu") != -1:
 				await client.send_message(channel,"{} has been cancelled.".format(message.author.mention))
 				try:
