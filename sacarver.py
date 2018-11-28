@@ -90,9 +90,8 @@ async def on_message(message):
 		if message.content.lower().find("w") != -1 and channel == DE:
 			uwumsg = message.content.lower()
 			uwumsg = str(unidecode.unidecode(uwumsg))
-			uwumsg = uwumsg.replace(" ","")
-			uwumsg = uwumsg.replace(".","")
-			uwumsg = uwumsg.replace(",","")
+			table = str.maketrans({key: None for key in string.punctuation})
+			uwumsg = uwumsg.translate(table)
 			if uwumsg.find("uwu") != -1:
 				await client.send_message(channel,"{} has been cancelled.".format(message.author.mention))
 				try:
