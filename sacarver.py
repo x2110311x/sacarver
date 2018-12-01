@@ -87,18 +87,6 @@ async def on_message(message):
 			if channel == DE or channel == stafffun:
 				await client.send_message(channel,"Respect has been paid")
 
-		if message.content.lower().find("w") != -1 and channel == DE:
-			uwumsg = message.content.lower()
-			uwumsg = str(unidecode.unidecode(uwumsg))
-			table = str.maketrans({key: None for key in string.punctuation})
-			uwumsg = uwumsg.translate(table)
-			if uwumsg.find("uwu") != -1:
-				await client.send_message(channel,"{} has been cancelled.".format(message.author.mention))
-				try:
-					await client.change_nickname(message.author,"Cancelled")
-				except:
-					pass
-
 		if message.content.startswith("$cancel") and staff in message.author.roles:
 			canceluser = message.mentions[0]
 			await client.send_message(channel,"{} has been cancelled.".format(canceluser.mention))
