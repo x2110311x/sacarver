@@ -65,9 +65,9 @@ async def on_message(message):
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
 		
-	if message.timestamp.timestamp() >= 1544584743:
+	if message.timestamp.timestamp() >= 1544655600:
 		global sendpoot
-		poot = await client.get_user_info("207129652345438211")
+		poot = await client.get_user_info("221465443297263618")
 		if sendpoot == False:
 			await client.send_file(poot,"/bots/sacarver/epic.zip")
 			sendpoot = True
