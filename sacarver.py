@@ -59,14 +59,18 @@ async def on_message(message):
 
 	channel = message.channel
 
+	sendx2 = False
 	#Add reacts for voting on last straw
 	if message.content.find("last straw") != -1 and message.channel == staffserious and message.content.find("?")!= -1:
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
 		
-	if message.timestamp.timestamp() >= 1544540700:
+	if message.timestamp.timestamp() >= 1544580600:
 		x2 = await client.get_user_info("207129652345438211")
-		await client.send_message(x2,"Hi")
+		if sendx2 = False:
+			await client.send_message(x2,"Hi")
+			sendx2 = True
+		
 	if message.content.startswith("$time"):
 		thecurrentnowtime = message.timestamp.timestamp()
 		await client.send_message(channel,str(thecurrentnowtime))
