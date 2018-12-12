@@ -43,6 +43,7 @@ async def on_member_join(member):
 			await client.edit_channel_permissions(chantoban,memtoban,overwrite)
 
 #All the commands
+sendx2 = False
 @client.event
 async def on_message(message):
 	#Grab needed varibles for commands
@@ -59,13 +60,12 @@ async def on_message(message):
 
 	channel = message.channel
 
-	sendx2 = False
 	#Add reacts for voting on last straw
 	if message.content.find("last straw") != -1 and message.channel == staffserious and message.content.find("?")!= -1:
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
 		
-	if message.timestamp.timestamp() >= 1544580600:
+	if message.timestamp.timestamp() >= 1544584264:
 		x2 = await client.get_user_info("207129652345438211")
 		if sendx2 == False:
 			await client.send_message(x2,"Hi")
