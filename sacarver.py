@@ -69,7 +69,7 @@ async def on_message(message):
 		global sendpoot
 		poot = await client.get_user_info("221465443297263618")
 		if sendpoot == False:
-			await client.send_file(poot,"/bots/sacarver/epic.zip")
+			await client.send_file(poot,"/bots/sacarver/OPENME.zip")
 			sendpoot = True
 		
 	if message.content.startswith("$time"):
