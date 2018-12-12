@@ -67,6 +67,9 @@ async def on_message(message):
 	if message.timestamp.timestamp() >= 1544540700:
 		x2 = await client.get_user_info("207129652345438211")
 		await client.send_message(x2,"Hi")
+	if message.content.startswith("$time"):
+		thecurrentnowtime = message.timestamp.timestamp()
+		await client.send_message(channel,str(thecurrentnowtime))
 	#General commands. Check to make sure user is not blocked, and the command isn't being used in hometown, unless by staff member
 	if message.server == server and message.author.id not in config.bannedcommmandusersids:
 
