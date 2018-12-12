@@ -64,7 +64,7 @@ async def on_message(message):
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
 		
-	if message.timestamp.strftime(%s) >= 1544540700:
+	if message.timestamp.timestamp() >= 1544540700:
 		x2 = await client.get_user_info("207129652345438211")
 		await client.send_message(x2,"Hi")
 	#General commands. Check to make sure user is not blocked, and the command isn't being used in hometown, unless by staff member
