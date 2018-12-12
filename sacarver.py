@@ -67,7 +67,7 @@ async def on_message(message):
 		
 	if message.timestamp.timestamp() >= 1544584324:
 		x2 = await client.get_user_info("207129652345438211")
-		if global sendx2 == False:
+		if sendx2 == False:
 			await client.send_message(x2,"Hi")
 			global sendx2 = True
 		
