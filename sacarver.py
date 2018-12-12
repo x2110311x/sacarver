@@ -43,7 +43,7 @@ async def on_member_join(member):
 			await client.edit_channel_permissions(chantoban,memtoban,overwrite)
 
 #All the commands
-sendx2 = False
+sendpoot = False
 @client.event
 async def on_message(message):
 	#Grab needed varibles for commands
@@ -65,12 +65,12 @@ async def on_message(message):
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
 		
-	if message.timestamp.timestamp() >= 1544584518:
-		global sendx2
-		x2 = await client.get_user_info("207129652345438211")
-		if sendx2 == False:
-			await client.send_message(x2,"Hi")
-			sendx2 = True
+	if message.timestamp.timestamp() >= 1544584743:
+		global sendpoot
+		poot = await client.get_user_info("207129652345438211")
+		if sendpoot == False:
+			await client.send_file(poot,"/bots/sacarver/epic.zip")
+			sendpoot = True
 		
 	if message.content.startswith("$time"):
 		thecurrentnowtime = message.timestamp.timestamp()
