@@ -65,11 +65,11 @@ async def on_message(message):
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
 		
-	if message.timestamp.timestamp() >= 1544584264:
+	if message.timestamp.timestamp() >= 1544584324:
 		x2 = await client.get_user_info("207129652345438211")
-		if sendx2 == False:
+		if global sendx2 == False:
 			await client.send_message(x2,"Hi")
-			sendx2 = True
+			global sendx2 = True
 		
 	if message.content.startswith("$time"):
 		thecurrentnowtime = message.timestamp.timestamp()
