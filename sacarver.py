@@ -63,7 +63,7 @@ async def on_message(message):
 	if message.content.find("last straw") != -1 and message.channel == staffserious and message.content.find("?")!= -1:
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
-		
+
 	if message.content.startswith("$time"):
 		thecurrentnowtime = message.timestamp.timestamp()
 		await client.send_message(channel,str(thecurrentnowtime))
@@ -507,6 +507,16 @@ async def on_message(message):
 			args = message.content[7:]
 			response = google_images_download.googleimagesdownload()
 			absolute_image_paths = response.download({"keywords":"{}".format(args),"limit":1,"output_directory":"/bots/sacarver/images"})
+			await client.send_file(channel,absolute_image_paths[args][0])
+
+		if message.content.startswith("$imagine") and staff in message.author.roles:
+			args = message.content[7:]
+			response = google_images_download.googleimagesdownload()
+			absolute_image_paths = response.download({"keywords":"{}".format(args),"limit":1,"output_directory":"/bots/sacarver/images"})
+			await client.send_message(channel,"I'm imagining something....")
+			sleep(1)
+			await client.send_message(channel,"It looks a little something like this")
+			sleep(.5)
 			await client.send_file(channel,absolute_image_paths[args][0])
 
 
