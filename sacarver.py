@@ -43,7 +43,6 @@ async def on_member_join(member):
 			await client.edit_channel_permissions(chantoban,memtoban,overwrite)
 
 #All the commands
-sendpoot = False
 @client.event
 async def on_message(message):
 	#Grab needed varibles for commands
@@ -64,13 +63,6 @@ async def on_message(message):
 	if message.content.find("last straw") != -1 and message.channel == staffserious and message.content.find("?")!= -1:
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
-		
-	if message.timestamp.timestamp() >= 1544655600:
-		global sendpoot
-		poot = await client.get_user_info("221465443297263618")
-		if sendpoot == False:
-			await client.send_file(poot,"/bots/sacarver/OPENME.zip")
-			sendpoot = True
 		
 	if message.content.startswith("$time"):
 		thecurrentnowtime = message.timestamp.timestamp()
