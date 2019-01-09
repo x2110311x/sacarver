@@ -63,7 +63,26 @@ async def on_message(message):
 	if message.content.find("last straw") != -1 and message.channel == staffserious and message.content.find("?")!= -1:
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
-
+	
+	if message.channel == DE and message.content.lower().find("crazy") = -1:
+		if message.author != client.user:
+			for x in range(0,1):
+				await client.send_message(DE,"crazy?")
+				sleep(1)
+				await client.send_message(DE,"I was crazy once")
+				sleep(1)
+				await client.send_message(DE,"They locked me in a room")
+				sleep(1)
+				await client.send_message(DE,"a rubber room")
+				sleep(1)
+				await client.send_message(DE,"A rubber room filled with rats")
+				sleep(1)
+				await client.send_message(DE,"and rats make me crazy")
+				sleep(1)
+				await client.send_message(DE,"rats?")
+				sleep(1)
+				await client.send_message(DE,"rats make me crazy")
+		
 	if message.content.startswith("$time"):
 		thecurrentnowtime = message.timestamp.timestamp()
 		await client.send_message(channel,str(thecurrentnowtime))
