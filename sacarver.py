@@ -64,7 +64,7 @@ async def on_message(message):
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
 	
-	if message.channel == DE and message.content.lower().find("crazy") == -1:
+	if message.channel == DE and message.content.lower().find("crazy") != -1:
 		if message.author != client.user:
 			for x in range(0,1):
 				await client.send_message(DE,"crazy?")
