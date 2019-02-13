@@ -59,11 +59,14 @@ async def on_message(message):
 
 	channel = message.channel
 
+	if message.author.id == "174330444211421185":
+		if message.author.nick.lower().find("joshler") != -1:
+			await client.add_reaction(message, "🤢")
 	#Add reacts for voting on last straw
 	if message.content.find("last straw") != -1 and message.channel == staffserious and message.content.find("?")!= -1:
 		await client.add_reaction(message, "⬆")
 		await client.add_reaction(message, "⬇")
-	
+
 	if message.content.startswith("$time"):
 		thecurrentnowtime = message.timestamp.timestamp()
 		await client.send_message(channel,str(thecurrentnowtime))
