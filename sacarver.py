@@ -272,7 +272,7 @@ async def on_message(message):
 			await client.send_message(message.channel,"{} has been banned".format(banuser.mention))
 			await client.change_nickname(banuser, "banned_user")
 
-		if message.content.lower().startswith('alexa') and message.content.lower().find("ban") and staff in message.author.roles:
+		if message.content.lower().startswith('hey siri') and message.content.lower().find("ban")!=-1 and staff in message.author.roles:
 			banuser = message.mentions[0]
 			await client.send_message(message.channel,"{} has been banned".format(banuser.mention))
 			await client.change_nickname(banuser, "banned_user")
