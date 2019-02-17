@@ -272,6 +272,11 @@ async def on_message(message):
 			await client.send_message(message.channel,"{} has been banned".format(banuser.mention))
 			await client.change_nickname(banuser, "banned_user")
 
+		if message.content.lower().startswith('alexa') and message.content.lower().find("ban") and staff in message.author.roles:
+			banuser = message.mentions[0]
+			await client.send_message(message.channel,"{} has been banned".format(banuser.mention))
+			await client.change_nickname(banuser, "banned_user")
+
 		#8ball thing. Checks if user mentioned Sacarver, and if the message had a question mark
 		if message.content.startswith("$8ball"):
 			if channel != hometown or staff in message.author.roles:
