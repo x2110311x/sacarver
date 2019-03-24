@@ -30,7 +30,7 @@ restartT = Timer(43200.0, restart)
 #update status and check for channel bans
 @client.event
 async def on_member_join(member):
-	server = client.get_server('269657133673349120')
+	server = client.get_server(config.serverid)
 	if memberstatus == True:
 		await client.change_presence(game=discord.Game(name='with {} members'.format(server.member_count)))
 	for dict in chanbandict:
@@ -531,7 +531,7 @@ async def on_message(message):
 #update status if it's member count and a player leaves
 @client.event
 async def on_member_remove(member):
-	server = client.get_server('config.serverid')
+	server = client.get_server(config.serverid)
 	if memberstatus == True:
 		await client.change_presence(game=discord.Game(name='with {} members'.format(server.member_count)))
 
