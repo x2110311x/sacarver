@@ -1,2 +1,6 @@
-#!/bin/bash
-sudo python3 /bots/sacarver/sacarver.py
+#! /bin/bash
+cd /bots/sacarver/
+source bin/activate
+cd bot
+python3 sacarver.py
+

@@ -1,4 +1,4 @@
 #exclude everything except directory foo/bar
 !/*
-config.py
+config.yml
 __pycache__/*
