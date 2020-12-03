@@ -117,7 +117,8 @@ async def on_ready():
 
     # Update Status #
     guild = bot.get_guild(config['server_ID'])
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game(f"with {guild.member_count - config['botCount']} members"))
+    memberStatus = discord.Activity(type=discord.ActivityType.watching, name=f"{guild.member_count - config['botCount']} members")
+    await bot.change_presence(status=discord.Status.online, activity=memberStatus)
 
 
 bot.run(config['discordToken'], bot=True, reconnect=True)

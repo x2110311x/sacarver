@@ -18,13 +18,15 @@ class JoinLeave(commands.Cog):
     async def on_member_join(self, member):
         # Update Status #
         guild = self.bot.get_guild(config['server_ID'])
-        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(f"with {guild.member_count - config['botCount']} members"))
+        memberStatus = discord.Activity(type=discord.ActivityType.watching, name=f"{guild.member_count - config['botCount']} members")
+        await self.bot.change_presence(status=discord.Status.online, activity=memberStatus)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         # Update Status #
         guild = self.bot.get_guild(config['server_ID'])
-        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(f"with {guild.member_count - config['botCount']} members"))
+        memberStatus = discord.Activity(type=discord.ActivityType.watching, name=f"{guild.member_count - config['botCount']} members")
+        await self.bot.change_presence(status=discord.Status.online, activity=memberStatus)
 
     @commands.check
     async def globally_block_dms(self, ctx):

@@ -101,7 +101,8 @@ class Staff(commands.Cog, name="Staff Commands"):
     async def status(self, ctx, *, statusmsg="Member count"):
         if statusmsg.lower() == "member count":
             guild = self.bot.get_guild(config['server_ID'])
-            await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(f"with {guild.member_count - config['botCount']} members"))
+            memberStatus = discord.Activity(type=discord.ActivityType.watching, name=f"{guild.member_count - config['botCount']} members")
+            await self.bot.change_presence(status=discord.Status.online, activity=memberStatus)
         else:
             await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(statusmsg))
 
