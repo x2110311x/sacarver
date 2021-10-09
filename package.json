@@ -1,0 +1,31 @@
+{
+  "name": "sacarver",
+  "version": "1.0.0",
+  "description": "Bot for twentyonepilots server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node .",
+    "deploy": "node deploy",
+    "remove": "node remove"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/x2110311x/sacarver.git"
+  },
+  "author": "x2110311x",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/x2110311x/sacarver/issues"
+  },
+  "homepage": "https://github.com/x2110311x/sacarver#readme",
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.22.0",
+    "discord.js": "^13.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.31.0"
+  }
+}
