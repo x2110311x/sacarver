@@ -11,4 +11,4 @@ It is not the main bot, but rather a little fun side bot.
 ## The Code
 
 Yes I know. It's messy. I'm working on cleaning it up. This repo is also out of date
-Also in case you can't tell, it's in python using discord.py
+Also in case you can't tell, it's in ~~python using discord.py~~ That's a lie. this branch is discord.js
