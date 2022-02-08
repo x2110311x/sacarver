@@ -24,7 +24,7 @@ module.exports = {
 				if (error) console.error(error);
 			}
 		})();
-		client.guilds.fetch(config.guildID, true).then(guild => {
+		client.guilds.fetch(config.guildID).then(guild => {
 			guild.members.fetch().then(() => {
 				console.log('Fetched all guild members');
 				client.user.setActivity(`${guild.memberCount} members`, { type: 'WATCHING' });

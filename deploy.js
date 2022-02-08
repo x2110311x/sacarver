@@ -1,28 +1,25 @@
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const { Client, Intents, Collection } = require('discord.js');
 const config = require('./config.json');
 const fs = require('fs');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
-client.commands = new Collection();
+const commands = [];
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
-	client.commands.set(command.name, command);
+	commands.push(command.data.toJSON());
 }
-const rest = new REST({ version: '9' }).setToken(config.token);
 
-// eslint-disable-next-line no-unused-vars
-const commands = client.commands.map(({ execute, ...data }) => data);
+const rest = new REST({ version: '9' }).setToken(config.token);
 
 (async () => {
 	try {
 		console.log('Started refreshing application (/) commands.');
 
 		await rest.put(
-			Routes.applicationCommands(config.clientID),
+			Routes.applicationGuildCommands(config.clientID, config.guildID),
 			{ body: commands },
 		);
 
