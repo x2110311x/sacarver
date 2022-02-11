@@ -1,0 +1,12 @@
+module.exports = {
+    builder: function (SlashCommandBuilder){
+        SlashCommandBuilder.addSubcommand(subcommand =>
+            subcommand
+                .setName('Command')
+                .setDescription('setDescription'))
+        return SlashCommandBuilder
+    },
+    execute: async function(interaction){
+        await interaction.reply("Command")
+    }
+}
