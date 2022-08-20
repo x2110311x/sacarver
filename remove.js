@@ -1,10 +1,14 @@
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const { Client, Intents, Collection } = require('discord.js');
+const { Client, IntentsBitField, Collection } = require('discord.js');
 const config = require('./config.json');
 const fs = require('fs');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const myIntents = new IntentsBitField();
+myIntents.add( IntentsBitField.Flags.GuildPresences, IntentsBitField.Flags.GuildMembers, 
+	IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages );
+
+const client = new Client({ intents: myIntents });
 client.commands = new Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));

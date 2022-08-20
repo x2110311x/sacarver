@@ -1,8 +1,12 @@
-const { Client, Collection, Intents } = require('discord.js');
+const { Client, Collection, IntentsBitField } = require('discord.js');
 const fs = require('fs');
 const config = require('./config.json');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS ] });
+const myIntents = new IntentsBitField();
+myIntents.add( IntentsBitField.Flags.GuildPresences, IntentsBitField.Flags.GuildMembers, 
+	IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages );
+
+const client = new Client({ intents: myIntents });
 client.commands = new Collection();
 client.commandData = [];
 client.roles = new Collection();
