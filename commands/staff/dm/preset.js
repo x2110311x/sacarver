@@ -14,7 +14,7 @@ module.exports = {
                         .setName('preset')
                         .setDescription('The DM preset to use')
                         .setRequired(true)
-                        .addChoice('aotw', 'aotw')))
+                        .addChoices({ name: 'aotw', value: 'aotw' })))
         return SlashCommandBuilder
     },
     execute: async function(interaction){
