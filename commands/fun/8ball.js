@@ -17,7 +17,6 @@ module.exports = {
     const preShake = new EmbedBuilder()
       .setColor(0xd5b052)
       .setTitle('Please wait while the 8-ball shakes')
-      .setDescription('...')
       .setImage('https://media4.giphy.com/media/3o6ozoD1ByqYv7ARIk/giphy.gif?cid=ecf05e47m06f3sb5stpb0adngxwkxf0c2n96lqx1mj5xldy6&rid=giphy.gif')
       .setFooter({ text: '© 2022 x2110311x', iconURL: 'https://cdn.discordapp.com/avatars/470691679712706570/42e790b8113e7f21422796db72d652f2.webp?size=1024' });
 
