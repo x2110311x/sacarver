@@ -4,7 +4,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const subcommands = new Collection();
 
-const funCommand = new SlashCommandBuilder()
+let funCommand = new SlashCommandBuilder()
                     .setName('fun')
                     .setDescription('Fun commands');
 
