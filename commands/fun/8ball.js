@@ -47,7 +47,7 @@ answerList = [
   "Signs point to yes",
   "Reply hazy, try again",
   "Better not tell you now",
-  "Don’t count on it",
+  "Don't count on it",
   "Hell no",
   "Concentrate and ask again",
   "My sources say no",
