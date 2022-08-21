@@ -27,13 +27,13 @@ module.exports = {
     let answer = answerList[Math.floor(Math.random() * answerList.length)];
 
     const postShake = new EmbedBuilder()
-    .setColor(0xd5b052)
-    .setTitle('My answer is')
-    .setDescription(answer)
-    .addFields(
-      { name: 'Your Question', value: question }
-    )
-    .setFooter({ text: '© 2022 x2110311x', iconURL: 'https://cdn.discordapp.com/avatars/470691679712706570/42e790b8113e7f21422796db72d652f2.webp?size=1024' });
+      .setColor(0xd5b052)
+      .setTitle('My answer is')
+      .setDescription(answer)
+      .addFields(
+        { name: 'Your Question', value: question }
+      )
+      .setFooter({ text: '© 2022 x2110311x', iconURL: 'https://cdn.discordapp.com/avatars/470691679712706570/42e790b8113e7f21422796db72d652f2.webp?size=1024' });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
     await interaction.editReply({ embeds: [postShake] });
