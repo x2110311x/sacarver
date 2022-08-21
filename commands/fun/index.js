@@ -2,9 +2,9 @@ const { Collection } = require('discord.js');
 const fs = require('fs');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-subcommands = new Collection();
+const subcommands = new Collection();
 
-funCommand = new SlashCommandBuilder()
+const funCommand = new SlashCommandBuilder()
                     .setName('fun')
                     .setDescription('Fun commands');
 
@@ -21,7 +21,6 @@ for (const file of subcommandFiles) {
         }
     }
 }
-
 module.exports = {
 	data: funCommand,
     async execute(interaction) {

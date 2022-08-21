@@ -2,9 +2,9 @@ const { Collection } = require('discord.js');
 const fs = require('fs');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-subcommands = new Collection();
+const subcommands = new Collection();
 
-staffCommand = new SlashCommandBuilder()
+const staffCommand = new SlashCommandBuilder()
                     .setName('staff')
                     .setDescription('Staff commands')
 
