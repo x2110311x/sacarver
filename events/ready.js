@@ -40,5 +40,6 @@ module.exports = {
 				console.log('Channel Collection populated');
 			});
 		});
+		client.startTime = new Date();
 	},
 };
