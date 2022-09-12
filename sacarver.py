@@ -23,13 +23,12 @@ from include import utilities
 from os import system
 from os.path import abspath
 
-
+whitelist = ['hominochionophobia']
 # General Variables #
 with open(abspath('./include/config.yml'), 'r') as configFile:
     config = yaml.safe_load(configFile)
-intents = discord.Intents.default()
-intents.members = True
-bot = commands.Bot(command_prefix=config['commandPrefix'], intents=intents)
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix=config['commandPrefix'], intents=intents, max_messages=5000)
 
 load_errors = []
 for extension in config['enabled_extensions']:  
@@ -37,6 +36,28 @@ for extension in config['enabled_extensions']:
     bot.load_extension(extension)
     '''except:
         load_errors.append(f"Unable to load {extension}")'''
+
+@bot.listen()
+async def on_message(message):
+    if len(message.mentions) >= 20 and message.channel.guild.get_role(config['staff_Role']) not in message.author.roles:
+        offender = message.author
+        await offender.send(f"You have been automatically banned for mentioning {len(message.mentions)} people. \nIf this was a mistake, please appeal at https://www.discordclique.com/appeals")
+        await offender.send("https://cdn.discordapp.com/emojis/648569239489216534.png")
+        await offender.ban()
+        staffChan = bot.get_channel(815016457669705778)
+        await staffChan.send(f"{offender.mention} has been automatically banned for mentioning {len(message.mentions)} people.")
+        await message.delete()
+    elif len(message.mentions) >= 10 and message.channel.guild.get_role(config['staff_Role']) not in message.author.roles:
+        offender = message.author
+        server = bot.get_guild(269657133673349120)
+        banditos = server.get_role(269660541738418176)
+        muted = server.get_role(278225702455738368)
+        await offender.remove_roles(banditos)
+        await offender.add_roles(muted)
+        await offender.send(f"You have been automatically muted for mentioning {len(message.mentions)} people. DM a staff member if you believe this to be a mistake.")
+        staffChan = bot.get_channel(815016457669705778)
+        await staffChan.send(f"{offender.mention} has been automatically muted for mentioning {len(message.mentions)} people.")
+        await message.delete()
 
 @bot.listen()
 async def on_command_error(ctx, error):
@@ -73,7 +94,7 @@ async def on_command_error(ctx, error):
             usedCommand = message
         foundCommand = None
         highestRatio = 0.0
-        if usedCommand != "apupdate" and usedCommand != "revert":
+        if usedCommand not in whitelist:
             for command in bot.commands:
                 commandName = command.name
                 comparison = SequenceMatcher(None, usedCommand, commandName)
@@ -81,18 +102,19 @@ async def on_command_error(ctx, error):
                     highestRatio = comparison.ratio()
                     foundCommand = command
             if foundCommand is not None:
-                embedUnknownCommand = discord.Embed(title=f"Unknown command: {config['commandPrefix']}{usedCommand}", colour=0x753543)
-                embedUnknownCommand.add_field(
-                    name=f"Did you mean to use ={config['commandPrefix']}{foundCommand.name}?", value=foundCommand.brief, inline=False)
-                if foundCommand.usage is None:
-                    cmdUsage = ""
-                else:
-                    cmdUsage = foundCommand.usage
-                embedUnknownCommand.add_field(
-                    name="Usage", value=f"{config['commandPrefix']}{foundCommand.name} {cmdUsage}", inline=False)
-                await ctx.send(embed=embedUnknownCommand)
+                if not usedCommand[0].isnumeric():
+                    embedUnknownCommand = discord.Embed(title=f"Unknown command: {config['commandPrefix']}{usedCommand}", colour=0x753543)
+                    embedUnknownCommand.add_field(
+                        name=f"Did you mean to use {config['commandPrefix']}{foundCommand.name}?", value=foundCommand.brief, inline=False)
+                    if foundCommand.usage is None:
+                        cmdUsage = ""
+                    else:
+                        cmdUsage = foundCommand.usage
+                    embedUnknownCommand.add_field(
+                        name="Usage", value=f"{config['commandPrefix']}{foundCommand.name} {cmdUsage}", inline=False)
+                    await ctx.send(embed=embedUnknownCommand)
     else:
-        await ctx.send(f"Unknown error occured. Please contact x2110311x \n{error}")
+        await ctx.send(f"Unknown error occured. Please contact x2110311x \n{type(error)} - {error}")
 
 
 @bot.check

@@ -2,6 +2,8 @@ import discord
 import time
 import yaml
 import asyncio
+import requests
+import io
 
 from datetime import datetime
 from discord.ext import commands
@@ -22,12 +24,18 @@ intStartTime = int(time.time())  # time the bot started at
 async def is_owner(ctx):
     return ctx.author.id == int(config['owner'])
 
+dmsesh = []
 
 class SaidNoError(Exception):
     pass
 
 class SaidCancelError(Exception):
     pass
+
+def commands_check():
+    async def predicate(ctx):
+        return ctx.message.channel.id in [470337593746259989, 480934371126280202, 940341308696965120] or ctx.guild.get_role(config['staff_Role']) in ctx.author.roles
+    return commands.check(predicate)
 
 
 class Utilities(commands.Cog, name="Utility Commands"):
@@ -36,11 +44,13 @@ class Utilities(commands.Cog, name="Utility Commands"):
         self._last_member = None
 
     @commands.command(brief=helpInfo['epoch']['brief'], usage=helpInfo['epoch']['usage'])
+    @commands_check()
     async def epoch(self, ctx):
         intCurEpoch = int(time.time())
         await ctx.send(f"The current epoch is {intCurEpoch}")
 
     @commands.command(brief=helpInfo['fromepoch']['brief'], usage=helpInfo['fromepoch']['usage'])
+    @commands_check()
     async def fromepoch(self, ctx, epoch: int):
         dateTime = datetime.utcfromtimestamp(epoch).strftime("%m/%d/%Y, %H:%M:%S") + " GMT"
         await ctx.send(f"{epoch} is {dateTime}")
@@ -110,6 +120,7 @@ class Utilities(commands.Cog, name="Utility Commands"):
                 return False
 
         await ctx.message.delete()
+        dmsesh.append(ctx.message.author)
         dmMsg = await ctx.send("Check your DMs")
         await author.send("You can say cancel at any time to cancel the report")
         await author.send("What is the name or ID of the user you want to report?")
@@ -149,6 +160,67 @@ class Utilities(commands.Cog, name="Utility Commands"):
             await author.send("Okay, you can send one again at any time")
         except asyncio.TimeoutError:
             await author.send("Timeout reached. Report cancelled!")
+        finally:
+            dmsesh.remove(ctx.message.author)
+
+    async def process_dms(self, message):
+        if message.author not in dmsesh:
+            server = self.bot.get_guild(269657133673349120)
+            staff = server.get_role(330877657132564480)
+            if type(message.channel) is discord.DMChannel and message.author.id != 470691679712706570:
+                author = message.author
+                user = message.author
+                def check(m):
+                    if m.author == author and m.channel == author.dm_channel:
+                        if m.content.lower() == 'yes':
+                            return True
+                        elif m.content.lower() == 'no':
+                            raise SaidNoError
+                        else:
+                            return False
+                    else:
+                        return False
+                try:
+                    await user.send("Would you like to send this message to staff?\nReply \"Yes\" or \"No\"")
+                    dmsesh.append(user)
+                    userMsg = await self.bot.wait_for('message', check=check, timeout=90)
+                    embedDM  = discord.Embed(colour=0x753543)
+                    embedDM.set_author(name=user.display_name, icon_url=user.avatar_url)
+                    embedDM.set_footer(text=message.author.id)
+
+                    if message.content == "":
+                        embedDM.add_field(name="New DM",value="*No text sent*")
+                    else:
+                        if len(message.content) > 1000:
+                            embedDM.add_field(name="New DM",value=message.content[:1000])
+                            embedDM.add_field(name="Message Cont.",value=message.content[1000:])
+                        else:
+                            embedDM.add_field(name="New DM",value=message.content)
+                        
+                    dmChan = self.bot.get_channel(785359408422060082)
+                    if len(message.attachments) > 0:
+                        files = []
+                        for x, attach in enumerate(message.attachments):
+                            imgEmbed = attach
+                            imgUrl = requests.get(imgEmbed.url)
+                            img = io.BytesIO(imgUrl.content)
+                            sendFile = discord.File(fp=img, filename=f"DM{x}.png")
+                            files.append(sendFile)
+                        await dmChan.send(files=files, embed=embedDM)
+                    else:
+                        await dmChan.send(embed=embedDM)
+                    await message.channel.send('Your message has been sent to staff.\nWe will review it and staff will respond back to you if necessary.\nThanks!')
+                except SaidNoError:
+                    await author.send("Message not sent")
+                except asyncio.TimeoutError:
+                    await author.send("Timeout reached. Message not sent.")
+                finally:
+                    dmsesh.remove(user)
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if type(message.channel) is discord.DMChannel and message.author.id != 470691679712706570:
+            await self.process_dms(message)
 
 
 def setup(bot):
