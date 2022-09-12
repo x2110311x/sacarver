@@ -1,0 +1,94 @@
+#***********************************
+# commands.yml
+# file for Tommy bot help command
+#***********************************
+---
+Staff:
+  say:
+    brief: "Say something using the bot"
+    usage: "[#channel] <text> \n Mention a channel to say in that channel. Omit it to say in the current channel"
+  ban:
+    brief: "\"Ban\" a user"
+    usage: "<user> \nMake sure to @ the user"
+  cancel:
+    brief: "Cancel a user"
+    usage: "<user> \nMake sure to @ the user"
+  userinfo:
+    brief: "Get information about a user"
+    usage: "<user> \nMake sure to @ the user"
+  status:
+    brief: "Set the bot status"
+    usage: "<text to status to>"
+  image:
+    brief: "Search for an image"
+    usage: "<search query>"
+  nobandito:
+    brief: "Get a list of users without bandito role"
+    usage: ""
+  raidmode:
+    brief: "Lockdown all channels besides The Campground. Disables images from Banditos in The Campground"
+    usage: 'Use "$raidmode" or "$raidmode on" to enable. Use "$raidmode off" to disable'
+  shutdown:
+    brief: "Lockdown all channels."
+    usage: 'Use "$shutdown" or "$shutdown on" to enable. Use "$shutdown off" to disable'
+
+Fun:
+  spooky:
+    brief: "IT'S SPOOKY TIME. YOU KNOW WHAT THAT MEANS"
+    usage: ""
+  festive:
+    brief: "IT'S HOLIDAY TIME. YOU KNOW WHAT THAT MEANS"
+    usage: ""
+  rate:
+    brief: "Have me rate something out of 10"
+    usage: "<object>"
+  magic8ball:
+    brief: "Just a magic 8 ball"
+    usage: ""
+  yt:
+    brief: "Search for a YouTube video"
+    usage: "<search Query> \nNOTE: this command is staff-only until I implement a filter"
+  bigtext:
+    brief: "Make your text real big"
+    usage: "<Text to make big>"
+  mock:
+    brief: "Mock a quote"
+    usage: "<quote to mock>"
+  hackerman:
+    brief: "Get a quote from hackerman"
+    usage: ""
+  color:
+    brief: "Visualize and get a color name from color code"
+    usage: "<color code>"
+  roll:
+    brief: "Roll a die"
+    usage: "<die sides>\nDefaults to 6, but you can enter any n number of sides"
+  
+
+Utilities:
+  ping:
+    brief: "Check if the bot is working"
+    usage: ""
+  uptime:
+    brief: "Check the bot uptime"
+    usage: ""
+  epoch:
+    brief: "Returns the current time in epoch format"
+    usage: ""
+  fromepoch:
+    brief: "Returns a datetime from specified epoch"
+    usage: "<epoch>"
+  reloadextensions:
+    brief: "[X2] Reload Bot Extensions"
+    usage: "Only x2 can do this"
+  update:
+    brief: "[X2] Update Bot Files"
+    usage: "Only x2 can do this"
+  restart:
+    brief: "[X2] Restart bot"
+    usage: "Only x2 can do this"
+  report:
+    brief: "Report a misbehaving user"
+    usage: "Bot will DM you"
+
+...
