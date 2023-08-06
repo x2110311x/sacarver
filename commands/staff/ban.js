@@ -3,14 +3,29 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('ban')
-                .setDescription('Ban a user that\'s not in the server')
-                .addIntegerOption(option =>
+                .setDescription('Ban a user')
+                .addUserOption(option =>
                     option.setName('user')
-                        .setDescription('The ID of the user to ban')
-                        .setRequired(true)));
+                        .setDescription('The user to ban, if they are in the server')
+                        .setRequired(false))
+                .addStringOption(option =>
+                    option.setName('userid')
+                        .setDescription('The ID of the user to ban, if they are not in the server')
+                        .setRequired(false)));
+                    
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Ban test");
+        let user = interaction.options.getUser('user');
+        if (user == null){
+            user = interaction.options.getString('userid');
+        }
+        let guild = interaction.guild;
+
+        console.log(user);
+        
+        await guild.bans.create(user).then(banInfo =>
+            interaction.reply(`Banned ${banInfo.user?.tag ?? banInfo.tag ?? banInfo}`)
+            );
     }
 };
