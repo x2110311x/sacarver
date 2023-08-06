@@ -8,7 +8,7 @@ module.exports = {
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
             subcommandGroup
                 .setName('time')
-                .setDescription('Time utilities/converters')
+                .setDescription('Time utilities/converters');
                 for (const file of subcommandFiles) {
                   if (file != 'index.js') {
                       try {
@@ -21,14 +21,14 @@ module.exports = {
                       }
                   }
               }
-                return subcommandGroup
-            })
+                return subcommandGroup;
+            });
 
-        return SlashCommandBuilder
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
       let subcommandName = interaction.options.getSubcommand() + '.js';
       let command = subcommands.get(subcommandName);
       await command.execute(interaction);
     }
-}
+};

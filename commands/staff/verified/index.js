@@ -6,16 +6,16 @@ module.exports = {
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
             subcommandGroup
                 .setName('verified')
-                .setDescription('Commands for verified theories')
+                .setDescription('Commands for verified theories');
                 
-                subcommandGroup = lock.builder(subcommandGroup)
-                subcommandGroup = warn.builder(subcommandGroup)
-                return subcommandGroup
-            })
+                subcommandGroup = lock.builder(subcommandGroup);
+                subcommandGroup = warn.builder(subcommandGroup);
+                return subcommandGroup;
+            });
 
-        return SlashCommandBuilder
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

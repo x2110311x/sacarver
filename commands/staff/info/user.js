@@ -7,10 +7,10 @@ module.exports = {
                 .addIntegerOption(option =>
                     option.setName('id')
                         .setDescription('The ID of the user to ban')
-                        .setRequired(true)))
-        return SlashCommandBuilder
+                        .setRequired(true)));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

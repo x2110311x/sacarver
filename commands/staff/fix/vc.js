@@ -3,10 +3,10 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('vc')
-                .setDescription('Fix vc role membership'))
-        return SlashCommandBuilder
+                .setDescription('Fix vc role membership'));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

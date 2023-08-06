@@ -10,13 +10,13 @@ module.exports = {
                 option
                     .setName("timestamp")
                     .setDescription("The Unix timestamp you want to convert")
-                    .setRequired(true)))
+                    .setRequired(true)));
 
-      return SlashCommandBuilder
+      return SlashCommandBuilder;
   },
   execute: async function(interaction){
     const epoch = interaction.options.getInteger('timestamp');
-    const epochDate = new Date(epoch)
+    const epochDate = new Date(epoch);
     const epochEmbed = new EmbedBuilder()
       .setColor(0xd5b052)
       .setTitle(`${epoch} as a human date is `)
@@ -24,4 +24,4 @@ module.exports = {
       .setFooter({ text: '© 2022 x2110311x', iconURL: 'https://cdn.discordapp.com/avatars/470691679712706570/42e790b8113e7f21422796db72d652f2.webp?size=1024' });
     await interaction.reply({embeds: [epochEmbed]});
   }
-}
+};

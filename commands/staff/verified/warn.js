@@ -3,10 +3,10 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('warn')
-                .setDescription('Send an off-topic warning to verified-theories'))
-        return SlashCommandBuilder
+                .setDescription('Send an off-topic warning to verified-theories'));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

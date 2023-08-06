@@ -31,7 +31,7 @@ module.exports = {
 			});
 			guild.roles.fetch().then(roles => {
 				client.roles = roles;
-			}).then(() => {
+			}).then(() => {	
 				console.log('Role Collection Populated');
 			});
 			guild.channels.fetch().then(channels => {

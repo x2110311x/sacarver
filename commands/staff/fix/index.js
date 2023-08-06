@@ -6,16 +6,16 @@ module.exports = {
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
             subcommandGroup
                 .setName('fix')
-                .setDescription('Fix role membership')
+                .setDescription('Fix role membership');
                 
-                subcommandGroup = banditos.builder(subcommandGroup)
-                subcommandGroup = vc.builder(subcommandGroup)
-                return subcommandGroup
-            })
+                subcommandGroup = banditos.builder(subcommandGroup);
+                subcommandGroup = vc.builder(subcommandGroup);
+                return subcommandGroup;
+            });
 
-        return SlashCommandBuilder
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

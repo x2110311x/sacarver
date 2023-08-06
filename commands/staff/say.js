@@ -12,10 +12,10 @@ module.exports = {
                 .addChannelOption(option =>
                     option
                         .setName('channel')
-                        .setDescription('The channel to send in. Defaults to current if not specified')))
-        return SlashCommandBuilder
+                        .setDescription('The channel to send in. Defaults to current if not specified')));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Ban test")
+        await interaction.reply("Ban test");
     }
-}
+};

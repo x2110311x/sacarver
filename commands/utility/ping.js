@@ -1,14 +1,12 @@
 const { EmbedBuilder } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
-
 
 module.exports = {
 	builder: function (SlashCommandBuilder){
 		SlashCommandBuilder.addSubcommand(subcommand =>
 				subcommand
 						.setName('ping')
-						.setDescription('Check the bot latency'))
-		return SlashCommandBuilder
+						.setDescription('Check the bot latency'));
+		return SlashCommandBuilder;
 	},
 	async execute(interaction) {
 		const before = interaction.createdAt.getTime();

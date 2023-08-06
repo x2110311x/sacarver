@@ -3,10 +3,10 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('lock')
-                .setDescription('Temporarily lockdown verified-theories'))
-        return SlashCommandBuilder
+                .setDescription('Temporarily lockdown verified-theories'));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

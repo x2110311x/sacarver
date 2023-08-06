@@ -6,7 +6,7 @@ const subcommands = new Collection();
 
 let staffCommand = new SlashCommandBuilder()
                     .setName('staff')
-                    .setDescription('Staff commands')
+                    .setDescription('Staff commands');
 
 const subcommandFiles = fs.readdirSync('./commands/staff').filter(file => file.endsWith('.js'));
 for (const file of subcommandFiles) {

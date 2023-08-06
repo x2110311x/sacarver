@@ -19,9 +19,9 @@ module.exports = {
                     option
                         .setName('status')
                         .setDescription('The status to set')
-                        .setRequired(true)))
+                        .setRequired(true)));
                 
-        return SlashCommandBuilder
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
         let type = interaction.options.getString('activity');
@@ -29,4 +29,4 @@ module.exports = {
         await interaction.client.user.setActivity(activity, { type: type });
         await interaction.reply({ content: 'Status set', ephemeral: true });
     }
-}
+};

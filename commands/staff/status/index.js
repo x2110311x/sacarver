@@ -6,14 +6,14 @@ module.exports = {
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
             subcommandGroup
                 .setName('status')
-                .setDescription('Set the bot status')
+                .setDescription('Set the bot status');
                 
-                subcommandGroup = custom.builder(subcommandGroup)
-                subcommandGroup = membercount.builder(subcommandGroup)
-                return subcommandGroup
-            })
+                subcommandGroup = custom.builder(subcommandGroup);
+                subcommandGroup = membercount.builder(subcommandGroup);
+                return subcommandGroup;
+            });
 
-        return SlashCommandBuilder
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
         if (interaction.options.getSubcommand() === 'custom') {
@@ -22,4 +22,4 @@ module.exports = {
             await membercount.execute(interaction);
         }
     }
-}
+};

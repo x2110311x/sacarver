@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const { EmbedBuilder, DiscordAPIError } = require('discord.js');
 
 module.exports = {
@@ -5,8 +6,8 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('spooky')
-                .setDescription('Get a spoooookkyy Halloween nickname!'))
-        return SlashCommandBuilder
+                .setDescription('Get a spoooookkyy Halloween nickname!'));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
         let month = new Date().getMonth();
@@ -46,7 +47,7 @@ module.exports = {
                 await interaction.reply({ embeds: [embedReply] });
             }
         } else {
-            await interaction.reply({ content: "Hold on there buckaroo! It's not October yet!!!", ephemeral: true})
+            await interaction.reply({ content: "Hold on there buckaroo! It's not October yet!!!", ephemeral: true});
         }
     }
-}
+};

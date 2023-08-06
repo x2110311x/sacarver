@@ -14,10 +14,10 @@ module.exports = {
                         .setName('preset')
                         .setDescription('The DM preset to use')
                         .setRequired(true)
-                        .addChoices({ name: 'aotw', value: 'aotw' })))
-        return SlashCommandBuilder
+                        .addChoices({ name: 'aotw', value: 'aotw' })));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

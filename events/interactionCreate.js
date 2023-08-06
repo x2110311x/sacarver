@@ -14,6 +14,7 @@ module.exports = {
 				await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 			} catch (err) {
 				console.error(err);
+				// eslint-disable-next-line no-undef
 				if (err instanceof InteractionAlreadyreplied) {
 					await interaction.editReply({ content: 'There was an error while executing this command!', ephemeral: true });
 				}

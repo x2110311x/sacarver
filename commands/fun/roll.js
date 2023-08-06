@@ -9,8 +9,8 @@ module.exports = {
                 .addIntegerOption(option => 
                     option
                         .setName("sides")
-                        .setDescription("How many sides should the die have. Defaults to 6")))
-        return SlashCommandBuilder
+                        .setDescription("How many sides should the die have. Defaults to 6")));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
         const preRoll = new EmbedBuilder()
@@ -32,4 +32,4 @@ module.exports = {
         await new Promise(resolve => setTimeout(resolve, 4000));
         await interaction.editReply({embeds: [postRoll]});
     }
-}
+};

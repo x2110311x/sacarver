@@ -10,8 +10,8 @@ module.exports = {
                     option
                         .setName("item")
                         .setDescription("The item you would like me to rate")
-                        .setRequired(true)))
-        return SlashCommandBuilder
+                        .setRequired(true)));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
         const preThink = new EmbedBuilder()
@@ -32,4 +32,4 @@ module.exports = {
         await new Promise(resolve => setTimeout(resolve, 2000));
         await interaction.editReply({embeds: [postThink]});
     }
-}
+};

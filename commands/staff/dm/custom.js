@@ -13,10 +13,10 @@ module.exports = {
                     option
                         .setName('text')
                         .setDescription('The text to say')
-                        .setRequired(true)))
-        return SlashCommandBuilder
+                        .setRequired(true)));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

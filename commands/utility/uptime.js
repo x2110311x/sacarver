@@ -5,8 +5,8 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('uptime')
-                .setDescription('Get the bots uptime since last restart.'))
-        return SlashCommandBuilder
+                .setDescription('Get the bots uptime since last restart.'));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
       var uptimeStr = getTimeDifference(interaction.client.startTime);
@@ -17,7 +17,7 @@ module.exports = {
         
         await interaction.reply({embeds: [uptime]});
     }
-}
+};
 
 function getTimeDifference(startTime){
   var start = startTime.getTime();

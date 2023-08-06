@@ -6,16 +6,16 @@ module.exports = {
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
             subcommandGroup
                 .setName('info')
-                .setDescription('Get information about objects')
+                .setDescription('Get information about objects');
                 
-                subcommandGroup = member.builder(subcommandGroup)
-                subcommandGroup = user.builder(subcommandGroup)
-                return subcommandGroup
-            })
+                subcommandGroup = member.builder(subcommandGroup);
+                subcommandGroup = user.builder(subcommandGroup);
+                return subcommandGroup;
+            });
 
-        return SlashCommandBuilder
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const { EmbedBuilder, DiscordAPIError } = require('discord.js');
 
 module.exports = {
@@ -5,8 +6,8 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('pride')
-                .setDescription('Get a fun LGBTQIA+ pride nickname!'))
-        return SlashCommandBuilder
+                .setDescription('Get a fun LGBTQIA+ pride nickname!'));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
         let member = interaction.member;
@@ -44,4 +45,4 @@ module.exports = {
             await interaction.reply({ embeds: [embedReply] });
         }
     }
-}
+};

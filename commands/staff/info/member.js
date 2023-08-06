@@ -7,10 +7,10 @@ module.exports = {
                 .addUserOption(option =>
                     option
                         .setName('member')
-                        .setDescription('The user to look up')))
-        return SlashCommandBuilder
+                        .setDescription('The user to look up')));
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

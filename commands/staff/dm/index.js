@@ -6,16 +6,16 @@ module.exports = {
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
             subcommandGroup
                 .setName('dm')
-                .setDescription('Commands to DM a user')
+                .setDescription('Commands to DM a user');
                 
-                subcommandGroup = custom.builder(subcommandGroup)
-                subcommandGroup = preset.builder(subcommandGroup)
-                return subcommandGroup
-            })
+                subcommandGroup = custom.builder(subcommandGroup);
+                subcommandGroup = preset.builder(subcommandGroup);
+                return subcommandGroup;
+            });
 
-        return SlashCommandBuilder
+        return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command")
+        await interaction.reply("Command");
     }
-}
+};

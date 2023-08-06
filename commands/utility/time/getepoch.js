@@ -5,8 +5,8 @@ module.exports = {
       SlashCommandBuilder.addSubcommand(subcommand =>
           subcommand
               .setName('getepoch')
-              .setDescription('Get the current Unix Epoch timestamp'))
-      return SlashCommandBuilder
+              .setDescription('Get the current Unix Epoch timestamp'));
+      return SlashCommandBuilder;
   },
   execute: async function(interaction){
       const now = Math.floor(new Date().getTime() / 1000);
@@ -17,4 +17,4 @@ module.exports = {
         .setFooter({ text: '© 2022 x2110311x', iconURL: 'https://cdn.discordapp.com/avatars/470691679712706570/42e790b8113e7f21422796db72d652f2.webp?size=1024' });
       await interaction.reply({embeds: [epoch]});
     }
-}
+};

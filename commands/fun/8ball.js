@@ -1,5 +1,21 @@
 const { EmbedBuilder } = require('discord.js');
 
+var answerList = [
+  "It is certain",
+  "Outlook good",
+  "You may rely on it",
+  "Without a doubt",
+  "Signs point to yes",
+  "Reply hazy, try again",
+  "Better not tell you now",
+  "Don't count on it",
+  "Hell no",
+  "Concentrate and ask again",
+  "My sources say no",
+  "My answer is no",
+  "Outlook not good"
+];
+
 module.exports = {
   builder: function (SlashCommandBuilder){
       SlashCommandBuilder.addSubcommand(subcommand =>
@@ -10,8 +26,8 @@ module.exports = {
                   option
                       .setName('question')
                       .setDescription('What would you like to ask Sacarver?')
-                      .setRequired(true)))
-      return SlashCommandBuilder
+                      .setRequired(true)));
+      return SlashCommandBuilder;
   },
   execute: async function(interaction){
     const preShake = new EmbedBuilder()
@@ -37,20 +53,4 @@ module.exports = {
     await new Promise(resolve => setTimeout(resolve, 3000));
     await interaction.editReply({ embeds: [postShake] });
   }
-}
-
-answerList = [
-  "It is certain",
-  "Outlook good",
-  "You may rely on it",
-  "Without a doubt",
-  "Signs point to yes",
-  "Reply hazy, try again",
-  "Better not tell you now",
-  "Don't count on it",
-  "Hell no",
-  "Concentrate and ask again",
-  "My sources say no",
-  "My answer is no",
-  "Outlook not good"
-]
+};
