@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  bot:
+    build: ./
+    restart: always
+    volumes:
+      - ./config.yml:/app/include/config.yml:ro
+  db:
+    image: mariadb:10.6.4-focal
+    command: '--default-authentication-plugin=mysql_native_password'
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database-dump.sql:/docker-entrypoint-initdb.d/datadump.sql
+    restart: always
