@@ -12,3 +12,6 @@ services:
       - db_data:/var/lib/mysql
       - ./database-dump.sql:/docker-entrypoint-initdb.d/datadump.sql
     restart: always
+
+volumes:
+  db_data:
