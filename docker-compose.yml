@@ -6,7 +6,7 @@ services:
     volumes:
       - ./config.yml:/app/include/config.yml:ro
   db:
-    image: mysql:8.0.34-1debian11
+    image: mysql:8.0.34-debian
     command: '--default-authentication-plugin=mysql_native_password'
     volumes:
       - db_data:/var/lib/mysql
