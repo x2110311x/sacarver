@@ -1,6 +1,6 @@
 #***********************************
 # commands.yml
-# file for Tommy bot help command
+# file for sacarver help command
 #***********************************
 ---
 Staff:
@@ -36,6 +36,9 @@ Fun:
   spooky:
     brief: "IT'S SPOOKY TIME. YOU KNOW WHAT THAT MEANS"
     usage: ""
+  festive:
+    brief: "IT'S HOLIDAY TIME. YOU KNOW WHAT THAT MEANS"
+    usage: ""
   rate:
     brief: "Have me rate something out of 10"
     usage: "<object>"
@@ -60,6 +63,9 @@ Fun:
   roll:
     brief: "Roll a die"
     usage: "<die sides>\nDefaults to 6, but you can enter any n number of sides"
+  pingroles:
+    brief: "Add or remove ping roles"
+    usage: ""
   
 
 Utilities:
