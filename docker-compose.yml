@@ -5,6 +5,8 @@ services:
     restart: always
     volumes:
       - ./config.yml:/app/include/config.yml:ro
+    depends_on:
+      - db
   db:
     image: mysql:8.0.34-debian
     command: '--default-authentication-plugin=mysql_native_password'
