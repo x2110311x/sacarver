@@ -73,6 +73,7 @@ class Utilities(commands.Cog, name="Utility Commands"):
             status = "down"
             msg="Lost\%20\connection\%20to\%20Discord"
         statusurl = f"{config['statusurl']}?status={status}&ping={ping}&msg={msg}"
+        print(statusurl)
         async with aiohttp.ClientSession() as session:
             await session.get(statusurl)
 
