@@ -4,9 +4,10 @@ import yaml
 import asyncio
 import requests
 import io
+import aiohttp
 
 from datetime import datetime
-from discord.ext import commands
+from discord.ext import commands, tasks
 from include import utilities
 from os import system
 from os.path import abspath
@@ -42,6 +43,41 @@ class Utilities(commands.Cog, name="Utility Commands"):
     def __init__(self, bot):
         self.bot = bot
         self._last_member = None
+
+    @commands.Cog.listener()
+    async def on_connect(self):
+        await self.update_status()
+
+    @commands.Cog.listener()
+    async def on_disconnect(self):
+        await self.update_status()
+        
+    @commands.Cog.listener()
+    async def on_resume(self):
+        await self.update_status()
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.update_status.start()
+        await self.update_status()
+
+    
+    @tasks.loop(seconds=40.0)
+    async def update_status(self):
+        ping = self.client.latency
+        connectionstatus = not (self.client.is_closed())
+        if connectionstatus:
+            status = "up"
+        else:
+            status = "down"
+        statusurl = f"{config['statusurl']}status={status}&ping={ping}"
+        async with aiohttp.ClientSession() as session:
+            await session.get(statusurl)
+
+    @update_status.before_loop
+    async def before_update_status(self):
+        print('waiting...')
+        await self.bot.wait_until_ready()
 
     @commands.command(brief=helpInfo['epoch']['brief'], usage=helpInfo['epoch']['usage'])
     @commands_check()
