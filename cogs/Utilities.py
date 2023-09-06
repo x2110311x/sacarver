@@ -64,7 +64,7 @@ class Utilities(commands.Cog, name="Utility Commands"):
     
     @tasks.loop(seconds=30.0)
     async def update_status(self):
-        ping = int(self.bot.latency)
+        ping = int(self.bot.latency) * 1000
         connectionstatus = not (self.bot.is_closed())
         if connectionstatus:
             status = "up"
