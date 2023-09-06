@@ -64,13 +64,15 @@ class Utilities(commands.Cog, name="Utility Commands"):
     
     @tasks.loop(seconds=30.0)
     async def update_status(self):
-        ping = self.bot.latency
+        ping = int(self.bot.latency)
         connectionstatus = not (self.bot.is_closed())
         if connectionstatus:
             status = "up"
+            msg = "OK"
         else:
             status = "down"
-        statusurl = f"{config['statusurl']}status={status}&ping={ping}"
+            msg="Lost\%20\connection\%20to\%20Discord"
+        statusurl = f"{config['statusurl']}?status={status}&ping={ping}&msg={msg}"
         async with aiohttp.ClientSession() as session:
             await session.get(statusurl)
 
