@@ -9,4 +9,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT [ "python3", "sacarver.py"]
+ENTRYPOINT [ "python3", "-u", "sacarver.py"]
