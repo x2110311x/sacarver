@@ -109,7 +109,7 @@ class AuditLogs(commands.Cog, name="Audits"):
         embed.add_field(name="User ID", value=member.id, inline=False)
         dateLeft = datetime.utcfromtimestamp(int(time.time())).strftime("%m/%d/%Y, %H:%M:%S") + " UTC"
         embed.add_field(name="Time", value=dateLeft, inline=False)
-        embed.set_footer(text="© 2022 x2110311x")
+        embed.set_footer(text="© 2023 x2110311x")
         await vcLog.send(embed=embed)
 
     @commands.Cog.listener()
@@ -165,7 +165,7 @@ class AuditLogs(commands.Cog, name="Audits"):
         embed=discord.Embed(title="Message Deleted", color=0x01b725)
         embed.add_field(name="Channel", value=f"<#{payload.channel_id}> - {payload.channel_id}", inline=False)
         embed.add_field(name="Message ID", value=payload.message_id, inline=False)
-        embed.set_footer(text="© 2022 x2110311x")
+        embed.set_footer(text="© 2023 x2110311x")
         if payload.cached_message is not None:
             msg = payload.cached_message
             embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
@@ -193,7 +193,7 @@ class AuditLogs(commands.Cog, name="Audits"):
             embed=discord.Embed(title="Message Deleted", color=0x01b725)
             embed.add_field(name="Channel", value=f"<#{payload.channel_id}> - {payload.channel_id}", inline=False)
             embed.add_field(name="Message ID", value=payload.message_id, inline=False)
-            embed.set_footer(text="© 2022 x2110311x")
+            embed.set_footer(text="© 2023 x2110311x")
             if payload.cached_message is not None:
                 msg = payload.cached_message
                 embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
@@ -214,7 +214,7 @@ class AuditLogs(commands.Cog, name="Audits"):
         channel = guild.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
         embed.add_field(name="New Message Text", value=msg.content, inline=False)
-        embed.set_footer(text="© 2022 x2110311x")
+        embed.set_footer(text="© 2023 x2110311x")
         if payload.cached_message is not None:
             oldmsg = payload.cached_message
             if oldmsg.author.bot:
@@ -247,7 +247,7 @@ class AuditLogs(commands.Cog, name="Audits"):
         embed=discord.Embed(title="Message Deleted", color=0x01b725)
         embed.add_field(name="Channel", value=f"<#{message.channel.id}> - {message.channel.id}", inline=False)
         embed.add_field(name="Message ID", value=message.id, inline=False)
-        embed.set_footer(text="© 2022 x2110311x")
+        embed.set_footer(text="© 2023 x2110311x")
         embed.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
         embed.add_field(name="User ID", value=message.author.id, inline=False)
         embed.add_field(name="Message Text", value=message.content, inline=False)
@@ -259,7 +259,7 @@ class AuditLogs(commands.Cog, name="Audits"):
         embed=discord.Embed(title="Message Deleted", color=0x01b725)
         embed.add_field(name="Channel", value=f"<#{channel_id}> - {channel_id}", inline=False)
         embed.add_field(name="Message ID", value=message_id, inline=False)
-        embed.set_footer(text="© 2022 x2110311x")
+        embed.set_footer(text="© 2023 x2110311x")
         embed.add_field(name="Message Text", value="*Message was not cached*", inline=False)
         embed.add_field(name="Time Deleted", value=datetime.now().strftime("%b %d, %Y - %I:%M:%S %P") + " UTC", inline=False)
         await deleteLog.send(embed=embed)

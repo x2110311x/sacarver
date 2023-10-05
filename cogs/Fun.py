@@ -78,8 +78,8 @@ class Fun(commands.Cog, name="Fun Commands"):
         mockpic = discord.File(abspath("./include/mock.jpg"))
         await ctx.send(txtutils.mock(mocktxt), file=mockpic)
     
-    #@commands.command(brief=helpInfo['spooky']['brief'], usage=helpInfo['spooky']['usage'])#
-    #@commands_check()
+    @commands.command(brief=helpInfo['spooky']['brief'], usage=helpInfo['spooky']['usage'])#
+    @commands_check()
     async def spooky(self, ctx):
         user = ctx.message.author
         nickname = user.display_name
@@ -88,7 +88,7 @@ class Fun(commands.Cog, name="Fun Commands"):
             spookyEm = discord.Embed(title="That's a long name you got there....",
                                       description = "Your nickname is too long! Discord won't let me make you spooky.\nChange your nickname and try again",
                                     colour=0xeb6123)  
-            spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+            spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
             await ctx.send(embed=spookyEm)
         else:
             if nickname.find("👻") != -1 and nickname.find("🎃") != -1:
@@ -104,7 +104,7 @@ class Fun(commands.Cog, name="Fun Commands"):
                         return False
                 spookyEm = discord.Embed(title="Aaah! You already look pretty spooky.",
                                         description = "Are you sure you want to become spookier?", colour=0xeb6123)  
-                spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                 await ctx.send(embed=spookyEm)
                 try:
                     await self.bot.wait_for('message', check=check, timeout=30)
@@ -112,13 +112,13 @@ class Fun(commands.Cog, name="Fun Commands"):
                         await user.edit(nick=newNick,reason="IT'S SPOOKY TIME")
                         spookyEm = discord.Embed(title="Boo!",
                                             description = f"You're lookin' pretty spooky there, {ctx.author.mention}", colour=0xeb6123)  
-                        spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                        spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                         spookyEm.set_author(name=newNick, icon_url=user.avatar_url)
                         await ctx.send(embed=spookyEm)
                     except Exception as e:
                         spookyEm = discord.Embed(title="Uh oh!",
                                             description = "I wasn't able to update your nickname!\nCopy the nickname above and set it manually", colour=0xeb6123)  
-                        spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                        spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                         spookyEm.set_author(name=newNick, icon_url=user.avatar_url)
                         await ctx.send(embed=spookyEm)
                         chanTest = self.bot.get_channel(config['testing_Channel'])
@@ -126,26 +126,26 @@ class Fun(commands.Cog, name="Fun Commands"):
                 except SaidNoError:
                     spookyEm = discord.Embed(title="That's fine.",
                                         description = "You can always do it later by running the command again", colour=0xeb6123)  
-                    spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                    spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                     await ctx.send(embed=spookyEm)
                 except asyncio.TimeoutError:
                     spookyEm = discord.Embed(title=f"Did I scare you away, {ctx.author.mention}?",
                                         description = "I didn't get a valid answer from you.\nYou can always do it later by running the command again",
                                         colour=0xeb6123)  
-                    spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                    spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                     await ctx.send(embed=spookyEm)
             else:
                 try:
                     await user.edit(nick=newNick,reason="IT'S SPOOKY TIME")
                     spookyEm = discord.Embed(title="Boo!",
                                         description = f"You're lookin' pretty spooky there, {ctx.author.mention}", colour=0xeb6123)  
-                    spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                    spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                     spookyEm.set_author(name=newNick, icon_url=user.avatar_url)
                     await ctx.send(embed=spookyEm)
                 except Exception as e:
                     spookyEm = discord.Embed(title="Uh oh!",
                                         description = "I wasn't able to update your nickname!\nCopy the nickname above and set it manually", colour=0xeb6123)  
-                    spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                    spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                     spookyEm.set_author(name=newNick, icon_url=user.avatar_url)
                     await ctx.send(embed=spookyEm)
                     chanTest = self.bot.get_channel(config['testing_Channel'])
@@ -163,7 +163,7 @@ class Fun(commands.Cog, name="Fun Commands"):
             spookyEm = discord.Embed(title="That's a long name you got there....",
                                       description = "Your nickname is too long! Discord won't let me make you festive.\nChange your nickname and try again",
                                     colour=0xeb6123)  
-            spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+            spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
             await ctx.send(embed=spookyEm)
         else:
             if nickname.find("🎁") != -1 and nickname.find("⛄") != -1:
@@ -179,7 +179,7 @@ class Fun(commands.Cog, name="Fun Commands"):
                         return False
                 spookyEm = discord.Embed(title="Ho Ho Ho! You already look pretty festive.",
                                         description = "Are you sure you want to become more festive?", colour=0xeb6123)  
-                spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                 await ctx.send(embed=spookyEm)
                 try:
                     await self.bot.wait_for('message', check=check, timeout=30)
@@ -187,13 +187,13 @@ class Fun(commands.Cog, name="Fun Commands"):
                         await user.edit(nick=newNick,reason="IT'S FESTIVE TIME")
                         spookyEm = discord.Embed(title="Ho Ho Ho *jingle sounds*!",
                                             description = f"You're lookin' pretty festive there, {ctx.author.mention}", colour=0xeb6123)  
-                        spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                        spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                         spookyEm.set_author(name=newNick, icon_url=user.avatar_url)
                         await ctx.send(embed=spookyEm)
                     except Exception as e:
                         spookyEm = discord.Embed(title="Uh oh!",
                                             description = "I wasn't able to update your nickname!\nCopy the nickname above and set it manually", colour=0xeb6123)  
-                        spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                        spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                         spookyEm.set_author(name=newNick, icon_url=user.avatar_url)
                         await ctx.send(embed=spookyEm)
                         chanTest = self.bot.get_channel(config['testing_Channel'])
@@ -201,26 +201,26 @@ class Fun(commands.Cog, name="Fun Commands"):
                 except SaidNoError:
                     spookyEm = discord.Embed(title="That's fine.",
                                         description = "You can always do it later by running the command again", colour=0xeb6123)  
-                    spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                    spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                     await ctx.send(embed=spookyEm)
                 except asyncio.TimeoutError:
                     spookyEm = discord.Embed(title=f"Did you freeze?, {ctx.author.mention}?",
                                         description = "I didn't get a valid answer from you.\nYou can always do it later by running the command again",
                                         colour=0xeb6123)  
-                    spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                    spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                     await ctx.send(embed=spookyEm)
             else:
                 try:
                     await user.edit(nick=newNick,reason="IT'S FESTIVE TIME")
                     spookyEm = discord.Embed(title="Ho Ho Ho!",
                                         description = f"You're lookin' pretty festive there, {ctx.author.mention}", colour=0xeb6123)  
-                    spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                    spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                     spookyEm.set_author(name=newNick, icon_url=user.avatar_url)
                     await ctx.send(embed=spookyEm)
                 except Exception as e:
                     spookyEm = discord.Embed(title="Uh oh!",
                                         description = "I wasn't able to update your nickname!\nCopy the nickname above and set it manually", colour=0xeb6123)  
-                    spookyEm.set_footer(text="Sacarver © 2022 x2110311x", icon_url=self.bot.user.avatar_url)
+                    spookyEm.set_footer(text="Sacarver © 2023 x2110311x", icon_url=self.bot.user.avatar_url)
                     spookyEm.set_author(name=newNick, icon_url=user.avatar_url)
                     await ctx.send(embed=spookyEm)
                     chanTest = self.bot.get_channel(config['testing_Channel'])
