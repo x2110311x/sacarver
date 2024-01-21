@@ -126,15 +126,6 @@ class AuditLogs(commands.Cog, name="Audits"):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if after.id == 192878484048183296:
-            if before.status != after.status:
-                async with aiohttp.ClientSession() as session:
-                    timestamp = int(time.time())
-                    dTimestamp = f"<t:{timestamp}:F"
-                    webhook = discord.Webhook.from_url('https://discord.com/api/webhooks/1007086094967394364/TDd-I0ji0ik8Ta6HsIeQqNfWyhtBl-AMBOH9c4WpXP_b7uioEQkPRXkEsNkdaUlvrA00', adapter=discord.AsyncWebhookAdapter(session))
-                    e = discord.Embed(title="Carlo status change detected", description=f"Status changed from {before.status} to {after.status}", color=0x5a1b85)
-                    e.set_thumbnail(url=get_gif())
-                    await webhook.send(embed=e)
         if before.nick != after.nick:
             nicknameChanged = False
             if after.nick is not None:
