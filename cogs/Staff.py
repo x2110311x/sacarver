@@ -901,6 +901,10 @@ Thanks!"""
                     return 0
                 if link.lower().find("discord.com") != -1:
                     return 0
+                if link.lower.find("reddit.com") != -1:
+                    return 0
+                if link.lower().find("discordclique.com") != -1:
+                    return 0
                 if link.lower().find("discordapp.net") != -1:
                     return 0
                 if link.lower().find("discordapp.com") != -1:
