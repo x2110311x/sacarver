@@ -903,7 +903,6 @@ Thanks!"""
                     return 0
                 if link.lower().find("reddit.com") != -1:
                     return 0
-                if link.lower().find("discordclique.com") != -1:
                     return 0
                 if link.lower().find("discordapp.net") != -1:
                     return 0
@@ -993,7 +992,7 @@ Thanks!"""
                     mention.display_name.lower().find("no ping") != -1 or \
                     mention.display_name.lower().find("no @") != -1 or \
                     mention.display_name.lower().find("no@") != -1:
-                    await message.reply(mention_author=False, delete_after=20.0,content="https://tenor.com/view/no-ping-rancord-dont-ping-how-to-not-ping-discord-gif-24642287")
+                    await message.reply(mention_author=False, delete_after=20.0,content="https://tenor.com/view/discord-reply-discord-reply-off-discord-reply-gif-22150762")
 
     async def process_live_link(self, message):
         server = self.bot.get_guild(269657133673349120)
