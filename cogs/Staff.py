@@ -408,19 +408,24 @@ class Staff(commands.Cog, name="Staff Commands"):
                         return False
                 else:
                     return False
-        try:
-            await ctx.send(f"Your message contains a user or role ping. Are you sure you wish to ping?")
-            await self.bot.wait_for('message', check=check, timeout=30)
-            await channel.send(textToSay)
+            try:
+                await ctx.send(f"Your message contains a user or role ping. Are you sure you wish to ping?")
+                await self.bot.wait_for('message', check=check, timeout=30)
+                await channel.send(textToSay)
 
-            await ctx.send("Sent")
-        except SaidNoError:
+                await ctx.send("Sent")
+            except SaidNoError:
+                textToSay = discord.utils.escape_mentions(textToSay)
+                await channel.send(textToSay)
+                await ctx.send("Sent without ping")
+
+            except asyncio.TimeoutError:
+                await ctx.send("Timeout reached. Try again later")
+        else:
             textToSay = discord.utils.escape_mentions(textToSay)
             await channel.send(textToSay)
-            await ctx.send("Sent without ping")
+            await ctx.send("Sent")
 
-        except asyncio.TimeoutError:
-            await ctx.send("Timeout reached. Try again later")
 
     @commands.command()
     @commands.has_role(config['staff_Role'])
