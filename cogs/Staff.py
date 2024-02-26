@@ -397,11 +397,30 @@ class Staff(commands.Cog, name="Staff Commands"):
     @commands.command(brief=helpInfo['say']['brief'], usage=helpInfo['say']['usage'])
     @commands.has_role(config['staff_Role'])
     async def say(self, ctx, channel: discord.TextChannel = None, *, textToSay):
+        if re.search('<@&?[0-9]{15,32}>',textToSay):
+            def check(m):
+                if m.author == ctx.message.author and m.channel == ctx.message.channel:
+                    if m.content.lower() == 'yes':
+                        return True
+                    elif m.content.lower() == 'no':
+                        raise SaidNoError
+                    else:
+                        return False
+                else:
+                    return False
         try:
+            await ctx.send(f"Your message contains a user or role ping. Are you sure you wish to ping?")
+            await self.bot.wait_for('message', check=check, timeout=30)
+            await channel.send(textToSay)
+
+            await ctx.send("Sent")
+        except SaidNoError:
             textToSay = discord.utils.escape_mentions(textToSay)
             await channel.send(textToSay)
-        except:
-            await ctx.send("Unable to send message")
+            await ctx.send("Sent without ping")
+
+        except asyncio.TimeoutError:
+            await ctx.send("Timeout reached. Try again later")
 
     @commands.command()
     @commands.has_role(config['staff_Role'])
