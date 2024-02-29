@@ -171,15 +171,7 @@ class AuditLogs(commands.Cog, name="Audits"):
     async def on_raw_message_delete(self, payload):
         guild = self.bot.get_guild(config['server_ID'])
         deleteLog = guild.get_channel(config['delete-log'])
-        pkLog = guild.get_channel(config['pk-log'])
         log = True
-        async for message in pkLog.history(limit=5, after=discord.Object(payload.message_id)):
-            try:
-
-                if message.embeds[0].footer.text.find(f"Original Message ID: {payload.message_id}") != -1:
-                    log = False
-            except TypeError:
-                pass
         if log:
             embed=discord.Embed(title="Message Deleted", color=0x01b725)
             embed.add_field(name="Channel", value=f"<#{payload.channel_id}> - {payload.channel_id}", inline=False)
