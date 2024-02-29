@@ -105,8 +105,6 @@ class AuditLogs(commands.Cog, name="Audits"):
             embed.add_field(name="Old Channel Name", value=before.channel.name, inline=False)
             embed.add_field(name="New Channel ID", value=after.channel.id, inline=False)
             embed.add_field(name="New Channel Name", value=after.channel.name, inline=False)
-        else:
-            embed=discord.Embed(title="VC Status change", color=0x01b725)
         embed.set_author(name=member.display_name, icon_url=member.avatar_url)
         embed.add_field(name="User ID", value=member.id, inline=False)
         dateLeft = datetime.utcfromtimestamp(int(time.time())).strftime("%m/%d/%Y, %H:%M:%S") + " UTC"
