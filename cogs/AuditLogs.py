@@ -83,7 +83,7 @@ class AuditLogs(commands.Cog, name="Audits"):
     async def on_voice_state_update(self, member, before, after):
         guild = self.bot.get_guild(config['server_ID'])
         vcLog = guild.get_channel(config['vc-log'])
-        vc = guild.channel.guild.get_role(465268535543988224)
+        vc = guild.get_role(465268535543988224)
 
         if before.channel is None and after.channel is not None:
             embed=discord.Embed(title="User Joined VC", color=0x01b725)
