@@ -90,7 +90,7 @@ class SAI(commands.Cog, name="Clancy Era Commands"):
         if len(ctx.message.attachments) > 0:
             received = requests.get(ctx.message.attachments[0].url)
             try:
-                image_stream = Image.open(io.BytesIO(received.content))
+                image_stream = io.BytesIO(received.content)
                 image = np.frombuffer(image_stream.read(), np.uint8)
                 image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
@@ -136,7 +136,9 @@ class SAI(commands.Cog, name="Clancy Era Commands"):
 
                 # Convert to bytes
                 img_bytes = img_encoded.tobytes()
-                sendFile = discord.File(fp=img_bytes, filename="taped.jpg")
+                imgByteArr = io.BytesIO(img_bytes)
+                imgByteArr.seek(0)
+                sendFile = discord.File(fp=imgByteArr, filename="taped.jpg")
                 await ctx.send(file=sendFile)
             except Exception as e:
                 await ctx.send("I'm having some trouble generating the image")
