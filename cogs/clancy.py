@@ -138,8 +138,10 @@ class SAI(commands.Cog, name="Clancy Era Commands"):
                 img_bytes = img_encoded.tobytes()
                 sendFile = discord.File(fp=img_bytes, filename="taped.jpg")
                 await ctx.send(file=sendFile)
-            except:
+            except Exception as e:
                 await ctx.send("I'm having some trouble generating the image")
+                print(type(e))
+                print(e)
         else:
             await ctx.send("Please send an image!")
 
