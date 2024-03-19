@@ -927,6 +927,11 @@ Thanks!"""
                     return 0
                 if link.lower().find("reddit.com") != -1:
                     return 0
+                if link.lower().find("x.com") != -1:
+                    return 0
+                if link.lower().find("discordclique.com") != -1:
+                    return 0
+                if link.lower().find("twentyonepilots.wiki") != -1:
                     return 0
                 if link.lower().find("discordapp.net") != -1:
                     return 0
@@ -941,6 +946,8 @@ Thanks!"""
                 if link.lower().find("discordstatus.com") != -1:
                     return 0
                 if link.lower().find("twitter.com") != -1:
+                    return 0
+                if link.lower().find("clique") != -1:
                     return 0
 
                 if link.lower().find("attachment") != -1:
