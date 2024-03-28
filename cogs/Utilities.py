@@ -103,7 +103,7 @@ class Utilities(commands.Cog, name="Utility Commands"):
         for extension in config['enabled_extensions']:  
             try:
                 extension = f"cogs.{extension}"
-                bot.reload_extension(extension)
+                self.bot.reload_extension(extension)
             except:
                 load_errors.append(f"Unable to load {extension}")
             finally:

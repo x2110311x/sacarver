@@ -83,7 +83,7 @@ class AuditLogs(commands.Cog, name="Audits"):
     async def on_voice_state_update(self, member, before, after):
         guild = self.bot.get_guild(config['server_ID'])
         vcLog = guild.get_channel(config['vc-log'])
-        vc = guild.channel.guild.get_role(465268535543988224)
+        vc = guild.get_role(465268535543988224)
 
         if before.channel is None and after.channel is not None:
             embed=discord.Embed(title="User Joined VC", color=0x01b725)
@@ -126,15 +126,6 @@ class AuditLogs(commands.Cog, name="Audits"):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if after.id == 192878484048183296:
-            if before.status != after.status:
-                async with aiohttp.ClientSession() as session:
-                    timestamp = int(time.time())
-                    dTimestamp = f"<t:{timestamp}:F"
-                    webhook = discord.Webhook.from_url('https://discord.com/api/webhooks/1007086094967394364/TDd-I0ji0ik8Ta6HsIeQqNfWyhtBl-AMBOH9c4WpXP_b7uioEQkPRXkEsNkdaUlvrA00', adapter=discord.AsyncWebhookAdapter(session))
-                    e = discord.Embed(title="Carlo status change detected", description=f"Status changed from {before.status} to {after.status}", color=0x5a1b85)
-                    e.set_thumbnail(url=get_gif())
-                    await webhook.send(embed=e)
         if before.nick != after.nick:
             nicknameChanged = False
             if after.nick is not None:
@@ -180,15 +171,7 @@ class AuditLogs(commands.Cog, name="Audits"):
     async def on_raw_message_delete(self, payload):
         guild = self.bot.get_guild(config['server_ID'])
         deleteLog = guild.get_channel(config['delete-log'])
-        pkLog = guild.get_channel(config['pk-log'])
         log = True
-        async for message in pkLog.history(limit=5, after=discord.Object(payload.message_id)):
-            try:
-
-                if message.embeds[0].footer.text.find(f"Original Message ID: {payload.message_id}") != -1:
-                    log = False
-            except TypeError:
-                pass
         if log:
             embed=discord.Embed(title="Message Deleted", color=0x01b725)
             embed.add_field(name="Channel", value=f"<#{payload.channel_id}> - {payload.channel_id}", inline=False)

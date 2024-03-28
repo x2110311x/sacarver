@@ -132,7 +132,7 @@ async def on_ready():
     print("Logged in")
 
     # Message Testing Channel #
-    chanTest = bot.get_channel(config['testing_Channel'])
+    chanTest = await bot.fetch_channel(config['testing_Channel'])
     await chanTest.send("Bot has started")
     for error in load_errors:
         await chanTest.send(error)

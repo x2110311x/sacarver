@@ -36,13 +36,13 @@ ascii_letters += '.'
 
 shutdownChans = [470330055063633920,470330688235765770,470330491816509449,470380663682367488,487830419149029376,
             700107557766692864,470425013770649600,470451678294835200,641087479293935642,470331336511717376,
-            470435985788764179,478970958615412746,940341308696965120,470421876976517141,470335358970757145,
+            470435985788764179,478970958615412746,940341308696965120,470421876976517141,940390987841302598,
             470335381766668288,470434533884297216,470335772084666389,693592071012876349,470335805697556480,
             470337020431171595,470714580935639041,536828256247218176,500492908122865664,470339161967165440,
             689322666234216456,689548218828455967]
 
 raidmodeChans = [700107557766692864,470425013770649600,470451678294835200,641087479293935642,470331336511717376,
-            470435985788764179,478970958615412746,940341308696965120,470421876976517141,470335358970757145,
+            470435985788764179,478970958615412746,940341308696965120,470421876976517141,940390987841302598,
             470335381766668288,470434533884297216,470335772084666389,693592071012876349,470335805697556480,
             470337020431171595,470714580935639041,536828256247218176,500492908122865664,470339161967165440,
             689322666234216456,689548218828455967]
@@ -413,11 +413,35 @@ class Staff(commands.Cog, name="Staff Commands"):
     @commands.command(brief=helpInfo['say']['brief'], usage=helpInfo['say']['usage'])
     @commands.has_role(config['staff_Role'])
     async def say(self, ctx, channel: discord.TextChannel = None, *, textToSay):
-        try:
+        if re.search('<@&?[0-9]{15,32}>',textToSay):
+            def check(m):
+                if m.author == ctx.message.author and m.channel == ctx.message.channel:
+                    if m.content.lower() == 'yes':
+                        return True
+                    elif m.content.lower() == 'no':
+                        raise SaidNoError
+                    else:
+                        return False
+                else:
+                    return False
+            try:
+                await ctx.send(f"Your message contains a user or role ping. Are you sure you wish to ping?")
+                await self.bot.wait_for('message', check=check, timeout=30)
+                await channel.send(textToSay)
+
+                await ctx.send("Sent")
+            except SaidNoError:
+                textToSay = discord.utils.escape_mentions(textToSay)
+                await channel.send(textToSay)
+                await ctx.send("Sent without ping")
+
+            except asyncio.TimeoutError:
+                await ctx.send("Timeout reached. Try again later")
+        else:
             textToSay = discord.utils.escape_mentions(textToSay)
             await channel.send(textToSay)
-        except:
-            await ctx.send("Unable to send message")
+            await ctx.send("Sent")
+
 
     @commands.command()
     @commands.has_role(config['staff_Role'])
@@ -437,8 +461,8 @@ class Staff(commands.Cog, name="Staff Commands"):
     @commands.command()
     @commands.has_role(config['staff_Role'])
     async def veriwarn(self, ctx):
-        veri = ctx.guild.get_channel(470335358970757145)
-        await veri.send("""Hello! This is a reminder that <#470335358970757145> is a channel strictly for theories, \
+        veri = ctx.guild.get_channel(940390987841302598)
+        await veri.send("""Hello! This is a reminder that <#940390987841302598> is a channel strictly for theories, \
 lore and ARGs. All other topics belong to general chats (<#470330055063633920> and <#470330688235765770>). If the channel continues \
 being off topic, it will be temporarily locked down.""")
         await ctx.send("Warning sent")
@@ -446,11 +470,11 @@ being off topic, it will be temporarily locked down.""")
     @commands.command()
     @commands.has_role(config['staff_Role'])
     async def verilock(self, ctx):
-        veri = ctx.guild.get_channel(470335358970757145)
+        veri = ctx.guild.get_channel(940390987841302598)
         verirole = ctx.guild.get_role(475388751711830066)
         await veri.set_permissions(verirole, send_messages=False)
         await veri.send("""Due to conversations frequently going off topic, this channel has been temporarily locked down.\
-<#470335358970757145> is meant for high level discussion of the bands theories, lore, and ARGs - all other general \
+<#940390987841302598> is meant for high level discussion of the bands theories, lore, and ARGs - all other general \
 topics belong to <#470330055063633920> and <#470330688235765770> The channel will reopen in 15 minutes.""")
         await asyncio.sleep(900)
         await veri.set_permissions(verirole, send_messages=True)
@@ -761,7 +785,7 @@ Thanks!"""
         roles = message.author.roles
         msg = message.content.lower()
         if msg.find("https://drive.google.com") != -1 or msg.find("https://www.youtube.com") != -1 or msg.find("https://youtu.be") != -1:
-            if staff not in roles and DE not in roles and message.channel.id != 470335358970757145:
+            if staff not in roles and DE not in roles and message.channel.id != 940390987841302598:
                 await message.delete()
                 try:
                     await message.author.send("To prevent sharing of livestream footage, we are currently not allowing Google Drive or Youtube Links.")
@@ -917,6 +941,14 @@ Thanks!"""
                     return 0
                 if link.lower().find("discord.com") != -1:
                     return 0
+                if link.lower().find("reddit.com") != -1:
+                    return 0
+                if link.lower().find("x.com") != -1:
+                    return 0
+                if link.lower().find("discordclique.com") != -1:
+                    return 0
+                if link.lower().find("twentyonepilots.wiki") != -1:
+                    return 0
                 if link.lower().find("discordapp.net") != -1:
                     return 0
                 if link.lower().find("discordapp.com") != -1:
@@ -930,6 +962,8 @@ Thanks!"""
                 if link.lower().find("discordstatus.com") != -1:
                     return 0
                 if link.lower().find("twitter.com") != -1:
+                    return 0
+                if link.lower().find("clique") != -1:
                     return 0
 
                 if link.lower().find("attachment") != -1:
@@ -1005,7 +1039,7 @@ Thanks!"""
                     mention.display_name.lower().find("no ping") != -1 or \
                     mention.display_name.lower().find("no @") != -1 or \
                     mention.display_name.lower().find("no@") != -1:
-                    await message.reply(mention_author=False, delete_after=20.0,content="https://tenor.com/view/no-ping-rancord-dont-ping-how-to-not-ping-discord-gif-24642287")
+                    await message.reply(mention_author=False, delete_after=20.0,content="https://tenor.com/view/discord-reply-discord-reply-off-discord-reply-gif-22150762")
 
     async def process_live_link(self, message):
         server = self.bot.get_guild(269657133673349120)
