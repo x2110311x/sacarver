@@ -183,7 +183,7 @@ class Staff(commands.Cog, name="Staff Commands"):
             emojiObj = self.bot.get_emoji(emoji)
             embed=discord.Embed(title=emojiObj.name, color=0x18c446)
             embed.add_field(name="ID", value=emoji)
-            embed.add_field(name="Server ID", value=emoji.guild_id)
+            embed.add_field(name="Server ID", value=emojiObj.guild_id)
             await ctx.send(embed=embed)
 
         except Exception as e:
