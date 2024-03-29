@@ -1015,7 +1015,6 @@ Thanks!"""
 
     async def ping_off(self, message):
         if len(message.mentions) > 0:
-            pingoff = False
             for mention in message.mentions:
                 if mention.display_name.lower().find("ping off") != -1 or \
                     mention.display_name.lower().find("@ off") != -1 or \
@@ -1023,7 +1022,10 @@ Thanks!"""
                     mention.display_name.lower().find("no ping") != -1 or \
                     mention.display_name.lower().find("no @") != -1 or \
                     mention.display_name.lower().find("no@") != -1:
-                    await message.reply(mention_author=False, delete_after=20.0,content="https://tenor.com/view/discord-reply-discord-reply-off-discord-reply-gif-22150762")
+                    mentionEmbed = discord.Embed(title="Heads up!", description = "The user you just pinged or replied to requests that they are not pinged.", colour=0xeb6123)
+                    mentionEmbed.set_footer(text=f"© 2024 x2110311x.")
+
+                    await message.reply(mention_author=False, delete_after=10.0,embed=mentionEmbed)
 
     async def process_live_link(self, message):
         server = self.bot.get_guild(269657133673349120)
