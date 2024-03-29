@@ -178,6 +178,22 @@ class Staff(commands.Cog, name="Staff Commands"):
 
     @commands.command()
     @commands.has_role(config['staff_Role'])
+    async def get_emoji(self, ctx, emoji: int):
+        try:
+            emojiObj = self.bot.get_emoji(emoji)
+            embed=discord.Embed(title=emojiObj.name, color=0x18c446)
+            embed.add_field(name="ID", value=emoji)
+            embed.add_field(name="Server ID", value=emojiObj.guild_id)
+            await ctx.send(embed=embed)
+
+        except Exception as e:
+            print(type(e))
+            print(e)
+            await ctx.send(e)
+            
+
+    @commands.command()
+    @commands.has_role(config['staff_Role'])
     async def userban(self, ctx, user: int):
         member = discord.Object(user)
         try:
