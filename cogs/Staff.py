@@ -735,6 +735,14 @@ Thanks!"""
     @commands.check
     async def globally_block_dms(self, ctx):
         return ctx.guild is not None
+    
+    @commands.command()
+    @commands.has_role(config['staff_Role'])
+    async def delete(self, ctx, numMessages: int):
+        if numMessages > 100 or numMessages <= 0:
+            await ctx.send("Please specify a number between 1 and 100")
+        else:
+            await ctx.channel.delete_messages(numMessages)
 
     @commands.command()
     async def check_pings(self, ctx, msgID:int, chanID: int):
