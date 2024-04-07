@@ -762,11 +762,12 @@ Thanks!"""
                     await self.phraseblacklist(message)
                     await self.process_invites(message)
                     # await self.process_caf(message)
-                    try:
+                    '''try:
                         await self.process_nitro_scam(message)
                     except Exception as e:
                         testchan = self.bot.get_channel(470406597860917249)
-                        await testchan.send(f"Failed to check nitro - {type(e)}: {e}. {type(message)} ID: {message.id}")
+                        await testchan.send(f"Failed to check nitro - {type(e)}: {e}. {type(message)} ID: {message.id}")'''
+
 
     async def process_steam_scam(self, message):
         if message.content.lower().find("https://stearncomminuty.ru/") != -1:
