@@ -7,6 +7,7 @@ myIntents.add( IntentsBitField.Flags.GuildPresences, IntentsBitField.Flags.Guild
 	IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages );
 
 const client = new Client({ intents: myIntents });
+client.config = config;
 client.commands = new Collection();
 client.commandData = [];
 client.roles = new Collection();
