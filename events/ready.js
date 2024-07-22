@@ -41,5 +41,6 @@ module.exports = {
 			});
 		});
 		client.startTime = new Date();
+		client.icon = client.user.avatarURL();
 	},
 };
