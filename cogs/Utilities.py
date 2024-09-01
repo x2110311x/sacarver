@@ -124,6 +124,7 @@ class Utilities(commands.Cog, name="Utility Commands"):
         system(f'sudo {restart_script}')
 
     @commands.command(brief=helpInfo['ping']['brief'], usage=helpInfo['ping']['usage'])
+    @commands_check()
     async def ping(self, ctx):
         msgResp = await ctx.send("Bot is up!")
         editStamp = utilities.msdiff(ctx.message.created_at, msgResp.created_at)
@@ -131,6 +132,7 @@ class Utilities(commands.Cog, name="Utility Commands"):
         await msgResp.edit(content=strResp)
 
     @commands.command(brief=helpInfo['uptime']['brief'], usage=helpInfo['uptime']['usage'])
+    @commands_check()
     async def uptime(self, ctx):
         nowtime = time.time()
         uptime = utilities.seconds_to_units(int(nowtime - intStartTime))
