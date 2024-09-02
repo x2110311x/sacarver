@@ -190,7 +190,7 @@ class AuditLogs(commands.Cog, name="Audits"):
     @commands.Cog.listener()
     async def on_raw_message_edit(self, payload):
         guild = self.bot.get_guild(config['server_ID'])
-        editLog = guild.get_channel(config['delete-log'])
+        editLog = guild.get_channel(config['edit-log'])
         embed=discord.Embed(title="Message Edited", color=0x01b725)
         embed.add_field(name="Channel", value=f"<#{payload.channel_id}> - {payload.channel_id}", inline=False)
         embed.add_field(name="Message ID", value=payload.message_id, inline=False)
