@@ -378,13 +378,27 @@ class Staff(commands.Cog, name="Staff Commands"):
 
     @commands.command(brief=helpInfo['status']['brief'], usage=helpInfo['status']['usage'])
     @commands.has_role(config['staff_Role'])
-    async def status(self, ctx, *, statusmsg="Member count"):
+    async def status(self, ctx, statustype="watching", *, statusmsg="Member count"):
+        guild = self.bot.get_guild(config['server_ID'])
+
         if statusmsg.lower() == "member count":
-            guild = self.bot.get_guild(config['server_ID'])
-            memberStatus = discord.Activity(type=discord.ActivityType.watching, name=f"{guild.member_count - config['botCount']} members")
-            await self.bot.change_presence(status=discord.Status.online, activity=memberStatus)
+            statusmsg = f"{guild.member_count - config['botCount']} members"
+        
+        if statustype.lower() == "watching":
+            activity = discord.ActivityType.watching(statusmsg)
+        elif statustype.lower() == "playing":
+            activity = discord.ActivityType.playing(statusmsg)
+        elif statustype.lower() == "competing":
+            activity = discord.ActivityType.competing(statusmsg)
+        elif statustype.lower() == "streaming":
+            activity = discord.ActivityType.streaming(statusmsg)
+        elif statustype.lower() == "listening":
+            activity = discord.ActivityType.streaming(statusmsg)
         else:
-            await self.bot.change_presence(status=discord.Status.online, activity=discord.CustomActivity(name=statusmsg))
+            activity = discord.ActivityType.watching(statusmsg)
+
+        await self.bot.change_presence(status=discord.Status.online, activity=activity)
+        await ctx.send("OK")
 
     @commands.command()
     @commands.has_role(config['staff_Role'])
