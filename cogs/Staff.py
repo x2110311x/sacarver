@@ -384,7 +384,7 @@ class Staff(commands.Cog, name="Staff Commands"):
             memberStatus = discord.Activity(type=discord.ActivityType.watching, name=f"{guild.member_count - config['botCount']} members")
             await self.bot.change_presence(status=discord.Status.online, activity=memberStatus)
         else:
-            await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(statusmsg))
+            await self.bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name=statusmsg))
 
     @commands.command()
     @commands.has_role(config['staff_Role'])
