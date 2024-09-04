@@ -21,7 +21,7 @@ class JoinLeave(commands.Cog):
         joinRole = guild.get_role(269660541738418176)
         newRole = guild.get_role(430170511385952267)
         try:
-            memberStatus = discord.Activity(type=discord.ActivityType.competing, name=f"{guild.member_count - config['botCount']} members")
+            memberStatus = discord.Activity(type=discord.ActivityType.watching, name=f"{guild.member_count - config['botCount']} members")
             await self.bot.change_presence(status=discord.Status.online, activity=memberStatus)
             await member.add_roles(joinRole, newRole)
         except:
