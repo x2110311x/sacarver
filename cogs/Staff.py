@@ -384,20 +384,18 @@ class Staff(commands.Cog, name="Staff Commands"):
         if statusmsg.lower() == "member count":
             statusmsg = f"{guild.member_count - config['botCount']} members"
         
-        activity = discord.Activity()
         if statustype.lower() == "watching":
-            activity.type = discord.ActivityType.watching
+            activity =  discord.Activity(type=discord.ActivityType.watching, name=statusmsg)
         elif statustype.lower() == "playing":
-            activity.type = discord.ActivityType.playing
+            activity =  discord.Activity(type=discord.ActivityType.playing, name=statusmsg)
         elif statustype.lower() == "competing":
-            activity.type = discord.ActivityType.competing
+            activity =  discord.Activity(type=discord.ActivityType.competing, name=statusmsg)
         elif statustype.lower() == "streaming":
-            activity.type = discord.ActivityType.streaming
+            activity =  discord.Activity(type=discord.ActivityType.streaming, name=statusmsg)
         elif statustype.lower() == "listening":
-            activity.type = discord.ActivityType.streaming
+            activity =  discord.Activity(type=discord.ActivityType.streaming, name=statusmsg)
         else:
-            activity.type = discord.ActivityType.watching
-        activity.name = statusmsg
+            activity =  discord.Activity(type=discord.ActivityType.watching, name=statusmsg)
 
         await self.bot.change_presence(status=discord.Status.online, activity=activity)
         await ctx.send("OK")
