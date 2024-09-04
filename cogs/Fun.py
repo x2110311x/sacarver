@@ -25,7 +25,7 @@ class SaidNoError(Exception):
 
 def commands_check():
     async def predicate(ctx):
-        return ctx.message.channel.id in [470406597860917249, 470337593746259989, 480934371126280202, 940341308696965120] or ctx.guild.get_role(config['staff_Role']) in ctx.author.roles
+        return ctx.message.channel.id in [470406597860917249, 472961912091443242, 470337593746259989, 480934371126280202, 940341308696965120] or ctx.guild.get_role(config['staff_Role']) in ctx.author.roles
     return commands.check(predicate)
 
 class Fun(commands.Cog, name="Fun Commands"):

@@ -35,7 +35,7 @@ class SaidCancelError(Exception):
 
 def commands_check():
     async def predicate(ctx):
-        return ctx.message.channel.id in [470337593746259989, 480934371126280202, 940341308696965120] or ctx.guild.get_role(config['staff_Role']) in ctx.author.roles
+        return ctx.message.channel.id in [470337593746259989, 472961912091443242, 480934371126280202, 940341308696965120] or ctx.guild.get_role(config['staff_Role']) in ctx.author.roles
     return commands.check(predicate)
 
 
