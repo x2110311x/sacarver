@@ -386,17 +386,17 @@ class Staff(commands.Cog, name="Staff Commands"):
         
         activity = discord.Activity()
         if statustype.lower() == "watching":
-            activity.ActivityType.watching
+            activity.type = discord.ActivityType.watching
         elif statustype.lower() == "playing":
-            activity.ActivityType.playing
+            activity.type = discord.ActivityType.playing
         elif statustype.lower() == "competing":
-            activity.ActivityType.competing
+            activity.type = discord.ActivityType.competing
         elif statustype.lower() == "streaming":
-            activity.ActivityType.streaming
+            activity.type = discord.ActivityType.streaming
         elif statustype.lower() == "listening":
-            activity.ActivityType.streaming
+            activity.type = discord.ActivityType.streaming
         else:
-            activity.ActivityType.watching
+            activity.type = discord.ActivityType.watching
         activity.name = statusmsg
 
         await self.bot.change_presence(status=discord.Status.online, activity=activity)
