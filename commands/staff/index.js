@@ -1,6 +1,8 @@
 const { Collection } = require('discord.js');
 const fs = require('fs');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const log = require('../../structures/logging').getInstance().logger;
+
 
 const subcommands = new Collection();
 
@@ -15,9 +17,9 @@ for (const file of subcommandFiles) {
             const subcommand = require(`./${file}`);
             subcommands.set(`${file}`, subcommand);
             staffCommand = subcommand.builder(staffCommand);
+            log.debug(`Command /staff ${file} loaded`);
         } catch (e) {
-            console.log('Could not load staff subcommand %s', file);
-            console.error(e);
+            log.warn({message: `Could not load /staff ${file}`, error:e});
         }
     }
 }
@@ -28,10 +30,10 @@ for (const file of subcommandFolders) {
     try {
         const subcommand = require(`./${file}`);
         subcommands.set(`${file}`, subcommand);
-        console.log(file);
         staffCommand = subcommand.builder(staffCommand);
+        log.debug(`Command /staff ${file} loaded`);
     } catch (e) {
-        console.log('Could not load fun subcommand %s', file);
+        log.warn({message: `Could not load /staff ${file}`, error:e});
         console.error(e);
     }
 }

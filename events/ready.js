@@ -6,7 +6,7 @@ module.exports = {
 	name: 'ready',
 	once: true,
 	async execute(client) {
-		console.log('Logged in as ' + client.user.username);
+		client.log.info('Logged in as ' + client.user.username);
 		// eslint-disable-next-line no-unused-vars
 		const rest = new REST({
 			version: '9',
@@ -18,7 +18,7 @@ module.exports = {
 						body: client.commandData,
 					},
 				);
-				console.log('Successfully registered application commands globally');
+				client.log.info('Successfully registered application commands globally');
 			// eslint-disable-next-line brace-style
 			} catch (error) {
 				if (error) console.error(error);
@@ -26,18 +26,18 @@ module.exports = {
 		})();
 		client.guilds.fetch(config.guildID).then(guild => {
 			guild.members.fetch().then(() => {
-				console.log('Fetched all guild members');
+				client.log.info('Fetched all guild members');
 				client.user.setActivity(`${guild.memberCount} members`, { type: 'WATCHING' });
 			});
 			guild.roles.fetch().then(roles => {
 				client.roles = roles;
 			}).then(() => {	
-				console.log('Role Collection Populated');
+				client.log.info('Role Collection Populated');
 			});
 			guild.channels.fetch().then(channels => {
 				client.guildchannels = channels;
 			}).then(() => {
-				console.log('Channel Collection populated');
+				client.log.info('Channel Collection populated');
 			});
 		});
 		client.startTime = new Date();

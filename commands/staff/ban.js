@@ -21,8 +21,6 @@ module.exports = {
             user = interaction.options.getString('userid');
         }
         let guild = interaction.guild;
-
-        console.log(user);
         
         await guild.bans.create(user).then(banInfo =>
             interaction.reply(`Banned ${banInfo.user?.tag ?? banInfo.tag ?? banInfo}`)

@@ -3,6 +3,8 @@ const { Collection } = require('discord.js');
 const subcommandFiles = fs.readdirSync('./commands/utility/time').filter(file => file.endsWith('.js'));
 const subcommands = new Collection();
 
+const log = require('../../../structures/logging').getInstance().logger;
+
 module.exports = {
     builder: function (SlashCommandBuilder){
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
@@ -15,9 +17,10 @@ module.exports = {
                           const subcommand = require(`./${file}`);
                           subcommands.set(`${file}`, subcommand);
                           subcommandGroup = subcommand.builder(subcommandGroup);
+                          log.debug(`Command /utility time ${file} loaded`);
                       } catch (e) {
-                          console.log('Could not load utility subcommand %s', file);
-                          console.error(e);
+                        log.warn({message: `Could not load /utility time ${file}`, error:e});
+                        console.error(e);
                       }
                   }
               }

@@ -2,3 +2,6 @@
 config.json.test
 config.json
 node_modules/*
+logs/
+logs/*
+.env

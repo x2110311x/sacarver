@@ -9,7 +9,7 @@ module.exports = {
     execute: async function(interaction){
         await interaction.guild.fetch().then(guild => {
             guild.members.fetch().then(() => {
-                console.log('Fetched all guild members');
+                interaction.client.log.debug('Fetched all guild members');
                 interaction.client.user.setActivity(`${guild.memberCount} members`, { type: 'WATCHING' });
             });
         }).then(() => {
