@@ -1,14 +1,24 @@
 let instance = null;
-const { Client, Collection, IntentsBitField } = require('discord.js');
+const { Client, Options, Collection, GatewayIntentBits } = require('discord.js');
 
 class Sacarver {
 
     constructor() {
-      const myIntents = new IntentsBitField();
-      myIntents.add( IntentsBitField.Flags.GuildPresences, IntentsBitField.Flags.GuildMembers, 
-        IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages );
       
-      const client = new Client({ intents: myIntents });
+      const client = new Client({ 
+        intents: [
+          GatewayIntentBits.Guilds,
+          GatewayIntentBits.GuildMessages,
+          GatewayIntentBits.MessageContent,
+          GatewayIntentBits.GuildMembers,
+          GatewayIntentBits.GuildPresences,
+        ],
+        makeCache: Options.cacheWithLimits({
+          ...Options.DefaultMakeCacheSettings,
+          MessageManager: 2000,
+          GuildMemberManager: 500
+        }),
+       });
       client.commands = new Collection();
       client.commandData = [];
       client.roles = new Collection();
