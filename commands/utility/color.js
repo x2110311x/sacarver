@@ -19,7 +19,7 @@ module.exports = {
       const colorCode = interaction.options.getString('code');
       var re = new RegExp('[0-9a-gA-G]{6}');
 
-      if((colorCode.length != 6) || !(re.test(colorCode))){
+      if(!(re.test(colorCode))){
         await interaction.reply({content: "That doesn't look like a proper color code!", ephemeral: true});
         return;
       }
