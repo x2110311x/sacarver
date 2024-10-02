@@ -1,11 +1,12 @@
 let instance = null;
-const { Client, Options, Collection, GatewayIntentBits } = require('discord.js');
+const { Client, Options, Partials, Collection, GatewayIntentBits } = require('discord.js');
 
 class Sacarver {
 
     constructor() {
       
-      const client = new Client({ 
+      const client = new Client({
+        partials: [Partials.Message],
         intents: [
           GatewayIntentBits.Guilds,
           GatewayIntentBits.GuildMessages,
