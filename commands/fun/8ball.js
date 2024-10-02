@@ -48,9 +48,9 @@ module.exports = {
       .addFields(
         { name: 'Your Question', value: question }
       )
-      .setFooter({ text: '© 2024 x2110311x', iconURL: interaction.client.avatarURL() });
+      .setFooter({ text: '© 2024 x2110311x', iconURL: interaction.client.user.avatarURL() });
 
-    await new Promise(resolve => setTimeout(resolve, 4000));
+    await new Promise(resolve => setTimeout(resolve, 3000));
     await interaction.editReply({ embeds: [postShake] });
   }
 };
