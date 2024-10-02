@@ -39,7 +39,7 @@ module.exports = {
             }
             const embedReply = new EmbedBuilder()
                 .setColor(0xEB6123)
-                .setTitle("Salyyy!")
+                .setTitle("Slayyy!")
                 .setDescription("You're lookin' pretty gay there!")
                 .setFooter({text: newNickname, iconURL: member.displayAvatarURL()});
             await interaction.reply({ embeds: [embedReply] });
