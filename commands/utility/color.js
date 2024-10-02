@@ -17,6 +17,13 @@ module.exports = {
     },
     execute: async function(interaction){
       const colorCode = interaction.options.getString('code');
+      var re = new RegExp('[0-9a-gA-G]{6}');
+
+      if((colorCode.length != 6) || !(re.test(colorCode))){
+        await interaction.reply({content: "That doesn't look like a proper color code!", ephemeral: true});
+        return;
+      }
+
       const canvas = createCanvas(200, 200);
       const context = canvas.getContext('2d');
       context.fillStyle = `#${colorCode}`;
@@ -25,7 +32,6 @@ module.exports = {
       const attachment = new AttachmentBuilder(buf, { name: 'color.png' });
       const colorName = GetColorName(colorCode); 
       const coloeEmbed = new EmbedBuilder()
-          .setColor(`0x${colorCode}`)
           .setTitle(colorName)
           .setDescription(`#${colorCode}`)
           .setImage("attachment://color.png")
