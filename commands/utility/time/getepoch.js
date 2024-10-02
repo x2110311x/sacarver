@@ -14,7 +14,7 @@ module.exports = {
         .setColor(0xd5b052)
         .setTitle("The current Unix Epoch is")
         .setDescription(`${now}`)
-        .setFooter({ text: '© 2022 x2110311x', iconURL: 'https://cdn.discordapp.com/avatars/470691679712706570/42e790b8113e7f21422796db72d652f2.webp?size=1024' });
+        .setFooter({ text: '© 2024 x2110311x', iconURL: interaction.client.user.avatarURL() });
       await interaction.reply({embeds: [epoch]});
     }
 };
