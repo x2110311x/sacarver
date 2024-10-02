@@ -28,9 +28,12 @@ for (const file of eventFiles) {
 		const event = require(`./events/${file}`);
 		if (event.once) {
 			client.once(event.name, (...args) => event.execute(...args, client));
+			client.log.debug(`Loaded run once event handler: ${file}`);
 		}
 		else {
 			client.on(event.name, (...args) => event.execute(...args, client));
+			client.log.debug(`Loaded event handler: ${file}`);
+
 		}
 	} catch(e){
 		client.log.warn({message: `Could not load event ${file}`, error:e});
