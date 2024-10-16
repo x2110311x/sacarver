@@ -7,9 +7,34 @@ let staffCommand = new SlashCommandBuilder()
   .addStringOption(option =>
     option
       .setName('code')
-      .setDescription('The code to redeem')
-      .setRequired(true));
+      .setDescription('The code to redeem. Leave blank to see how many codes you have left.')
+      .setRequired(false));
 
+async function getCodeCount(interaction){
+  let db = interaction.client.db;
+  var member = String(interaction.member.id);
+  var embed;
+  var codes = [];
+
+  db.each(`SELECT * FROM Users WHERE User = '${member}'`, (error, row) => {
+    if (error) {
+      throw new Error(error.message);
+    }
+    codes.push(row.Code);
+  });
+  await sleep(300);
+  var found = codes.length;
+  embed = new EmbedBuilder()
+    .setTitle("Progress:")
+    .setDescription(`You have found \`${found} codes\`.\n\`${(interaction.client.codes.length - found)} codes\` remain`)
+    .setColor(0xff9300)
+    .setFooter({
+      text: "Sacarver - © 2024 x2110311x",
+      iconURL: interaction.client.icon,
+    });
+await interaction.editReply({ephemeral: true, embeds: [embed]});
+
+}
 
 async function validCode(interaction, code){
   let db = interaction.client.db;
@@ -23,17 +48,15 @@ async function validCode(interaction, code){
     if (error) {
       throw new Error(error.message);
     }
-    console.log(row);
     codes.push(row.Code);
   });
   await sleep(300);
-  console.log(codes);
 
   var found = codes.length;
   if(codes.includes(code)){
     embed = new EmbedBuilder()
     .setTitle("Silly you!")
-    .setDescription(`You've already redeemed this code!!\n\`${(interaction.client.codes.length - found)}\` codes still remain`)
+    .setDescription(`You've already redeemed this code!!\n\`${(interaction.client.codes.length - found)} codes\` still remain`)
     .setColor(0xff9300)
     .setFooter({
       text: "Sacarver - © 2024 x2110311x",
@@ -59,7 +82,7 @@ async function validCode(interaction, code){
     } else {
       embed = new EmbedBuilder()
       .setTitle("Good job!")
-      .setDescription(`You successfully found a code!\n\`${(interaction.client.codes.length - found)}\` codes remain`)
+      .setDescription(`You successfully found a code!\n\`${(interaction.client.codes.length - found)} codes\` remain`)
       .setColor(0xff9300)
       .setFooter({
         text: "Sacarver - © 2024 x2110311x",
@@ -79,7 +102,6 @@ async function validCode(interaction, code){
         if (error) {
           console.error(error.message);
         }
-        console.log(`Inserted a row with the ID: ${this.lastID}`);
       }
     );
   }
@@ -104,12 +126,17 @@ module.exports = {
 	data: staffCommand,
     async execute(interaction) {
         const code = interaction.options.getString('code') ?? '';
-        if (interaction.client.codes.includes(code)){
+        if(code == ''){
           await interaction.deferReply({ ephemeral: true });
-          await validCode(interaction, code);
+          await getCodeCount(interaction);
         } else {
-          await interaction.deferReply();
-          await invalidCode(interaction, code);
+          if (interaction.client.codes.includes(code)){
+            await interaction.deferReply({ ephemeral: true });
+            await validCode(interaction, code);
+          } else {
+            await interaction.deferReply();
+            await invalidCode(interaction, code);
+          }
         }
 	},
 };
