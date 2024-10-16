@@ -1,15 +1,15 @@
 const fs = require('fs');
+const { Collection } = require('discord.js');
 
 const Sacarver = require("./structures/bot");
 const config = require('./config.json');
 const logging = require('./structures/logging');
-const RedisCache = require('./structures/cache');
-
+const db = require('./helpers/db')();
 
 const client = Sacarver.getInstance().client;
 client.config = config;
 client.log = logging.getInstance().logger;
-client.cache = RedisCache.getInstance();
+client.db = db;
 
 const commandFiles = fs.readdirSync('./commands',  { withFileTypes: true }).filter((item) => item.isDirectory()).map((item) => item.name);
 for (const file of commandFiles) {
@@ -39,5 +39,13 @@ for (const file of eventFiles) {
 		client.log.warn({message: `Could not load event ${file}`, error:e});
 	}
 }
+
+client.codes = [];
+client.db.each(`SELECT * FROM Codes`, (error, row) => {
+	if (error) {
+		throw new Error(error.message);
+	}
+	client.codes.push(row.code);
+});
 
 client.login(config.token);
