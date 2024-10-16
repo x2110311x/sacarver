@@ -69,7 +69,7 @@ async function validCode(interaction, code){
   }
   
 
-  await interaction.reply({ephemeral: true, embeds: [embed]});
+  await interaction.editReply({ephemeral: true, embeds: [embed]});
 
   if(newCode){
         db.run(
@@ -96,7 +96,7 @@ async function invalidCode(interaction, code){
     iconURL: interaction.client.icon,
   })
   
-  await interaction.reply({ephemeral: false, embeds: [embed]});
+  await interaction.editReply({ephemeral: false, embeds: [embed]});
 }
 
 
@@ -105,8 +105,10 @@ module.exports = {
     async execute(interaction) {
         const code = interaction.options.getString('code') ?? '';
         if (interaction.client.codes.includes(code)){
+          await interaction.deferReply({ ephemeral: true });
           await validCode(interaction, code);
         } else {
+          await interaction.deferReply();
           await invalidCode(interaction, code);
         }
 	},
