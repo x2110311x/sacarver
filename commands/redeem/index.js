@@ -69,15 +69,15 @@ async function validCode(interaction, code){
     completed = (found == interaction.client.codes.length);
     if(completed){
       embed = new EmbedBuilder()
-      .setTitle("CONGRATULATIONS")
-      .setDescription("You have found all the codes! Enjoy your new role!")
+      .setTitle("A frightful victory!")
+      .setDescription("Congratulations, citizen - you've finished the Spooky Codebreaker Event and won a special role!")
       .setColor(0xff9300)
       .setFooter({
         text: "Sacarver - © 2024 x2110311x",
         iconURL: interaction.client.icon,
       });
-      //let role = await interaction.guild.roles.fetch('role id');
-      //await interaction.member.roles.add(role);
+      let role = await interaction.guild.roles.fetch('1282005363499208776');
+      await interaction.member.roles.add(role);
 
     } else {
       embed = new EmbedBuilder()
@@ -110,8 +110,8 @@ async function validCode(interaction, code){
 
 async function invalidCode(interaction, code){
   const embed = new EmbedBuilder()
-  .setTitle("Womp womp")
-  .setDescription("That's not even a code?? \nWhere did you find that?")
+  .setTitle("Not spooky at all!")
+  .setDescription("Boo! That's not one of our codes.\nChannel a bit more of the Halloween spirit and try again.")
   .setColor(0xff9300)
   .setFooter({
     text: "Sacarver - © 2024 x2110311x",
