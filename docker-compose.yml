@@ -1,0 +1,7 @@
+services:
+  bot:
+    build: ./
+    restart: always
+    volumes:
+      - ./config.json:/app/config.json:ro
+      - ./halloween.db:/app/halloween.db
