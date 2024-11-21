@@ -8,13 +8,7 @@ module.exports = {
                     option
                         .setName('user')
                         .setDescription('The user to send to')
-                        .setRequired(true))
-                .addStringOption( option =>
-                    option
-                        .setName('preset')
-                        .setDescription('The DM preset to use')
-                        .setRequired(true)
-                        .addChoices({ name: 'aotw', value: 'aotw' })));
+                        .setRequired(true)));
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
