@@ -1,6 +1,6 @@
 services:
   bot:
-    build: ./Bot
+    build: ./
     restart: always
     environment:
       - PROD=true
