@@ -19,7 +19,6 @@ automake \
 
 # Install npm packages
 COPY package.json /usr/src/bot
-COPY package-lock.json /usr/src/bot
 RUN npm install
 
 # Copy bot files
