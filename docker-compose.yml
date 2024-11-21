@@ -18,5 +18,4 @@ services:
       - cache:/data
 
 volumes:
-  db_data:
-  mondodbdata:
+  cache:
