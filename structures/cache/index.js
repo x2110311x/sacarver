@@ -2,13 +2,14 @@ let instance = null;
 const { createClient } = require('redis');
 
 const log = require('../logging').getInstance().logger;
+const config = require('../../config.json');
 
 class RedisCache {
 
     constructor() {
       const client = createClient({
-        host: '10.10.100.95',
-        port: 6379
+        host: config.redis.host,
+        port: config.redis.port
       });
       
       client.on('error', (err) => log.error('Redis Client Error', err));
