@@ -4,8 +4,6 @@ services:
     restart: always
     environment:
       - PROD=true
-    volumes:
-      - ./config.json:/app/config.json:ro
     depends_on:
       - redis
   redis:
