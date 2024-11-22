@@ -167,7 +167,7 @@ class AuditLogs(commands.Cog, name="Audits"):
         embed.add_field(name="Time Deleted", value=datetime.now().strftime("%b %d, %Y - %I:%M:%S %P") + " UTC", inline=False)
         await deleteLog.send(embed=embed)
 
-    @commands.Cog.listener()
+    """     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload):
         guild = self.bot.get_guild(config['server_ID'])
         deleteLog = guild.get_channel(config['delete-log'])
@@ -186,8 +186,8 @@ class AuditLogs(commands.Cog, name="Audits"):
                 embed.add_field(name="Message Text", value="*Message was not cached*", inline=False)
             embed.add_field(name="Time Deleted", value=datetime.now().strftime("%b %d, %Y - %I:%M:%S %P") + " UTC", inline=False)
             await deleteLog.send(embed=embed)
-
-    @commands.Cog.listener()
+    """
+    """     @commands.Cog.listener()
     async def on_raw_message_edit(self, payload):
         guild = self.bot.get_guild(config['server_ID'])
         editLog = guild.get_channel(config['edit-log'])
@@ -209,7 +209,7 @@ class AuditLogs(commands.Cog, name="Audits"):
         embed.add_field(name="Time Edited", value=datetime.now().strftime("%b %d, %Y - %I:%M:%S %P") + " UTC", inline=False)
 
         await editLog.send(embed=embed)
-
+    """
     @commands.check
     async def globally_block_dms(ctx):
         return ctx.guild is not None
