@@ -2,8 +2,6 @@ services:
   bot:
     build: ./
     restart: always
-    environment:
-      - PROD=true
     volumes:
       - ./config.json:/usr/src/bot/config.json:ro
     depends_on:
