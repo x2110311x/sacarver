@@ -8,8 +8,8 @@ class RedisCache {
 
     constructor() {
       const client = createClient({
-        host: "10.10.10.151",
-        port: config.redis.port
+        host: 'redis',
+        port: 6379
       });
       
       client.on('error', (err) => log.error('Redis Client Error', err));
