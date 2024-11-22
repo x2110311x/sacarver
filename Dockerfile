@@ -1,15 +1,24 @@
-FROM node:19-alpine
+FROM node:lts
 
 # Create the app directory
 RUN mkdir -p /usr/src/bot
 WORKDIR /usr/src/bot
 
-RUN apk add --no-cache --virtual .build-deps make gcc g++ python3
+RUN apt-get update && apt-get install -y \
+build-essential \
+libcairo2-dev \
+libpango1.0-dev \
+libjpeg-dev \
+libgif-dev \ 
+librsvg2-dev \
+libtool \
+autoconf \
+automake \
+&& rm -rf /var/lib/apt/lists/*
 
 # Install npm packages
 COPY package.json /usr/src/bot
 RUN npm install
-RUN apk del .build-deps
 
 # Copy bot files
 COPY . /usr/src/bot
