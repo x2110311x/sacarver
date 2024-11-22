@@ -5,7 +5,7 @@ services:
     environment:
       - PROD=true
     volumes:
-      - ./config.json:/app/config.json:ro
+      - ./config.json:/usr/src/bot/config.json:ro
     depends_on:
       - redis
   redis:
