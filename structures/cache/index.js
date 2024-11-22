@@ -8,7 +8,7 @@ class RedisCache {
 
     constructor() {
       const client = createClient({
-        host: config.redis.host,
+        host: "10.10.10.151",
         port: config.redis.port
       });
       
