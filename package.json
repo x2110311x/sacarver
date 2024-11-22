@@ -22,7 +22,7 @@
   "dependencies": {
     "@discordjs/builders": "^1.1.0",
     "@discordjs/rest": "^1.0.1",
-    "canvas": "^1.6.5",
+    "canvas": "^2.9.3",
     "discord-api-types": "^0.37.3",
     "discord.js": "^14.2.0",
     "hex-color-to-color-name": "^1.0.2",
