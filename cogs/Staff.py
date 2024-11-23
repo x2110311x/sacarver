@@ -376,8 +376,8 @@ class Staff(commands.Cog, name="Staff Commands"):
         else:
             await ctx.send("You cannot cancel another staff member!")
 
-    @commands.command(brief=helpInfo['status']['brief'], usage=helpInfo['status']['usage'])
-    @commands.has_role(config['staff_Role'])
+    #@commands.command(brief=helpInfo['status']['brief'], usage=helpInfo['status']['usage'])
+    #@commands.has_role(config['staff_Role'])
     async def status(self, ctx, statustype="watching", *, statusmsg="Member count"):
         guild = self.bot.get_guild(config['server_ID'])
 
@@ -400,8 +400,8 @@ class Staff(commands.Cog, name="Staff Commands"):
         await self.bot.change_presence(status=discord.Status.online, activity=activity)
         await ctx.send("OK")
 
-    @commands.command()
-    @commands.has_role(config['staff_Role'])
+    #@commands.command()
+    #@commands.has_role(config['staff_Role'])
     async def fixvc(self, ctx):
         msg = await ctx.send("Fixing VC role")
         vc = ctx.channel.guild.get_role(465268535543988224)
@@ -457,8 +457,8 @@ class Staff(commands.Cog, name="Staff Commands"):
             await ctx.send("Sent")
 
 
-    @commands.command()
-    @commands.has_role(config['staff_Role'])
+    #@commands.command()
+    #@commands.has_role(config['staff_Role'])
     async def spam_cleanup(self, ctx):
         guild = ctx.message.channel.guild
         for member in guild.members:
@@ -507,8 +507,8 @@ topics belong to <#470330055063633920> and <#470330688235765770> The channel wil
         await staff_commands.send(embed=embedCmd)
         await ctx.send("DM sent!")
 
-    @commands.command()
-    @commands.has_role(config['staff_Role'])
+    #@commands.command()
+    #@commands.has_role(config['staff_Role'])
     async def clear_webhook_messages(self, ctx):
         bypass = [940294719383175228]
         await ctx.send("Starting delete")
@@ -543,8 +543,8 @@ topics belong to <#470330055063633920> and <#470330688235765770> The channel wil
         await ctx.send("Done")
 
 
-    @commands.command()
-    @commands.has_role(config['staff_Role'])
+    #@commands.command()
+    #@commands.has_role(config['staff_Role'])
     async def aotwdm(self, ctx, user: discord.Member):
         aotwDMmsg = """You are getting this message because you sent an off-topic message 
 in the #aotw-discussion channel in the twenty one pilots discord.\n
@@ -605,8 +605,8 @@ Thanks!"""
 
         await ctx.send(embed=embedInfo)
 
-    @commands.command()
-    @commands.has_role(config['staff_Role'])
+    #@commands.command()
+    #@commands.has_role(config['staff_Role'])
     async def getoldusers(self, ctx, num):
         members = list()
         for mem in ctx.guild.members:
@@ -638,8 +638,8 @@ Thanks!"""
         except:
             await ctx.send("I cannot find any image for that search!")
 
-    @commands.command(brief=helpInfo['raidmode']['brief'], usage=helpInfo['raidmode']['usage'])
-    @commands.has_role(config['staff_Role'])
+    #@commands.command(brief=helpInfo['raidmode']['brief'], usage=helpInfo['raidmode']['usage'])
+    #@commands.has_role(config['staff_Role'])
     async def raidmode(self, ctx, toggle="on"):
         server = self.bot.get_guild(269657133673349120)
         banditos = server.get_role(269660541738418176)
@@ -694,14 +694,14 @@ Thanks!"""
             await ctx.send("Raidmode has been turned on. Use `$raidmode off` to turn off")
     
 
-    @commands.command()
-    @commands.check(is_owner)
+    #@commands.command()
+    #@commands.check(is_owner)
     async def vanity(self, ctx):
         await self.set_vanity_url(ctx.channel)
 
 
-    @commands.command()
-    @commands.has_role(config['staff_Role'])
+    #@commands.command()
+    #@commands.has_role(config['staff_Role'])
     async def get_fbs(self, ctx):
         guild = ctx.guild
         fb = guild.get_role(283272728084086784)
@@ -716,8 +716,8 @@ Thanks!"""
             dFile = discord.File(file, "List_of_FBs.txt")
             await ctx.send(file=dFile)
 
-    @commands.command(brief=helpInfo['shutdown']['brief'], usage=helpInfo['shutdown']['usage'])
-    @commands.has_role(config['staff_Role'])
+    #@commands.command(brief=helpInfo['shutdown']['brief'], usage=helpInfo['shutdown']['usage'])
+    #@commands.has_role(config['staff_Role'])
     async def shutdown(self, ctx, toggle="on"):
         server = self.bot.get_guild(269657133673349120)
         banditos = server.get_role(269660541738418176)
@@ -758,8 +758,8 @@ Thanks!"""
         else:
             await ctx.channel.delete_messages(numMessages)
 
-    @commands.command()
-    async def check_pings(self, ctx, msgID:int, chanID: int):
+    #@commands.command()
+    #async def check_pings(self, ctx, msgID:int, chanID: int):
         chan = self.bot.get_channel(chanID)
         msg = await chan.fetch_message(msgID)
         await ctx.send(f"{msg.content.find('@everyone') != -1}")
