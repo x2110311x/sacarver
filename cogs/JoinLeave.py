@@ -32,7 +32,7 @@ class JoinLeave(commands.Cog):
                 await member.ban(reason="Part of bot raid")
                 await self.chanTest.send(f"Banned {member.mention} on join") 
 
-        staffchannel = self.bot.get_channel(470324442082312192)
+        staffchannel = self.bot.get_channel(1309892177723133983)
         if guild.member_count ==  69000:
             await staffchannel.send("<@&330877657132564480> <@207129652345438211> 69k")
         if guild.member_count == 69420:

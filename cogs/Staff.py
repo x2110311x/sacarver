@@ -125,7 +125,7 @@ class Staff(commands.Cog, name="Staff Commands"):
                 await msg.clear_reaction("📅")
                 await msg.edit(embed=embed)
                 ecount = await DB.select_one(f"SELECT COUNT(*) FROM EventSignups WHERE Event = {eventID}", self.DBConn)
-                staffchan = self.bot.get_guild(269657133673349120).get_channel(470324442082312192)
+                staffchan = self.bot.get_guild(269657133673349120).get_channel(1309892177723133983)
                 await staffchan.send(f"{ecount[0]} people signed up for the event")
         endedSQL = f"SELECT ID, MessageID From Events WHERE (Time+7200) <= {currentTime} AND fivemin = 1"
         ended = await DB.select_all(endedSQL, self.DBConn)
@@ -786,7 +786,7 @@ Thanks!"""
     async def process_steam_scam(self, message):
         if message.content.lower().find("https://stearncomminuty.ru/") != -1:
             await message.author.send("You have been automatically banned for sending what appears to be a Steam Scam link\nIf this was a mistake, please appeal at https://www.discordclique.com/appeals")
-            staffChan = self.bot.get_channel(815016457669705778)
+            staffChan = self.bot.get_channel(1309892790490234943)
             try:
                 await message.author.ban(reason="Steam Scam Link [AUTO]")
                 await staffChan.send(f"{message.author.mention} has been automatically banned for sending a Steam Scam link.")
@@ -865,7 +865,7 @@ Thanks!"""
         author = message.author
         shouldBan = False
         shouldMute = False
-        staffchan = self.bot.get_channel(815016457669705778)
+        staffchan = self.bot.get_channel(1309892790490234943)
         testchan = self.bot.get_channel(470406597860917249)
         
         indicators = await self.get_nitro_indicators(msgContent)
@@ -1044,7 +1044,7 @@ Thanks!"""
                     await message.author.send("You have been automatically muted for saying a blacklisted phrase.\nPlease respond to this message if there are any questions.")
                 except:
                     print("Could not DM")
-                chatModeration = self.bot.get_channel(815016457669705778)
+                chatModeration = self.bot.get_channel(1309892790490234943)
                 blacklistEm = discord.Embed(title="Blacklisted phrase said", description = "User has been automatically muted.", colour=0xeb6123)
                 blacklistEm.add_field(name ="User", value=f"{message.author.display_name} - {message.author.id}", inline=False)
                 blacklistEm.add_field(name ="Channel", value=f"{message.channel.mention}", inline=False)

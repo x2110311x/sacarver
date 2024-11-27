@@ -44,7 +44,7 @@ async def on_message(message):
         await offender.send(f"You have been automatically banned for mentioning {len(message.mentions)} people. \nIf this was a mistake, please appeal at https://www.discordclique.com/appeals")
         await offender.send("https://cdn.discordapp.com/emojis/648569239489216534.png")
         await offender.ban()
-        staffChan = bot.get_channel(815016457669705778)
+        staffChan = bot.get_channel(1309892790490234943)
         await staffChan.send(f"{offender.mention} has been automatically banned for mentioning {len(message.mentions)} people.")
         await message.delete()
     elif len(message.mentions) >= 10 and message.channel.guild.get_role(config['staff_Role']) not in message.author.roles:
@@ -55,7 +55,7 @@ async def on_message(message):
         await offender.remove_roles(banditos)
         await offender.add_roles(muted)
         await offender.send(f"You have been automatically muted for mentioning {len(message.mentions)} people. DM a staff member if you believe this to be a mistake.")
-        staffChan = bot.get_channel(815016457669705778)
+        staffChan = bot.get_channel(1309892790490234943)
         await staffChan.send(f"{offender.mention} has been automatically muted for mentioning {len(message.mentions)} people.")
         await message.delete()
 
