@@ -30,7 +30,7 @@ module.exports = {
   execute: async function(interaction){
     const client = interaction.client;
 
-    var severity = interaction.options.getUser('severity');
+    var severity = interaction.options.getString('severity');
     var user = interaction.options.getUser('user');
     if (user == null){
         user = interaction.options.getString('userid');
