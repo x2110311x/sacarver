@@ -1,5 +1,6 @@
 const { Collection } = require('discord.js');
 const fs = require('fs');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const log = require('../../structures/logging').getInstance().logger;
 
@@ -38,11 +39,34 @@ for (const file of subcommandFolders) {
     }
 }
 
+
+async function logStaffComamnd(interaction){
+    let client = interaction.client;
+    const staffCommandChannel = await client.channels.fetch(client.config.channels.staffCommandLog);
+    let subcommandName = "/staff " + interaction.options.getSubcommand() +" used";
+    let options = interaction.options.data;
+
+
+    const staffCommandEmbed = new EmbedBuilder()
+    .setColor(0xff0000)
+    .setTitle(subcommandName)
+    .addFields(
+      { name: 'Channel', value: `<#${interaction.channelId}> - ${interaction.channelId}` },
+      { name: 'User', value: `<@${interaction.member.id}> - ${interaction.member.id}`},
+      { name: 'Command options', value: `${options}` },
+      { name: 'Date Used', value: `<t:${Math.floor(interaction.createdTimestamp/1000)}:F>`},
+    )
+    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+    
+    await staffCommandChannel.send({ embeds: [staffCommandEmbed] });
+}
+
 module.exports = {
 	data: staffCommand,
     async execute(interaction) {
         let subcommandName = interaction.options.getSubcommand() + '.js';
         let command = subcommands.get(subcommandName);
         await command.execute(interaction);
-	},
+        await logStaffComamnd(interaction);
+	}
 };
