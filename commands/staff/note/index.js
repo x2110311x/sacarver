@@ -16,6 +16,13 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command");
+      let subcommandName = interaction.options.getSubcommand();
+      if (subcommandName == 'add'){
+        await add.execute(interaction);
+      } else if (subcommandName == 'view'){
+        await view.execute(interaction);
+      } else {
+        await interaction.reply({ephemeral:true, content: "Unknown command"});
+      }
     }
 };
