@@ -43,9 +43,20 @@ for (const file of subcommandFolders) {
 async function logStaffComamnd(interaction){
     let client = interaction.client;
     const staffCommandChannel = await client.channels.fetch(client.config.channels.staffCommandLog);
-    let subcommandName = "/staff " + interaction.options.getSubcommand() +" used";
+    let subcommandGroup = interaction.options.getSubcommandGroup;
+    if (subcommandGroup == null){
+        subcommandGroup = "";
+    } else {
+        subcommandGroup = ` ${subcommandGroup} `;
+    }
+    let subcommandName = "/staff " + subcommandGroup +interaction.options.getSubcommand() +" used";
     let options = interaction.options.data;
 
+    var args = "";
+
+    for(let option of options){
+        args += `${option.name}:${option.value} `;
+    }
 
     const staffCommandEmbed = new EmbedBuilder()
     .setColor(0xff0000)
@@ -53,7 +64,7 @@ async function logStaffComamnd(interaction){
     .addFields(
       { name: 'Channel', value: `<#${interaction.channel.id}> - ${interaction.channel.id}` },
       { name: 'User', value: `<@${interaction.member.id}> - ${interaction.member.id}`},
-      { name: 'Command options', value: `${options}` },
+      { name: 'Command options', value: `${args}` },
       { name: 'Date Used', value: `<t:${Math.floor(interaction.createdTimestamp/1000)}:F>`},
     )
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
