@@ -28,7 +28,7 @@ services:
     expose:
       - 3306
     ports:
-      - '3310:3306'
+      - '${SQL_Port}:3306'
   adminer:
     image: adminer
     restart: always
