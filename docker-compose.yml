@@ -6,6 +6,7 @@ services:
       - ./config.json:/usr/src/bot/config.json:ro
     depends_on:
       - redis
+      - db
   redis:
     image: redis:6.2-alpine
     restart: always
@@ -14,6 +15,20 @@ services:
     command: redis-server --save 20 1 --loglevel warning
     volumes: 
       - cache:/data
+  db:
+    image: mariadb:11-jammy
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MARIADB_USER=${MYSQL_USER}
+      - MARIADB_PASSWORD=${MYSQL_PASSWORD}
+      - MARIADB_DATABSE=${MYSQL_DATABASE}
+    volumes:
+      - db_data:/var/lib/mysql
+    expose:
+      - 3306
+    ports:
+      - '3306:3306'
 
 volumes:
   cache:
