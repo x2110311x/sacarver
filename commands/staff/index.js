@@ -64,10 +64,15 @@ async function logStaffComamnd(interaction){
 module.exports = {
 	data: staffCommand,
     async execute(interaction) {
-        let subcommandName = interaction.options.getSubcommand() + '.js';
+        let subcommandName = interaction.options.getSubcommandGroup();
+        if (subcommandName == null) {
+            subcommandName = interaction.options.getSubcommand() + '.js';
+        }
+
         let command = subcommands.get(subcommandName);
         interaction.client.log.debug(`Staff subcommand ${subcommandName} ran`);
         await command.execute(interaction);
+
         await logStaffComamnd(interaction);
 	}
 };
