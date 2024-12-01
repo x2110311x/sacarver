@@ -43,23 +43,24 @@ for (const file of subcommandFolders) {
 async function logStaffComamnd(interaction){
     let client = interaction.client;
     const staffCommandChannel = await client.channels.fetch(client.config.channels.staffCommandLog);
-    let subcommandGroup = interaction.options.getSubcommandGroup;
+    let subcommandGroup = interaction.options.getSubcommandGroup();
     if (subcommandGroup == null){
         subcommandGroup = "";
     } else {
         subcommandGroup = ` ${subcommandGroup} `;
     }
-    let subcommandName = "/staff " + subcommandGroup +interaction.options.getSubcommand() +" used";
+    let subcommandName = "/staff " + subcommandGroup + interaction.options.getSubcommand() +" used";
     let options = interaction.options.data;
 
     var args = "";
 
     for(let option of options){
-        args += `${option.name}:${option.value} `;
+        if(option.type > 2){
+            args += `${option.name}:${option.value} `;
+        }
     }
 
     const staffCommandEmbed = new EmbedBuilder()
-    .setColor(0xff0000)
     .setTitle(subcommandName)
     .addFields(
       { name: 'Channel', value: `<#${interaction.channel.id}> - ${interaction.channel.id}` },
