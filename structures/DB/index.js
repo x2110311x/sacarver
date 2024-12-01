@@ -1,7 +1,7 @@
 let instance = null;
 const { Sequelize } = require('sequelize');
 const initModels = require("./models/init-models");
-const config = require('../config.json');
+const config = require('../../config.json');
 class SacarverDB {
     constructor() {
         const sequelize = new Sequelize(config.db.DBName, config.db.user, config.db.pass, {
