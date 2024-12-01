@@ -52,12 +52,19 @@ async function logStaffComamnd(interaction){
     let subcommandName = "/staff " + subcommandGroup + interaction.options.getSubcommand() +" used";
     let options = interaction.options.data;
 
-    var args = "";
+    var args = "'";
+    var argsExist = false;
 
     for(let option of options){
         if(option.type > 2){
             args += `${option.name}:${option.value} `;
+            argsExist = true;
         }
+    }
+    args += "`";
+
+    if(!argsExist){
+        args = "N/A";
     }
 
     const staffCommandEmbed = new EmbedBuilder()
