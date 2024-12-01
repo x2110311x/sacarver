@@ -4,12 +4,15 @@ const Sacarver = require("./structures/bot");
 const config = require('./config.json');
 const logging = require('./structures/logging');
 const RedisCache = require('./structures/cache');
+const SacarverDB = require('./structures/DB');
 
 
 const client = Sacarver.getInstance().client;
 client.config = config;
 client.log = logging.getInstance().logger;
 client.cache = RedisCache.getInstance();
+client.DB = SacarverDB.getInstance().db;
+
 
 const commandFiles = fs.readdirSync('./commands',  { withFileTypes: true }).filter((item) => item.isDirectory()).map((item) => item.name);
 for (const file of commandFiles) {
