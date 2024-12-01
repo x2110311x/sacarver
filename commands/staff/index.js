@@ -51,7 +51,7 @@ async function logStaffComamnd(interaction){
     .setColor(0xff0000)
     .setTitle(subcommandName)
     .addFields(
-      { name: 'Channel', value: `<#${interaction.channelId}> - ${interaction.channelId}` },
+      { name: 'Channel', value: `<#${interaction.channel.id}> - ${interaction.channel.id}` },
       { name: 'User', value: `<@${interaction.member.id}> - ${interaction.member.id}`},
       { name: 'Command options', value: `${options}` },
       { name: 'Date Used', value: `<t:${Math.floor(interaction.createdTimestamp/1000)}:F>`},
