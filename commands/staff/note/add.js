@@ -1,4 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const crypto = require("crypto");
+const wait = require('node:timers/promises').setTimeout;
 
 module.exports = {
   builder: function (SlashCommandBuilder){
