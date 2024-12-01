@@ -1,5 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ComponentType } = require('discord.js');
-const note = require('.');
+const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 
 module.exports = {
   builder: function (SlashCommandBuilder){
@@ -7,14 +6,6 @@ module.exports = {
           subcommand
               .setName('add')
               .setDescription('Add a note to a user')
-              .addUserOption(option =>
-                  option.setName('user')
-                      .setDescription('The user to add a note to, if they are in the server')
-                      .setRequired(false))
-              .addStringOption(option =>
-                  option.setName('userid')
-                      .setDescription('The ID of the user to add a note to, if they are not in the server')
-                      .setRequired(false))
               .addStringOption(option => 
                 option.setName('severity')
                        .setDescription('The severity of the note')
@@ -23,7 +14,17 @@ module.exports = {
                         { name: 'High', value: 'High' },
                         { name: 'Medium', value: 'Medium' },
                         { name: 'Low', value: 'Low' },
-                      )));
+                      )
+              )
+              .addUserOption(option =>
+                option.setName('user')
+                    .setDescription('The user to add a note to, if they are in the server')
+                    .setRequired(false))
+              .addStringOption(option =>
+                  option.setName('userid')
+                      .setDescription('The ID of the user to add a note to, if they are not in the server')
+                      .setRequired(false))
+      );
       return SlashCommandBuilder;
   },
   execute: async function(interaction){
@@ -86,7 +87,7 @@ module.exports = {
           .addFields(
             { name: 'User', value: `<@${user}> - ${user}` },
             { name: 'Note', value: `${note}`},
-            { name: 'Severity', value: `${note}`},
+            { name: 'Severity', value: `${severity}`},
             { name: 'Message Link', value: `${msgLink}` },
             { name: 'Date Added', value: `<t:${Math.floor(i.createdTimestamp/1000)}:F>`},
           )
