@@ -28,12 +28,12 @@ async function sendModal(interaction){
 
     const collectorFilter = i => (i.user.id === interaction.user.id && i.customId === modalID);
 
-    try {
-      const modalSubmit = interaction.awaitModalSubmit({ time: 600_000, collectorFilter });
-      await catchModal(interaction, modalSubmit);
-    } catch(err) {
+    interaction.awaitModalSubmit({ time: 600_000, collectorFilter })
+    .then(i => {
+      catchModal(interaction, i);
+    }).catch(err => {
         interaction.client.log.warn({message: `Error with modal response for /staff note add`, error:err});
-    }
+    });
 }
 
 async function catchModal(interaction, newInteraction){
@@ -96,12 +96,12 @@ async function catchModal(interaction, newInteraction){
     (i.user.id === interaction.user.id && 
       (i.customId === "edit" || i.customId === "cancel" || i.customId === "submit" ));
   
-  try {
-    const buttonPress = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 })
-    await catchButton(newInteraction, buttonPress, data);
-  } catch(err) {
+    await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 })
+      .then(i=> {
+        catchButton(newInteraction, i, data);
+      }).catch(err => {
       interaction.client.log.warn({message: `Error with button response for /staff note add`, error:err});
-  }
+    });
 }
 
 async function catchButton(interaction, newInteraction, data) {
