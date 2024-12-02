@@ -21,7 +21,7 @@ class SacarverDB {
         this.db = initModels(sequelize);
         log.debug("DB Object Models Initialized");
 
-        log.debug("Loading DB helpers");
+        /*log.debug("Loading DB helpers");
         this.helpers={};
         const helperFiles = fs.readdirSync('./helpers').filter(file => file.endsWith('.js'));
         for (const file of helperFiles) {
@@ -29,13 +29,13 @@ class SacarverDB {
                 log.debug(`Loading DB helper: ${file}`);
                 const helper = require(`./helpers/${file}`);
                 this.helpers.push({
-                    "name": helper.name,
-                    "execute": helper.execute
+                    key: helper.name,
+                    value: helper.execute
                 });
             } catch (e) {
                 log.warn({message: `Could not load /${file}`, error:e});
             }
-        }
+        */
     }
     
     static getInstance() {
