@@ -23,13 +23,9 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(8),
       allowNull: false
     },
-    ChannelID: {
-      type: DataTypes.BIGINT,
-      allowNull: true
-    },
-    MessageID: {
-      type: DataTypes.BIGINT,
-      allowNull: true
+    Link: {
+      type: DataTypes.TEXT,
+      allowNull: false
     },
     Noter: {
       type: DataTypes.BIGINT,

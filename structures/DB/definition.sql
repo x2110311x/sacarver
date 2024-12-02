@@ -4,8 +4,7 @@ CREATE TABLE `Notes` (
   `Date` bigint NOT NULL,
   `Note` text NOT NULL,
   `Severity` varchar(8) NOT NULL,
-  `ChannelID` bigint,
-  `MessageID` bigint,
+  `Link` text NOT NULL,
   `Noter` bigint NOT NULL
 );
 

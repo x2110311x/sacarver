@@ -4,8 +4,7 @@ Table Notes {
   Date bigint [not null]
   Note text [not null]
   Severity varchar(8) [not null]
-  ChannelID bigint
-  MessageID bigint
+  Link text
   Noter bigint [not null]
   INDEXES {
    User [name: 'user_index'] 
