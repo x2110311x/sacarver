@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
     "generateDB": "source ./scripts/generateDBModels.sh",
-    "updateDocker": "source ./scripts/update.sh",
+    "update": "source ./scripts/update.sh",
     "deploy": "node deploy",
     "remove": "node remove"
   },
