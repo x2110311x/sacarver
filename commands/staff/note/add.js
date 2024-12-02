@@ -38,7 +38,6 @@ async function sendModal(interaction){
 
 async function catchModal(interaction, newInteraction){
   let client = interaction.client;
-  newInteraction.deferReply();
 
   var severity = interaction.options.getString('severity');
   var user = interaction.options.getUser('user');
@@ -91,7 +90,7 @@ async function catchModal(interaction, newInteraction){
   const buttonRow = new ActionRowBuilder()
     .addComponents(submitButton, cancelButton);
 
-  let response = newInteraction.reply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow]});  
+  let response = newInteraction.reply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow], fetchReply: true});  
 
   const collectorFilter = i => 
     (i.user.id === interaction.user.id && 
@@ -107,31 +106,26 @@ async function catchButton(interaction, newInteraction, data) {
   let client = interaction.client;
   await newInteraction.update({components:[]});
   if (newInteraction.customId == 'submit'){
-
     await submitNote(interaction, data);
-
   } else if (newInteraction.customId == 'edit'){
-
     await newInteraction.reply({ephemeral: true, content: "This feature has not been implemented yet"});
-
   } else if (newInteraction.customId == 'cancel'){
-
     let cancelEmbed = new EmbedBuilder()
       .setTitle("Note cancelled")
       .setDescription("Note add has been cancelled")
       .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
-    await newInteraction.reply({ephemeral: true, embeds:[cancelEmbed]})
-
+    
+      await newInteraction.reply({ephemeral: true, embeds:[cancelEmbed]})
   } else {
-
     let errorEmbed = new EmbedBuilder()
           .setColor(0xff0000)
           .setTitle("Command Error")
           .setDescription("Something went very wrong")
           .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+    
     interaction.client.error(`Received unknown button ID ${newInteraction.customId} in /staff note add`);
+    
     await newInteraction.reply({ephemeral: true, embeds:[errorEmbed]})
-
   }
 }
 
