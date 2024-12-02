@@ -18,6 +18,7 @@ module.exports = {
       return SlashCommandBuilder;
   },
   execute: async function(interaction){
+    await interaction.deferReply();
     const client = interaction.client;
 
     var user = interaction.options.getUser('user');
@@ -30,14 +31,13 @@ module.exports = {
         .setDescription("Please specify a user or user ID")
         .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
 
-        await interaction.reply({ephemeral: true, embeds: [errorEmbed]});
+        await interaction.editReply({ephemeral: true, embeds: [errorEmbed]});
         return;
         }
     }
     
-    await interaction.deferReply();
     
-    const notes = await client.DB.notes.findAll({
+    const notes = await client.DB.Notes.findAll({
         where: {
             User: user
         }
