@@ -9,11 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     User: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'Users',
-        key: 'ID'
-      }
+      allowNull: false
     },
     Date: {
       type: DataTypes.BIGINT,
@@ -37,11 +33,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     Noter: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'Users',
-        key: 'ID'
-      }
+      allowNull: false
     }
   }, {
     sequelize,
@@ -61,13 +53,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "User" },
-        ]
-      },
-      {
-        name: "Noter",
-        using: "BTREE",
-        fields: [
-          { name: "Noter" },
         ]
       },
     ]
