@@ -34,6 +34,8 @@ module.exports = {
         await interaction.editReply({ephemeral: true, embeds: [errorEmbed]});
         return;
         }
+    } else {
+        user = user.id;
     }
     
     
