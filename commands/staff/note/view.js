@@ -58,6 +58,7 @@ module.exports = {
 
         for (var note of notes){
             var noterId = note.Noter;
+            console.log(noterId);
             var noter = await guild.members.fetch({noterId, force: true});
             console.log(noter.displayName);
             noteEmbed.addFields({
