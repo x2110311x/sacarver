@@ -1,17 +1,12 @@
-Table Users {
-  ID bigint [PK]
-  username varchar(33)
-}
-
 Table Notes {
   ID integer [PK, increment]
-  User bigint [not null, Ref: > Users.ID]
+  User bigint [not null]
   Date bigint [not null]
   Note text [not null]
   Severity varchar(8) [not null]
   ChannelID bigint
   MessageID bigint
-  Noter bigint [not null ,Ref: > Users.ID]
+  Noter bigint [not null]
   INDEXES {
    User [name: 'user_index'] 
   }
