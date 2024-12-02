@@ -28,17 +28,16 @@ async function sendModal(interaction){
 
     const collectorFilter = i => (i.user.id === interaction.user.id && i.customId === modalID);
 
-    interaction.awaitModalSubmit({ time: 600_000, collectorFilter })
-      .then(i => {
-        catchModal(interaction, i)
-      }).catch(err => {
+    try {
+      const modalSubmit = interaction.awaitModalSubmit({ time: 600_000, collectorFilter });
+      await catchModal(interaction, modalSubmit);
+    } catch(err) {
         interaction.client.log.warn({message: `Error with modal response for /staff note add`, error:err});
-      });
+    }
 }
 
 async function catchModal(interaction, newInteraction){
   let client = interaction.client;
-  newInteraction.deferReply();
 
   var severity = interaction.options.getString('severity');
   var user = interaction.options.getUser('user');
@@ -89,49 +88,48 @@ async function catchModal(interaction, newInteraction){
     .setStyle(ButtonStyle.Secondary);
 
   const buttonRow = new ActionRowBuilder()
-    .addComponents(submitButton, cancelButton);
+    .addComponents(submitButton, cancelButton); 
 
-  let response = newInteraction.reply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow]});  
+  const response = newInteraction.reply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow], fetchReply: true});  
 
   const collectorFilter = i => 
     (i.user.id === interaction.user.id && 
       (i.customId === "edit" || i.customId === "cancel" || i.customId === "submit" ));
   
-  await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 })
-  .then(i => {
-    catchButton(newInteraction, i, data);
-  })
+  try {
+    const buttonPress = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 })
+    await catchButton(newInteraction, buttonPress, data);
+  } catch(err) {
+      interaction.client.log.warn({message: `Error with button response for /staff note add`, error:err});
+  }
 }
 
 async function catchButton(interaction, newInteraction, data) {
   let client = interaction.client;
+
   await newInteraction.update({components:[]});
+
   if (newInteraction.customId == 'submit'){
-
     await submitNote(interaction, data);
-
   } else if (newInteraction.customId == 'edit'){
-
-    await newInteraction.reply({ephemeral: true, content: "This feature has not been implemented yet"});
-
+    await interaction.editReply({ephemeral: true, content: "This feature has not been implemented yet"});
   } else if (newInteraction.customId == 'cancel'){
-
     let cancelEmbed = new EmbedBuilder()
       .setTitle("Note cancelled")
       .setDescription("Note add has been cancelled")
       .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
-    await newInteraction.reply({ephemeral: true, embeds:[cancelEmbed]})
 
+    await interaction.editReply({ephemeral: true, embeds:[cancelEmbed]})
   } else {
-
     let errorEmbed = new EmbedBuilder()
           .setColor(0xff0000)
           .setTitle("Command Error")
           .setDescription("Something went very wrong")
           .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+    
     interaction.client.error(`Received unknown button ID ${newInteraction.customId} in /staff note add`);
+    
     await newInteraction.reply({ephemeral: true, embeds:[errorEmbed]})
-
   }
 }
 
@@ -140,8 +138,6 @@ async function submitNote(interaction, data) {
   let DB = client.DB;
 
   try{
-
-  
     await DB.Notes.create({
       "User": data.user,
       "Date": data.dateAdded,
