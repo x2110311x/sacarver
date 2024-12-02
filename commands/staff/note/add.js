@@ -11,6 +11,7 @@ async function sendModal(interaction){
     .setCustomId('note')
     .setLabel("Note")
     .setRequired(true)
+    .setMaxLength(1_000)
     .setStyle(TextInputStyle.Paragraph);
   
     const messageLinkInput = new TextInputBuilder()
@@ -18,6 +19,7 @@ async function sendModal(interaction){
       .setLabel("Message Link")
       .setValue("N/A")
       .setRequired(false)
+      .setMaxLength(200)
       .setStyle(TextInputStyle.Paragraph);
 
     const firstActionRow = new ActionRowBuilder().addComponents(noteInput);
@@ -59,7 +61,7 @@ async function catchModal(interaction, newInteraction){
   }
   
   const noteEmbed = new EmbedBuilder()
-  .setColor(0xff0000)
+  .setColor(0xffff88)
   .setTitle("New Staff Note")
   .setDescription("Please review, and then click Submit or Cancel")
   .addFields(
