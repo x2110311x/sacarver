@@ -90,7 +90,7 @@ async function catchModal(interaction, newInteraction){
   const buttonRow = new ActionRowBuilder()
     .addComponents(submitButton, cancelButton); 
 
-  let response = newInteraction.reply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow], fetchReply: true});  
+  let response = await newInteraction.reply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow], fetchReply: true});  
 
   const collectorFilter = i => 
     (i.user.id === interaction.user.id && 
