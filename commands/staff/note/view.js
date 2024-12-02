@@ -38,28 +38,34 @@ module.exports = {
         user = user.id;
     }
     
-    
-    const notes = await client.DB.Notes.findAll({
-        where: {
-            User: user
-        }
-    });
-
-    const guild = interaction.guild;
-    const member = await guild.members.fetch(`${user}`);
-    
-    const noteEmbed = new EmbedBuilder()
-        .setColor(0xffff88)
-        .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL})
-        .setDescription("Please review, and then click Submit or Cancel");
-    
-    for (var note of notes){
-        noteEmbed.addFields({
-            'name': `${note.Severity} severity note submitted by <@${note.Noter}> on <t:${note.date}:F>`,
-            value: note.Note
+    try{ 
+        const notes = await client.DB.Notes.findAll({
+            where: {
+                User: user
+            }
         });
-    }
+        client.log.debug(`${notes.length} notes retrieved`);
 
-    await interaction.editReply({embeds: [noteEmbed]});
+        const guild = interaction.guild;
+        const member = await guild.members.fetch(`${user}`);
+        
+        const noteEmbed = new EmbedBuilder()
+            .setColor(0xffff88)
+            .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL})
+            .setDescription("Please review, and then click Submit or Cancel");
+        
+        for (var note of notes){
+            noteEmbed.addFields({
+                'name': `${note.Severity} severity note submitted by <@${note.Noter}> on <t:${note.date}:F>`,
+                value: note.Note
+            });
+        }
+
+        client.log.debug(noteEmbed.data);
+
+        await interaction.editReply({embeds: [noteEmbed]});
+    } catch (err){
+        client.log.error({message: "Error retrievingn staff notes", error:err})
+    }
   }
 };
