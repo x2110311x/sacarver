@@ -17,6 +17,7 @@ client.DB = SacarverDB.getInstance().db;
 const commandFiles = fs.readdirSync('./commands',  { withFileTypes: true }).filter((item) => item.isDirectory()).map((item) => item.name);
 for (const file of commandFiles) {
 	try{
+		client.log.debug(`Loading command ${file}`);
 		const command = require(`./commands/${file}`);
 		client.commands.set(command.data.name, command);
 		client.commandData.push(command.data.toJSON());
