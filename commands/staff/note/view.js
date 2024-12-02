@@ -54,11 +54,13 @@ module.exports = {
         const noteEmbed = new EmbedBuilder()
             .setColor(0xffff88)
             .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL()})
-            .setDescription("Please review, and then click Submit or Cancel");
-        
+            .setFooter(`${notes.length} total notes`);
+
         for (var note of notes){
+            var noterId = note.Noter
+            var noter = await guild.members.fetch({noterId, force: true});
             noteEmbed.addFields({
-                'name': `${note.Severity} severity note submitted by <@${note.Noter}> on <t:${note.date}:F>`,
+                'name': `${note.Severity} severity note submitted by ${noter.displayName} on <t:${note.Date}:F>`,
                 value: note.Note
             });
         }
