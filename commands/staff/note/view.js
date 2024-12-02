@@ -60,9 +60,18 @@ module.exports = {
             console.log(noterId);
             var noter = await client.users.fetch(noterId);
             console.log(noter.displayName);
+
+            var link = note.Link;
+            if(note.Link != "N/A"){
+                link = `\n\n[Link to message](${link})`;
+            } else {
+                link = "";
+            }
+            var noteText = note.Note + link;
+
             noteEmbed.addFields({
                 'name': `${note.Severity} severity note submitted by ${noter.displayName} on <t:${note.Date}:F>`,
-                value: note.Note
+                value: noteText
             });
         }
 
