@@ -148,8 +148,17 @@ async function submitNote(interaction, data) {
       "Link": data.msgLink,
       "Noter": data.noter
     });
-    console.log.info("Added note to database");
 
+      
+  let submitEmbed = new EmbedBuilder()
+    .setColor(0x00FF00)
+    .setTitle("Note added")
+    .setDescription("Your note has been stored")
+    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+  
+  await interaction.editReply({embeds: [submitEmbed]});
+  
+  client.log.info("Added note to database");
   } catch (err){
 
     client.log.error({message: "Failed to insert note into database", error: err})
@@ -159,15 +168,7 @@ async function submitNote(interaction, data) {
           .setDescription("Something went very wrong")
           .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
     await interaction.editReply({embeds: [errorEmbed]})
-
   }
-  
-  let submitEmbed = new EmbedBuilder()
-          .setColor(0x00FF00)
-          .setTitle("Note added")
-          .setDescription("Your note has been stored")
-          .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
-  await interaction.editReply({embeds: [submitEmbed]})
 
 }
 
