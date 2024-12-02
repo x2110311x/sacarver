@@ -46,8 +46,7 @@ module.exports = {
         });
         client.log.debug(`${notes.length} notes retrieved`);
 
-        const guild = interaction.guild;
-        const member = await guild.members.fetch({ user, force: true });
+        const member = await client.users.fetch({ user, force: true });
         console.log(member.displayName);
         console.log(member.displayAvatarURL());
         
@@ -59,7 +58,7 @@ module.exports = {
         for (var note of notes){
             var noterId = String(note.Noter);
             console.log(noterId);
-            var noter = await guild.members.fetch({noterId, force: true});
+            var noter = await client.users.fetch({noterId, force: true});
             console.log(noter.displayName);
             noteEmbed.addFields({
                 'name': `${note.Severity} severity note submitted by ${noter.displayName} on <t:${note.Date}:F>`,
