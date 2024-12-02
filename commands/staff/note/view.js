@@ -57,7 +57,7 @@ module.exports = {
             .setFooter({ text: `${notes.length} total notes` });
 
         for (var note of notes){
-            var noterId = note.Noter;
+            var noterId = String(note.Noter);
             console.log(noterId);
             var noter = await guild.members.fetch({noterId, force: true});
             console.log(noter.displayName);
