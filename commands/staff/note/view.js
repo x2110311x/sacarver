@@ -48,13 +48,12 @@ module.exports = {
 
         const guild = interaction.guild;
         const member = await guild.members.fetch({ user, force: true });
-        console.log(member);
         console.log(member.displayName);
-        console.log(member.displayAvatarURL);
+        console.log(member.displayAvatarURL());
         
         const noteEmbed = new EmbedBuilder()
             .setColor(0xffff88)
-            .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL})
+            .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL()})
             .setDescription("Please review, and then click Submit or Cancel");
         
         for (var note of notes){
