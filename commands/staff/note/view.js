@@ -47,7 +47,10 @@ module.exports = {
         client.log.debug(`${notes.length} notes retrieved`);
 
         const guild = interaction.guild;
-        const member = await guild.members.fetch(`${user}`);
+        const member = await guild.members.fetch({ user, force: true });
+        console.log(member);
+        console.log(member.displayName);
+        console.log(member.displayAvatarURL);
         
         const noteEmbed = new EmbedBuilder()
             .setColor(0xffff88)
