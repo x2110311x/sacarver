@@ -65,7 +65,8 @@ module.exports = {
 
         await interaction.editReply({embeds: [noteEmbed]});
     } catch (err){
-        client.log.error({message: "Error retrievingn staff notes", error:err})
+        console.log(err);
+        client.log.error({message: "Error retrieving staff notes", error:err})
     }
   }
 };
