@@ -91,15 +91,15 @@ async function catchModal(interaction, newInteraction){
   const buttonRow = new ActionRowBuilder()
     .addComponents(submitButton, cancelButton);
 
-  interaction.editReply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow]});  
+  newInteraction.reply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow]});  
 
   const collectorFilter = i => 
     (i.user.id === interaction.user.id && 
       (i.customId === "edit" || i.customId === "cancel" || i.customId === "submit" ));
   
-  await interaction.awaitMessageComponent({ filter: collectorFilter, time: 60_000 })
+  await newInteraction.awaitMessageComponent({ filter: collectorFilter, time: 60_000 })
   .then(i => {
-    catchButton(interaction, i, data);
+    catchButton(newInteraction, i, data);
   })
 }
 
