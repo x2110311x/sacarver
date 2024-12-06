@@ -86,7 +86,7 @@ module.exports = {
     async execute(interaction) {
         const staffRole = interaction.options.getRole(interaction.client.config.roles.staff);
 
-        if (!interaction.member.roles.cache.some(staffRole)) {
+        if (!interaction.member.roles.cache.has(staffRole)) {
             await interaction.reply({ephemeral: true, content: "You are not permitted to run staff commands"});
         }
 
