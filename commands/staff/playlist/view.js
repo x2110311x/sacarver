@@ -1,3 +1,6 @@
+const { where } = require("sequelize");
+const { Where } = require("sequelize/lib/utils");
+
 module.exports = {
   builder: function (SlashCommandBuilder){
       SlashCommandBuilder.addSubcommand(subcommand =>
@@ -12,6 +15,16 @@ module.exports = {
       return SlashCommandBuilder;
   },
   execute: async function(interaction){
-    await interaction.reply(":)");
+    let client = interaction.client;
+    let DB = client.DB;
+
+    const submissions = await DB.PlaylistData.findAll();
+
+    var output = ""
+    for (const submission of submissions) {
+      output += `[${submission.Track}](${submission.Link}) \n`;
+    }
+
+    await interaction.reply(output);
   }
 };
