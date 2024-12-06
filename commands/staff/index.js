@@ -84,11 +84,12 @@ async function logStaffComamnd(interaction){
 module.exports = {
 	data: staffCommand,
     async execute(interaction) {
-        const staffRole = interaction.options.getRole(interaction.client.config.roles.staff);
+        /*const staffRole = interaction.options.getRole(interaction.client.config.roles.staff);
 
         if (!interaction.member.roles.cache.has(staffRole)) {
             await interaction.reply({ephemeral: true, content: "You are not permitted to run staff commands"});
-        }
+            return;
+        }*/
 
         let subcommandName = interaction.options.getSubcommandGroup();
         if (subcommandName == null) {
