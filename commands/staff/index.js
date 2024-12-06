@@ -1,7 +1,7 @@
-const { Collection } = require('discord.js');
 const fs = require('fs');
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits, Collection } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+
 const log = require('../../structures/logging').getInstance().logger;
 
 
@@ -9,7 +9,8 @@ const subcommands = new Collection();
 
 let staffCommand = new SlashCommandBuilder()
                     .setName('staff')
-                    .setDescription('Staff commands');
+                    .setDescription('Staff commands')
+                    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers);
 
 const subcommandFiles = fs.readdirSync('./commands/staff').filter(file => file.endsWith('.js'));
 for (const file of subcommandFiles) {
