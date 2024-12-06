@@ -1,5 +1,3 @@
-const { PermissionFlagsBits } = require('discord.js');
-
 module.exports = {
   builder: function (SlashCommandBuilder){
       SlashCommandBuilder.addSubcommand(subcommand =>
@@ -9,8 +7,7 @@ module.exports = {
               .addStringOption(option =>
                 option.setName('month')
                   .setDescription('Month to configure')
-                  .setRequired(true))
-              .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers));
+                  .setRequired(true)));
                   
       return SlashCommandBuilder;
   },
