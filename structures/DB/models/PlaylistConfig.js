@@ -7,8 +7,8 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    Date: {
-      type: DataTypes.DATEONLY,
+    Month: {
+      type: DataTypes.TEXT,
       allowNull: false
     },
     ThemeTitle: {
@@ -17,6 +17,10 @@ module.exports = function(sequelize, DataTypes) {
     },
     ThemeDescription: {
       type: DataTypes.TEXT,
+      allowNull: true
+    },
+    Current: {
+      type: DataTypes.BOOLEAN,
       allowNull: true
     },
     maxSubmissions: {
