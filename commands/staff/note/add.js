@@ -20,7 +20,7 @@ async function sendModal(interaction){
       .setValue("N/A")
       .setRequired(false)
       .setMaxLength(200)
-      .setStyle(TextInputStyle.Paragraph);
+      .setStyle(TextInputStyle.Short);
 
     const firstActionRow = new ActionRowBuilder().addComponents(noteInput);
     const secondActionRow = new ActionRowBuilder().addComponents(messageLinkInput);
