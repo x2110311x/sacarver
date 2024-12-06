@@ -13,9 +13,10 @@ Table Notes {
 
 Table PlaylistConfig {
   ID integer [PK, increment]
-  Date date [not null]
+  Month text [not null]
   ThemeTitle text [not null]
   ThemeDescription text
+  Current bool
   maxSubmissions integer [Default: 2]
 }
 

@@ -10,9 +10,10 @@ CREATE TABLE `Notes` (
 
 CREATE TABLE `PlaylistConfig` (
   `ID` integer PRIMARY KEY AUTO_INCREMENT,
-  `Date` date NOT NULL,
+  `Month` text NOT NULL,
   `ThemeTitle` text NOT NULL,
   `ThemeDescription` text,
+  `Current` bool,
   `maxSubmissions` integer DEFAULT 2
 );
 
