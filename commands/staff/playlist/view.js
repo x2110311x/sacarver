@@ -1,6 +1,3 @@
-const { where } = require("sequelize");
-const { Where } = require("sequelize/lib/utils");
-
 module.exports = {
   builder: function (SlashCommandBuilder){
       SlashCommandBuilder.addSubcommand(subcommand =>
