@@ -175,7 +175,7 @@ async function submitNote(interaction, data) {
       { name: 'Note', value: `${data.note}`},
       { name: 'Severity', value: `${data.severity}`},
       { name: 'Message Link', value: `${data.msgLink}` },
-      { name: 'Date Added', value: `<t:${Math.floor(newInteraction.createdTimestamp/1000)}:F>`},
+      { name: 'Date Added', value: `<t:${data.dateAdded}:F>`},
     )
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
   
