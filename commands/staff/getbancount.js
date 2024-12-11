@@ -15,7 +15,7 @@ async function fetchMoreBans(guild) { // https://stackoverflow.com/a/72672522
         } else {
             bans = await guild.bans.fetch({limit: 1000, cache: false, force: true});
         }
-        count = bans.size();
+        count = bans.size;
   
         collection = collection.concat(bans);
         lastId = bans.last().id;
