@@ -158,7 +158,8 @@ async function submitNote(interaction, data) {
     .setDescription("Your note has been stored")
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
   
-  await interaction.editReply({embeds: [submitEmbed]});
+  await interaction.deleteReply();
+  await interaction.followUp({embeds: [submitEmbed]});
   
   client.log.info("Added note to database");
   } catch (err){
