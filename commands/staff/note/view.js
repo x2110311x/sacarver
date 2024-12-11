@@ -43,7 +43,7 @@ module.exports = {
             where: {
                 User: user
             },
-            order: [ 'Date', 'DESC'],
+            order: [ ['Date', 'DESC']],
             limit: 5
         });
         client.log.debug(`${notes.length} notes retrieved`);
