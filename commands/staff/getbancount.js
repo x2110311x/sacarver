@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { Collection, EmbedBuilder } = require('discord.js');
 
 async function fetchMoreBans(guild, limit = 10000) { // https://stackoverflow.com/a/72672522
     if (!guild || typeof guild !== 'object')
