@@ -82,6 +82,7 @@ async function catchModal(interaction, newInteraction){
   const editButton = new ButtonBuilder()
     .setCustomId('edit')
     .setLabel("Edit")
+    .setDisabled(true)
     .setStyle(ButtonStyle.Primary);
 
   const cancelButton = new ButtonBuilder()
@@ -90,7 +91,7 @@ async function catchModal(interaction, newInteraction){
     .setStyle(ButtonStyle.Secondary);
 
   const buttonRow = new ActionRowBuilder()
-    .addComponents(submitButton, cancelButton); 
+    .addComponents(submitButton, editButton, cancelButton); 
 
   let response = await newInteraction.reply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow], fetchReply: true});  
 
