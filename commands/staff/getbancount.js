@@ -1,6 +1,6 @@
 const { Collection, EmbedBuilder } = require('discord.js');
 
-async function fetchMoreBans(guild) { // https://stackoverflow.com/a/72672522
+async function fetchBanCount(guild) {
     if (!guild || typeof guild !== 'object')
       throw new Error(`Expected a guild, got "${typeof guild}"`);
   
@@ -41,7 +41,7 @@ module.exports = {
         await interaction.deferReply();
         const guild = interaction.guild;
         let client = interaction.client;
-        const bans = await fetchMoreBans(guild);
+        const bans = await fetchBanCount(guild);
 
         const banEmbed = new EmbedBuilder()
         .setColor(0xDC8203)
