@@ -20,5 +20,6 @@ module.exports = {
         .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
         
         await interaction.reply({embeds: [banEmbed]});
+    }
 
 };
