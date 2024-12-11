@@ -20,7 +20,7 @@ async function fetchMoreBans(guild) { // https://stackoverflow.com/a/72672522
         count = bans.size;
   
         collection = collection.concat(bans);
-        lastId = bans.last().id;
+        lastId = bans.last().user.id ?? bans.last();
         console.log(`Fetch ${fetches}. Count: ${count}. Last: ${lastId}`);
     }
   
