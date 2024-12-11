@@ -122,7 +122,7 @@ async function catchButton(interaction, newInteraction, data) {
       .setDescription("Note add has been cancelled")
       .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
     
-      await newInteraction.reply({ephemeral: true, embeds:[cancelEmbed]})
+      await newInteraction.reply({ephemeral: true, embeds:[cancelEmbed]});
   } else {
     let errorEmbed = new EmbedBuilder()
           .setColor(0xff0000)
