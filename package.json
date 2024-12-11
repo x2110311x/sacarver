@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
+    "generateDB": "source ./scripts/generateDBModels.sh",
+    "update": "source ./scripts/update.sh",
     "deploy": "node deploy",
     "remove": "node remove"
   },
@@ -20,11 +22,11 @@
   },
   "homepage": "https://github.com/x2110311x/sacarver#readme",
   "dependencies": {
-    "@discordjs/builders": "^1.1.0",
+    "@discordjs/builders": "^1.9.0",
     "@discordjs/rest": "^1.0.1",
     "canvas": "^2.11.2",
     "discord-api-types": "^0.37.3",
-    "discord.js": "^14.2.0",
+    "discord.js": "^14.16.3",
     "hex-color-to-color-name": "^1.0.2",
     "redis": "^4.7.0",
     "winston": "^3.14.2",
@@ -32,6 +34,9 @@
     "winston-loki": "^6.1.2"
   },
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "eslint": "^7.32.0",
+    "mysql2": "^3.11.5",
+    "sequelize": "^6.37.5",
+    "sequelize-auto": "^0.8.8"
   }
 }

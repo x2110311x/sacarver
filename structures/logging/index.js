@@ -23,8 +23,8 @@ const errorFileRotate = new winston.transports.DailyRotateFile({
 });
 
 const consoleLogs = new winston.transports.Console({
-    format: combine(timestamp(), cli()),
-    level: "debug"
+  format: combine(errors({ stack: true }), timestamp(), cli()),
+  level: "debug"
 });
 
 /*const lokiTransport = new LokiTransport({

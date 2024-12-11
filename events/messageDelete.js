@@ -9,9 +9,13 @@ module.exports = {
 	async execute(message) {
     client.log.debug("Received messageDelete event");
 
-    if(message.author.bot){
-      client.log.debug("Ignoring message delete for bot user");
-      return;
+    try {
+      if(message.author.bot){
+        client.log.debug("Ignoring message delete for bot user");
+        return;
+      } 
+    } catch (error) {
+        console.log("");
     }
 
     const entry = await message.guild.fetchAuditLogs({ type: 72 }).then(audit => audit.entries.first());

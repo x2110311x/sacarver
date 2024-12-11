@@ -1,0 +1,35 @@
+Table Notes {
+  ID integer [PK, increment]
+  User bigint [not null]
+  Date bigint [not null]
+  Note text [not null]
+  Severity varchar(8) [not null]
+  Link text
+  Noter bigint [not null]
+  INDEXES {
+   User [name: 'user_index'] 
+  }
+}
+
+Table PlaylistConfig {
+  ID integer [PK, increment]
+  Month text [not null]
+  ThemeTitle text [not null]
+  ThemeDescription text
+  Current bool
+  maxSubmissions integer [Default: 2]
+}
+
+Table PlaylistData {
+  ID integer [PK, increment]
+  User bigint [not null]
+  Track text [not null]
+  Link text [not null]
+  Reasoning text
+  Picked bool
+  Month integer [Ref: > PlaylistConfig.ID, not null]
+
+  INDEXES {
+   Month [name: 'month_index'] 
+  }
+}
