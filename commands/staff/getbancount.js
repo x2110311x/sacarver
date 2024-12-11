@@ -13,7 +13,7 @@ async function fetchBanCount(guild) {
 
     while (count >= (limit - fetches)) {
         if (lastId){
-            bans = await guild.bans.fetch({limit: limit, before:lastId, cache: false, force: true});
+            bans = await guild.bans.fetch({limit: limit, after:lastId, cache: false, force: true});
         } else {
             bans = await guild.bans.fetch({limit: limit, cache: false, force: true});
         }
