@@ -150,7 +150,21 @@ async function submitNote(interaction, data) {
       "Link": data.msgLink,
       "Noter": data.noter
     });
+  
+  client.log.info("Added note to database");
+  } catch (err){
 
+    client.log.error({message: "Failed to insert note into database", error: err})
+    let errorEmbed = new EmbedBuilder()
+          .setColor(0xff0000)
+          .setTitle("Command Error")
+          .setDescription("Something went very wrong")
+          .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+    await interaction.editReply({embeds: [errorEmbed]});
+    return;
+  }
+
+  
       
   let submitEmbed = new EmbedBuilder()
     .setColor(0x00FF00)
@@ -165,20 +179,8 @@ async function submitNote(interaction, data) {
     )
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
   
-  await interaction.deleteReply();
-  await interaction.followUp({embeds: [submitEmbed]});
-  
-  client.log.info("Added note to database");
-  } catch (err){
-
-    client.log.error({message: "Failed to insert note into database", error: err})
-    let errorEmbed = new EmbedBuilder()
-          .setColor(0xff0000)
-          .setTitle("Command Error")
-          .setDescription("Something went very wrong")
-          .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
-    await interaction.editReply({embeds: [errorEmbed]})
-  }
+    await interaction.deleteReply();
+    await interaction.followUp({embeds: [submitEmbed]});
 
 }
 
