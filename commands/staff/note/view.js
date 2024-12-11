@@ -42,7 +42,9 @@ module.exports = {
         const notes = await client.DB.Notes.findAll({
             where: {
                 User: user
-            }
+            },
+            order: [ 'Date', 'DESC'],
+            limit: 5
         });
         client.log.debug(`${notes.length} notes retrieved`);
 
