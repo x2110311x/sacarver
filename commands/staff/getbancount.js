@@ -39,6 +39,7 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
+        await interaction.deferReply();
         const guild = interaction.guild;
         let client = interaction.client;
         const bans = await fetchMoreBans(guild);
@@ -48,7 +49,7 @@ module.exports = {
         .setTitle(`The server currently has ${bans.size} bans`)
         .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
         
-        await interaction.reply({embeds: [banEmbed]});
+        await interaction.editReply({embeds: [banEmbed]});
     }
 
 };
