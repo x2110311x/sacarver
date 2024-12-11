@@ -4,14 +4,14 @@ async function fetchMoreBans(guild) { // https://stackoverflow.com/a/72672522
     if (!guild || typeof guild !== 'object')
       throw new Error(`Expected a guild, got "${typeof guild}"`);
   
-    let collection = new Collection();
     let lastId = null;
-    let limit = 800;
+    let limit = 1000;
     let count = 1000;
     let bans = null;
     let fetches = 0;
+    let total = 0;
 
-    while (count >= limit-10) {
+    while (count >= (limit - fetches)) {
         if (lastId){
             bans = await guild.bans.fetch({limit: limit, before:lastId, cache: false, force: true});
         } else {
@@ -20,12 +20,12 @@ async function fetchMoreBans(guild) { // https://stackoverflow.com/a/72672522
         fetches += 1;
         count = bans.size;
   
-        collection = collection.concat(bans);
+        total += count;
         lastId = bans.last().user.id ?? bans.last();
         console.log(`Fetch ${fetches}. Count: ${count}. Last: ${lastId}`);
     }
   
-    return collection;
+    return total;
   }
 
 module.exports = {
@@ -45,7 +45,7 @@ module.exports = {
 
         const banEmbed = new EmbedBuilder()
         .setColor(0xDC8203)
-        .setTitle(`The server currently has ${bans.size} bans`)
+        .setTitle(`The server currently has ${bans} bans`)
         .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
         
         await interaction.editReply({embeds: [banEmbed]});
