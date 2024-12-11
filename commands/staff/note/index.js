@@ -1,5 +1,6 @@
 const add = require('./add');
 const view = require('./view');
+const edit = require('./edit');
 
 module.exports = {
     builder: function (SlashCommandBuilder){
@@ -10,6 +11,7 @@ module.exports = {
                 
                 subcommandGroup = add.builder(subcommandGroup);
                 subcommandGroup = view.builder(subcommandGroup);
+                subcommandGroup = edit.builder(subcommandGroup);
                 return subcommandGroup;
             });
 
@@ -21,6 +23,8 @@ module.exports = {
         await add.execute(interaction);
       } else if (subcommandName == 'view'){
         await view.execute(interaction);
+      } else if (subcommandName == 'edit'){
+        await edit.execute(interaction);
       } else {
         await interaction.reply({ephemeral:true, content: "Unknown command"});
       }
