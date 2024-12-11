@@ -11,6 +11,7 @@ module.exports = {
     },
     execute: async function(interaction){
         const guild = interaction.guild;
+        let client = interaction.client;
         const banManager = guild.bans;
         const bans = await banManager.fetch({cache: false, force: true});
 
