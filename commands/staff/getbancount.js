@@ -6,15 +6,16 @@ async function fetchMoreBans(guild) { // https://stackoverflow.com/a/72672522
   
     let collection = new Collection();
     let lastId = null;
+    let limit = 800;
     let count = 1000;
     let bans = null;
     let fetches = 0;
 
-    while (count >= 1000) {
+    while (count >= limit) {
         if (lastId){
-            bans = await guild.bans.fetch({limit: 1000, before:lastId, cache: false, force: true});
+            bans = await guild.bans.fetch({limit: limit, before:lastId, cache: false, force: true});
         } else {
-            bans = await guild.bans.fetch({limit: 1000, cache: false, force: true});
+            bans = await guild.bans.fetch({limit: limit, cache: false, force: true});
         }
         fetches += 1;
         count = bans.size;
