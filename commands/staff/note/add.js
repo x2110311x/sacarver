@@ -156,6 +156,13 @@ async function submitNote(interaction, data) {
     .setColor(0x00FF00)
     .setTitle("Note added")
     .setDescription("Your note has been stored")
+    .addFields(
+      { name: 'User', value: `<@${data.user}> - ${data.user}` },
+      { name: 'Note', value: `${data.note}`},
+      { name: 'Severity', value: `${data.severity}`},
+      { name: 'Message Link', value: `${data.msgLink}` },
+      { name: 'Date Added', value: `<t:${Math.floor(newInteraction.createdTimestamp/1000)}:F>`},
+    )
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
   
   await interaction.deleteReply();
