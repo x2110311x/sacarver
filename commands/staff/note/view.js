@@ -70,7 +70,7 @@ module.exports = {
             var noteText = note.Note + link;
 
             noteEmbed.addFields({
-                'name': `Note ID${note.ID}: Submitted by ${noter.displayName} on <t:${note.Date}:r>\n${note.Severity} severity`,
+                'name': `Note ID${note.ID}: Submitted by ${noter.displayName} on <t:${note.Date}:d>\n${note.Severity} severity`,
                 value: noteText
             });
         }
