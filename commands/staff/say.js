@@ -16,6 +16,12 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Ban test");
+        var channel = interaction.options.getChannel('channel') ?? interaction.channel;
+        var text = interaction.options.getString('text');
+
+        await interaction.deferReply();
+        await channel.send(text);
+
+        await interaction.editReply(`Message sent in <#${channel.id}>`)
     }
 };
