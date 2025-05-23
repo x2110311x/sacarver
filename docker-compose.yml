@@ -4,6 +4,7 @@ services:
     restart: always
     volumes:
       - ./config.json:/usr/src/bot/config.json:ro
+      - ./logs:/usr/src/bot/logs
     depends_on:
       - redis
       - db
