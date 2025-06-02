@@ -126,6 +126,14 @@ class AuditLogs(commands.Cog, name="Audits"):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
+        if after.id == 463063308191137822
+            if before.status != after.status:
+                timestamp = int(time.time())
+                dTimestamp = f"<t:{timestamp}:F"
+                staffChan = guild.get_channel(1309892177723133983)
+                e = discord.Embed(title="Mark status change detected", description=f"Status changed from {before.status} to {after.status}", color=0x5a1b85)                    e = discord.Embed(title="Carlo status change detected", description=f"Status changed from {before.status} to {after.status}", color=0x5a1b85)
+                e.set_thumbnail(url="https://tenor.com/view/mrak-mrakljubav-jubav-oh-hi-mrak-coc-gif-25626655")
+                await staffChan.send(embed=e)
         if before.nick != after.nick:
             nicknameChanged = False
             if after.nick is not None:
@@ -255,7 +263,7 @@ def get_gif():
     url = "http://api.giphy.com/v1/gifs/search"
 
     params = parse.urlencode({
-    "q": "bozo",
+    "q": "Reel",
     "api_key": "DFYx7mnIjXfR73g2zX0AqjOOnRu3ZA2n",
     "limit": "75"
     })
