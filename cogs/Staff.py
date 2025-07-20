@@ -1078,8 +1078,9 @@ Thanks!"""
                     mention.display_name.lower().find("no@") != -1:
                     mentionEmbed = discord.Embed(title="Heads up!", description = "The user you just pinged or replied to requests that they are not pinged.", colour=0xeb6123)
                     mentionEmbed.set_footer(text=f"© 2025 x2110311x.")
+                    mentionEmbed.set_image(url="https://cdn.discordapp.com/attachments/470406597860917249/1396469355562139781/discord-reply.gif?ex=687e32ef&is=687ce16f&hm=ccc0aca97da124b93043d243caff99fc0c184220ff038835a42f49e0b5fc1b17&")
 
-                    await message.reply(mention_author=False, delete_after=15.0,embed=mentionEmbed, content="https://tenor.com/view/discord-reply-discord-reply-off-discord-reply-gif-22150762")
+                    await message.reply(mention_author=False, delete_after=15.0,embed=mentionEmbed)
 
     async def process_live_link(self, message):
         server = self.bot.get_guild(269657133673349120)
