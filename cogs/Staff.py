@@ -1077,7 +1077,7 @@ Thanks!"""
                     mention.display_name.lower().find("no @") != -1 or \
                     mention.display_name.lower().find("no@") != -1:
                     mentionEmbed = discord.Embed(title="Heads up!", description = "The user you just pinged or replied to requests that they are not pinged.", colour=0xeb6123)
-                    mentionEmbed.set_footer(text=f"© 2024 x2110311x.")
+                    mentionEmbed.set_footer(text=f"© 2025 x2110311x.")
 
                     await message.reply(mention_author=False, delete_after=15.0,embed=mentionEmbed, content="https://tenor.com/bE6Aw.gif")
 
