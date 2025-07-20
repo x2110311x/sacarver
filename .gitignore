@@ -5,3 +5,6 @@ node_modules/*
 logs/
 logs/*
 .env
+config.yml
+.gitignore
+database-dump.sql
