@@ -126,13 +126,22 @@ class AuditLogs(commands.Cog, name="Audits"):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if after.id == 463063308191137822
+        guild = self.bot.get_guild(config['server_ID'])
+        newRole = guild.get_role(config['new_member_Role'])
+        if newRole in after.roles:
+            joinDate = after.joined_at
+            now = datetime.now()
+            memberAge = now - joinDate
+            if (memberAge.total_seconds()/3600) > 6:
+                await after.remove_roles(newRole, reason="Member age is greater than 6 hours")
+        if after.id == 463063308191137822:
             if before.status != after.status:
                 timestamp = int(time.time())
                 dTimestamp = f"<t:{timestamp}:F"
-                staffChan = guild.get_channel(1309892177723133983)
-                e = discord.Embed(title="Mark status change detected", description=f"Status changed from {before.status} to {after.status}", color=0x5a1b85)                    e = discord.Embed(title="Carlo status change detected", description=f"Status changed from {before.status} to {after.status}", color=0x5a1b85)
-                e.set_thumbnail(url="https://tenor.com/view/mrak-mrakljubav-jubav-oh-hi-mrak-coc-gif-25626655")
+                guild = self.bot.get_guild(config['server_ID'])
+                staffChan = guild.get_channel(1379620414699081818)
+                e = discord.Embed(title="Mark status change detected", description=f"Status changed from {before.status} to {after.status}", color=0x5a1b85)
+                #e.set_thumbnail(url="https://media1.tenor.com/m/OxKCcYCz1-UAAAAd/tommy-wiseau.gif")
                 await staffChan.send(embed=e)
         if before.nick != after.nick:
             nicknameChanged = False
