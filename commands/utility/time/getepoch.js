@@ -14,7 +14,7 @@ module.exports = {
         .setColor(0xd5b052)
         .setTitle("The current Unix Epoch is")
         .setDescription(`${now}`)
-        .setFooter({ text: '© 2025x2110311x', iconURL: interaction.client.user.avatarURL() });
+        .setFooter({ text: '© 2025 x2110311x', iconURL: interaction.client.user.avatarURL() });
       await interaction.reply({embeds: [epoch]});
     }
 };

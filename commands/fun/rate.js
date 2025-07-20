@@ -17,7 +17,7 @@ module.exports = {
         const preThink = new EmbedBuilder()
             .setColor(0xd5b052)
             .setTitle("Give me a second to think about that..")
-            .setFooter({ text: '© 2025x2110311x', iconURL: interaction.client.user.avatarURL() });
+            .setFooter({ text: '© 2025 x2110311x', iconURL: interaction.client.user.avatarURL() });
         
         await interaction.reply({embeds: [preThink]});
         let item = interaction.options.getString('item');
@@ -27,7 +27,7 @@ module.exports = {
             .setColor(0xd5b052)
             .setTitle(`I would rate \`${item}\``)
             .setDescription(`${result} out of 10`)
-            .setFooter({ text: '© 2025x2110311x', iconURL: interaction.client.user.avatarURL() });
+            .setFooter({ text: '© 2025 x2110311x', iconURL: interaction.client.user.avatarURL() });
         
         await new Promise(resolve => setTimeout(resolve, 2000));
         await interaction.editReply({embeds: [postThink]});

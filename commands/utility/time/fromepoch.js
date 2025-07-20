@@ -21,7 +21,7 @@ module.exports = {
       .setColor(0xd5b052)
       .setTitle(`${epoch} as a human date is `)
       .setDescription(`${epochDate.toTimeString()}`)
-      .setFooter({ text: '© 2025x2110311x', iconURL: interaction.client.user.avatarURL() });
+      .setFooter({ text: '© 2025 x2110311x', iconURL: interaction.client.user.avatarURL() });
     await interaction.reply({embeds: [epochEmbed]});
   }
 };
