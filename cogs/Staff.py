@@ -1079,7 +1079,7 @@ Thanks!"""
                     mentionEmbed = discord.Embed(title="Heads up!", description = "The user you just pinged or replied to requests that they are not pinged.", colour=0xeb6123)
                     mentionEmbed.set_footer(text=f"© 2025 x2110311x.")
 
-                    await message.reply(mention_author=False, delete_after=15.0,embed=mentionEmbed, content="https://tenor.com/bE6Aw.gif")
+                    await message.reply(mention_author=False, delete_after=15.0,embed=mentionEmbed, content="https://tenor.com/view/discord-reply-discord-reply-off-discord-reply-gif-22150762")
 
     async def process_live_link(self, message):
         server = self.bot.get_guild(269657133673349120)
