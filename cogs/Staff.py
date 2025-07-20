@@ -148,6 +148,21 @@ class Staff(commands.Cog, name="Staff Commands"):
         #await self.check_vanity.stop()
         chanTest = self.bot.get_channel(config['testing_Channel'])
         await self.set_vanity_url(chanTest)
+    
+    @commands.command()
+    @commands.has_role(config['staff_Role'])
+    async def fix_new_role(self, ctx):
+        guild = self.bot.get_guild(config['server_ID'])
+        newRole = guild.get_role(config['new_member_Role'])
+        for member in guild.members:
+            if newRole in member.roles:
+                joinDate = member.joined_at
+                now = datetime.now()
+                memberAge = now - joinDate
+                if (memberAge.total_seconds()/3600) > 6:
+                    await member.remove_roles(newRole, reason="Member age is greater than 6 hours")
+        
+        await ctx.send("New member role fixed for all members")
 
     @commands.command()
     @commands.has_role(config['staff_Role'])
@@ -1064,7 +1079,7 @@ Thanks!"""
                     mentionEmbed = discord.Embed(title="Heads up!", description = "The user you just pinged or replied to requests that they are not pinged.", colour=0xeb6123)
                     mentionEmbed.set_footer(text=f"© 2024 x2110311x.")
 
-                    await message.reply(mention_author=False, delete_after=10.0,embed=mentionEmbed)
+                    await message.reply(mention_author=False, delete_after=15.0,embed=mentionEmbed, content="https://tenor.com/bE6Aw.gif")
 
     async def process_live_link(self, message):
         server = self.bot.get_guild(269657133673349120)
