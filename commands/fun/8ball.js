@@ -34,7 +34,7 @@ module.exports = {
       .setColor(0xd5b052)
       .setTitle('Please wait while the 8-ball shakes')
       .setImage('https://media4.giphy.com/media/3o6ozoD1ByqYv7ARIk/giphy.gif?cid=ecf05e47m06f3sb5stpb0adngxwkxf0c2n96lqx1mj5xldy6&rid=giphy.gif')
-      .setFooter({ text: '© 2024 x2110311x', iconURL: interaction.client.user.avatarURL() });
+      .setFooter({ text: '© 2025x2110311x', iconURL: interaction.client.user.avatarURL() });
 
     await interaction.reply({ embeds: [preShake] });
 
@@ -48,7 +48,7 @@ module.exports = {
       .addFields(
         { name: 'Your Question', value: question }
       )
-      .setFooter({ text: '© 2024 x2110311x', iconURL: interaction.client.user.avatarURL() });
+      .setFooter({ text: '© 2025x2110311x', iconURL: interaction.client.user.avatarURL() });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
     await interaction.editReply({ embeds: [postShake] });

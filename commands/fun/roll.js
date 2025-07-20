@@ -17,7 +17,7 @@ module.exports = {
             .setColor(0xd5b052)
             .setTitle("Please wait while the die is rolled")
             .setImage('https://c.tenor.com/HcK7RSiai-AAAAAi/dice-roll-dice.gif')
-            .setFooter({ text: '© 2024 x2110311x', iconURL: interaction.client.user.avatarURL() });
+            .setFooter({ text: '© 2025x2110311x', iconURL: interaction.client.user.avatarURL() });
         
         await interaction.reply({embeds: [preRoll]});
         let sides = interaction.options.getInteger('sides') ?? 6;
@@ -27,7 +27,7 @@ module.exports = {
             .setColor(0xd5b052)
             .setTitle(`On a ${sides}-sided die, you rolled a...`)
             .setDescription(`${result}`)
-            .setFooter({ text: '© 2024 x2110311x', iconURL: interaction.client.user.avatarURL() });
+            .setFooter({ text: '© 2025x2110311x', iconURL: interaction.client.user.avatarURL() });
         
         await new Promise(resolve => setTimeout(resolve, 4000));
         await interaction.editReply({embeds: [postRoll]});
