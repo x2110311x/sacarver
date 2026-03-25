@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-
+const fetchNotes = require("../../../helpers/notes/fetchnotes");
 
 module.exports = {
   builder: function (SlashCommandBuilder){
@@ -39,47 +39,10 @@ module.exports = {
     }
     
     try{ 
-        const notes = await client.DB.Notes.findAll({
-            where: {
-                User: user
-            },
-            order: [ ['Date', 'DESC']],
-            limit: 5
-        });
-        client.log.debug(`${notes.length} notes retrieved`);
-
-        const member = await client.users.fetch(user);
-        console.log(member.displayName);
-        console.log(member.displayAvatarURL());
-        
-        const noteEmbed = new EmbedBuilder()
-            .setColor(0xffff88)
-            .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL()})
-            .setFooter({ text: `${notes.length} total notes` });
-
-        for (var note of notes){
-            var noterId = String(note.Noter);
-            console.log(noterId);
-            var noter = await client.users.fetch(noterId);
-            console.log(noter.displayName);
-
-            var link = note.Link;
-            if(note.Link != "N/A"){
-                link = `\n\n[Link to message](${link})`;
-            } else {
-                link = "";
-            }
-            var noteText = note.Note + link;
-
-            noteEmbed.addFields({
-                'name': `Note ${note.ID}: Submitted by ${noter.displayName} <t:${note.Date}:R>\n${note.Severity} severity`,
-                value: noteText
-            });
-        }
-
-        client.log.debug(noteEmbed.data);
-
+        await fetchNotes(client, user).then(async (noteEmbed) => {
+            console.log(noteEmbed);
         await interaction.editReply({embeds: [noteEmbed]});
+        });
     } catch (err){
         console.log(err);
         client.log.error({message: "Error retrieving staff notes", error:err})
