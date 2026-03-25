@@ -5,11 +5,12 @@ module.exports = {
       SlashCommandBuilder.addSubcommand(subcommand =>
           subcommand
               .setName('post')
-              .setDescription('Make a blurryface post')
+              .setDescription('Make a forum post')
               .addChannelOption(option =>
                 option
                     .setName('forum')
                     .setDescription('Forum to make the post in')
+                    .addChannelTypes(15)
                     .setRequired(true))
               .addStringOption(option =>
                 option
@@ -37,40 +38,31 @@ module.exports = {
     var client = interaction.client;
     var embed;
 
-    if(image == ''){
-        if(text == ''){
-            await interaction.editReply("You must include at least text or image");
-            return;
-        } else {
-            embed = new EmbedBuilder()
-            .setColor("#df5344")
-            .setDescription(text)
-            .setFooter({ text: 'Blurryface', iconURL: interaction.client.user.avatarURL() })
-            .setTimestamp();
-        }
-    } else {
-        if(text == ''){
-            embed = new EmbedBuilder()
-            .setColor("#df5344")
-            .setImage(image)
-            .setFooter({ text: 'Blurryface', iconURL: interaction.client.user.avatarURL() })
-            .setTimestamp();
-        } else{
-            embed = new EmbedBuilder()
-            .setColor("#df5344")
-            .setDescription(text)
-            .setImage(image)
-            .setFooter({ text: 'Blurryface', iconURL: interaction.client.user.avatarURL() })
-            .setTimestamp();
-        }
+
+    if(text == '' && image == ''){
+        await interaction.editReply("You must include at least text or image");
+        return;
     }
+
     try{
-        await forum.threads.create({
-            name: name,
-            message: { 
-                embeds: [embed]
-            }
-        })
+        if(image != ''){
+            embed = new EmbedBuilder()
+            .setColor("#df5344")
+            .setImage(image);
+        
+            await forum.threads.create({
+                name: name,
+                message: {
+                    content: text, 
+                    embeds: [embed]
+                }
+            });
+        } else {
+            await forum.threads.create({
+                name: name,
+                message: {content: text}
+            });
+        }
 
         await interaction.editReply("Post has been posted")
     } catch{
