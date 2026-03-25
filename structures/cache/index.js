@@ -24,7 +24,7 @@ class RedisCache {
         createdTimestamp: message.createdTimestamp,
       };
       const msgJson = JSON.stringify(msg);
-      await this.client.set(message.id, msgJson, {EX:3600, NX: true});
+      await this.client.set(message.id, msgJson, {EX:21600, NX: true});
     }
 
     async getMessage(id){
