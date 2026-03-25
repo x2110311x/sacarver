@@ -3,7 +3,7 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('mock')
-                .setDescription('mock'));
+                .setDescription('WIP - mock'));
         return SlashCommandBuilder;
     },
     execute: async function(interaction){

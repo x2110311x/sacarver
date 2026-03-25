@@ -6,7 +6,7 @@ module.exports = {
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
             subcommandGroup
                 .setName('verified')
-                .setDescription('Commands for verified theories');
+                .setDescription('WIP - Commands for verified theories');
                 
                 subcommandGroup = lock.builder(subcommandGroup);
                 subcommandGroup = warn.builder(subcommandGroup);
@@ -16,6 +16,6 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command");
+        await interaction.reply("This command is still a work in progress");
     }
 };

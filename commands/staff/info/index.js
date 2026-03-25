@@ -6,7 +6,7 @@ module.exports = {
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
             subcommandGroup
                 .setName('info')
-                .setDescription('Get information about objects');
+                .setDescription('WIP - Get information about objects');
                 
                 subcommandGroup = member.builder(subcommandGroup);
                 subcommandGroup = user.builder(subcommandGroup);
@@ -16,6 +16,6 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command");
+        await interaction.reply("This command is still a work in progress");
     }
 };

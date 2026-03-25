@@ -3,7 +3,7 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('member')
-                .setDescription('Get information about a user in the server')
+                .setDescription('WIP - Get information about a user in the server')
                 .addUserOption(option =>
                     option
                         .setName('member')
@@ -11,6 +11,6 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command");
+        await interaction.reply("This command is still a work in progress");
     }
 };

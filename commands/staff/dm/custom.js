@@ -3,7 +3,7 @@ module.exports = {
         SlashCommandBuilder.addSubcommand(subcommand =>
             subcommand
                 .setName('custom')
-                .setDescription('Send a custom DM')
+                .setDescription('WIP - end a custom DM')
                 .addUserOption(option =>
                     option
                         .setName('user')
@@ -17,6 +17,6 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.reply("Command");
+        await interaction.reply("This command is still a work in progress");
     }
 };
