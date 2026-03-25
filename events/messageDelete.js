@@ -34,11 +34,15 @@ module.exports = {
 
     let channelID = message.channel.id;
     let content;
+    let attachments = cachedMessage.attachments;
+    let hadAttachments = attachments.length > 0 ? 'Yes' : 'No';
     if(cachedMessage==null){
       content = "`Message not cached`";
+      hadAttachments = "Unknown";
     } else {
       content = cachedMessage.content;
     }
+
     const deleteLogEmbed = new EmbedBuilder()
     .setColor(0xff0000)
     .setTitle('Message Deleted')
@@ -48,11 +52,18 @@ module.exports = {
       { name: 'User', value: `<@${message.author.id}> - ${message.author.id}`},
       { name: 'Message Text', value: `${content}` },
       { name: 'Date Deleted', value: `<t:${Math.floor(entry.createdTimestamp/1000)}:F>`},
+      { name: 'Had Attachments', value: `${hadAttachments}` },
       { name: 'Deleted By', value: `<@${user.id}> - ${user.id}`}
     )
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+    let extraContent = "";
+    if (attachments.length > 0){
+      for (var attachment of attachments){
+        extraContent += `${attachment.url}\n`;
+      }
+    }
 
     const deleteLogChannel = await client.channels.fetch(client.config.channels.deleteLog);
-    await deleteLogChannel.send({ embeds: [deleteLogEmbed] });
+    await deleteLogChannel.send({ embeds: [deleteLogEmbed], content: extraContent });
   }
 };
