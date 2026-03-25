@@ -22,6 +22,7 @@ class RedisCache {
         channel: message.channelId,
         content: message.content,
         createdTimestamp: message.createdTimestamp,
+        attachments: message.attachments.toJSON()
       };
       const msgJson = JSON.stringify(msg);
       await this.client.set(message.id, msgJson, {EX:21600, NX: true});
