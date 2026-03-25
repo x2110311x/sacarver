@@ -55,6 +55,10 @@ module.exports = {
       client.log.warn(`Unknown channel while logging message edit. Message ID : ${message.id}`);
     }
     
+    let editedTimestamp = Math.floor(newMessage.editedTimestamp/1000);
+    if (editedTimestamp == 0) {
+      return;
+    }
     const editLogEmbed = new EmbedBuilder()
     .setColor(0xDC8203)
     .setTitle('Message Edited')
