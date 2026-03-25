@@ -3,7 +3,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 
 module.exports = {
-	name: 'ready',
+	name: 'clientReady',
 	once: true,
 	async execute(client) {
 		await client.cache.client.connect();
