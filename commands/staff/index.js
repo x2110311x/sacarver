@@ -75,7 +75,7 @@ async function logStaffComamnd(interaction){
       { name: 'Command options', value: `${args}` },
       { name: 'Date Used', value: `<t:${Math.floor(interaction.createdTimestamp/1000)}:F>`},
     )
-    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
     
     await staffCommandChannel.send({ embeds: [staffCommandEmbed] });
 }

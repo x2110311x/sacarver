@@ -29,7 +29,7 @@ module.exports = {
         .setColor(0xff0000)
         .setTitle("Command Error")
         .setDescription("Please specify a user or user ID")
-        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
 
         await interaction.editReply({ephemeral: true, embeds: [errorEmbed]});
         return;

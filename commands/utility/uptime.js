@@ -13,7 +13,7 @@ module.exports = {
         const uptime = new EmbedBuilder()
             .setColor(0xd5b052)
             .setTitle(`The bot has been online for \`${uptimeStr}\`.`)
-            .setFooter({ text: '© 2025 x2110311x', iconURL: interaction.client.user.avatarURL() });
+            .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
         
         await interaction.reply({embeds: [uptime]});
     }

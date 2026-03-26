@@ -70,7 +70,7 @@ module.exports = {
       .setColor(0x493388)
       .setTitle(answer)
       .setThumbnail('https://c.tenor.com/H15IIZOPbMwAAAAd/hackerman-mr.gif')
-      .setFooter({ text: '© 2025 x2110311x', iconURL: interaction.client.user.avatarURL() });
+      .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
 
     await interaction.reply({ embeds: [hackermanEmbed] });
   }

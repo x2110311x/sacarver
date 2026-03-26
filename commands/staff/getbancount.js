@@ -46,7 +46,7 @@ module.exports = {
         const banEmbed = new EmbedBuilder()
         .setColor(0xDC8203)
         .setTitle(`The server currently has ${bans} bans`)
-        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
         
         await interaction.editReply({embeds: [banEmbed]});
     }

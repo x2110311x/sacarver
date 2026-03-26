@@ -35,7 +35,7 @@ async function catchModal(interaction, newInteraction, noteID){
       { name: 'Message Link', value: `${msgLink}` },
       { name: 'Date Originally Added', value: `<t:${originalnote.Date}:F>`},
     )
-    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
   
     const submitButton = new ButtonBuilder()
       .setCustomId('submit')
@@ -84,7 +84,7 @@ async function catchButton(interaction, newInteraction, data) {
         let cancelEmbed = new EmbedBuilder()
         .setTitle("Note cancelled")
         .setDescription("Note edit has been cancelled")
-        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
         
         await newInteraction.reply({ephemeral: true, embeds:[cancelEmbed]});
     } else {
@@ -92,7 +92,7 @@ async function catchButton(interaction, newInteraction, data) {
             .setColor(0xff0000)
             .setTitle("Command Error")
             .setDescription("Something went very wrong")
-            .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+            .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
         
         
         interaction.client.error(`Received unknown button ID ${newInteraction.customId} in /staff note edit`);
@@ -122,7 +122,7 @@ async function submitNote(interaction, data) {
             .setColor(0xff0000)
             .setTitle("Command Error")
             .setDescription("Something went very wrong")
-            .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+            .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
         await interaction.editReply({embeds: [errorEmbed]});
         return;
     }
@@ -141,7 +141,7 @@ async function submitNote(interaction, data) {
         { name: 'Date Added', value: `<t:${data.dateAdded}:F>`},
         { name: 'Added by', value: `<@${data.noter}>`},
         )
-        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
 
         await interaction.deleteReply();
         await interaction.followUp({embeds: [submitEmbed]});
