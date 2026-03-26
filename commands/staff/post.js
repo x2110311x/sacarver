@@ -30,7 +30,7 @@ module.exports = {
       return SlashCommandBuilder;
   },
   execute: async function(interaction){
-    await interaction.deferReply();
+    await interaction.deferReply({ephemeral: true});
     var image = interaction.options.getString('image') ?? '';
     var forum = interaction.options.getChannel('forum');
     var name = interaction.options.getString('name');

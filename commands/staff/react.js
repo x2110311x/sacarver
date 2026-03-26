@@ -22,7 +22,7 @@ module.exports = {
       return SlashCommandBuilder;
   },
   execute: async function(interaction){
-    await interaction.deferReply();
+    await interaction.deferReply({ephemeral: true});
     var channel = interaction.options.getChannel('channel');
     var message = interaction.options.getString('message');
     var emoji = interaction.options.getString('emoji') ?? '';

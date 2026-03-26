@@ -19,7 +19,7 @@ module.exports = {
         var channel = interaction.options.getChannel('channel') ?? interaction.channel;
         var text = interaction.options.getString('text');
 
-        await interaction.deferReply();
+        await interaction.deferReply({ephemeral: true});
         await channel.send(text);
 
         await interaction.editReply(`Message sent in <#${channel.id}>`)
