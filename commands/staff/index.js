@@ -50,18 +50,21 @@ async function logStaffComamnd(interaction){
         subcommandGroup = ` ${subcommandGroup} `;
     }
     let subcommandName = "/staff " + subcommandGroup + interaction.options.getSubcommand() +" used";
-    let options = interaction.options.data;
+    let options = interaction.options.data[0].options;
 
-    var args = "'";
+    if (options[0].type == 1){
+        options = options[0].options;
+    }
+
+    var args = "";
     var argsExist = false;
 
     for(let option of options){
         if(option.type > 2){
-            args += `${option.name}:${option.value} `;
+            args += `${option.name}:${option.value}, `;
             argsExist = true;
         }
     }
-    args += "`";
 
     if(!argsExist){
         args = "N/A";
