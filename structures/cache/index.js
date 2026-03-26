@@ -25,7 +25,7 @@ class RedisCache {
         attachments: message.attachments.toJSON()
       };
       const msgJson = JSON.stringify(msg);
-      await this.client.set(message.id, msgJson, {EX:21600, NX: true});
+      await this.client.set(message.id, msgJson, {EX:config.cacheExpiration, NX: true});
     }
 
     async getMessage(id){
