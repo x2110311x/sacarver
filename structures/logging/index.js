@@ -27,21 +27,10 @@ const consoleLogs = new winston.transports.Console({
   level: "debug"
 });
 
-/*const lokiTransport = new LokiTransport({
-    host: config.logging.host,
-    basicAuth: config.logging.basicAuth,
-    useWinstonMetaAsLabels: true,
-    json: true,
-    level: "debug",
-    format: json(),
-    replaceTimestamp: true,
-    onConnectionError: (err) => console.error(err)
-});*/
 
 const standardTransports = [
   combinedFileRotate,
   errorFileRotate,
-//  lokiTransport,
   consoleLogs
 ];
 

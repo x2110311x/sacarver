@@ -15,7 +15,7 @@ module.exports = {
         return;
       } 
     } catch (error) {
-        console.log("");
+        client.log.error({message: "Error fetching audit logs", error: error});
     }
 
     const entry = await message.guild.fetchAuditLogs({ type: 72 }).then(audit => audit.entries.first());

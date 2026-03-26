@@ -40,11 +40,9 @@ module.exports = {
     
     try{ 
         await fetchNotes(client, user).then(async (noteEmbed) => {
-            console.log(noteEmbed);
         await interaction.editReply({embeds: [noteEmbed]});
         });
     } catch (err){
-        console.log(err);
         client.log.error({message: "Error retrieving staff notes", error:err})
     }
   }

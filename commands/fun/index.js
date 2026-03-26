@@ -20,7 +20,6 @@ for (const file of subcommandFiles) {
             log.debug(`Command /fun ${file} loaded`);
         } catch (e) {
             log.warn({message: `Could not load /fun ${file}`, error:e});
-            console.error(e);
         }
     }
 }

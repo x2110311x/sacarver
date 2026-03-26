@@ -22,7 +22,7 @@ async function fetchBanCount(guild) {
   
         total += count;
         lastId = bans.last().user.id ?? bans.last();
-        console.log(`Fetch ${fetches}. Count: ${count}. Last: ${lastId}`);
+        client.log.debug(`Fetch ${fetches}. Count: ${count}. Last: ${lastId}`);
     }
   
     return total;

@@ -36,7 +36,6 @@ for (const file of subcommandFolders) {
         log.debug(`Command /staff ${file} loaded`);
     } catch (e) {
         log.warn({message: `Could not load /staff ${file}`, error:e});
-        console.error(e);
     }
 }
 

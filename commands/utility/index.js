@@ -22,7 +22,6 @@ for (const file of subcommandFiles) {
 
         } catch (e) {
             log.warn({message: `Could not load /utility ${file}`, error:e});
-            console.error(e);
         }
     }
 }
@@ -37,7 +36,6 @@ for (const file of subcommandFolders) {
         log.debug(`Command /utility ${file} loaded`);
     } catch (e) {
         log.warn({message: `Could not load /utility ${file}`, error:e});
-        console.error(e);
     }
 }
 

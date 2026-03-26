@@ -117,8 +117,6 @@ async function submitNote(interaction, data) {
 
         client.log.info("Edited note in database");
     } catch (err){
-        console.log(err);
-
         client.log.error({message: "Failed to update note in database", error: err})
         let errorEmbed = new EmbedBuilder()
             .setColor(0xff0000)

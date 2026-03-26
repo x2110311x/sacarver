@@ -20,7 +20,6 @@ module.exports = {
                           log.debug(`Command /utility time ${file} loaded`);
                       } catch (e) {
                         log.warn({message: `Could not load /utility time ${file}`, error:e});
-                        console.error(e);
                       }
                   }
               }
