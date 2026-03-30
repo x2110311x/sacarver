@@ -28,7 +28,7 @@ class AuditLogs(commands.Cog, name="Audits"):
             member = message.author
             guild = self.bot.get_guild(config['server_ID'])
             staff = guild.get_role(config['staff_Role'])
-            if staff not in member.roles and member.id != 470410168186699788:
+            if staff not in member.roles and member.id not in [470691679712706570, 470410168186699788, 470705413885788160, 470412382456381471]:
                 embedJoin = discord.Embed(colour=0x753543, title="User Passed Member Screening")
                 embedJoin.set_author(name=member.name, icon_url=member.avatar_url)
                 embedJoin.add_field(name="User ID", value=f"{member.id}", inline=False)
