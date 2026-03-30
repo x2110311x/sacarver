@@ -28,7 +28,7 @@ class AuditLogs(commands.Cog, name="Audits"):
             member = message.author
             guild = self.bot.get_guild(config['server_ID'])
             staff = guild.get_role(config['staff_Role'])
-            if staff not in member.roles:
+            if staff not in member.roles and member.id != 470410168186699788:
                 embedJoin = discord.Embed(colour=0x753543, title="User Passed Member Screening")
                 embedJoin.set_author(name=member.name, icon_url=member.avatar_url)
                 embedJoin.add_field(name="User ID", value=f"{member.id}", inline=False)
@@ -142,6 +142,14 @@ class AuditLogs(commands.Cog, name="Audits"):
                 staffChan = guild.get_channel(1379620414699081818)
                 e = discord.Embed(title="Mark status change detected", description=f"Status changed from {before.status} to {after.status}", color=0x5a1b85)
                 #e.set_thumbnail(url="https://media1.tenor.com/m/OxKCcYCz1-UAAAAd/tommy-wiseau.gif")
+                await staffChan.send(embed=e)
+        if after.id == 706274989082673232:
+            if before.status != after.status:
+                timestamp = int(time.time())
+                dTimestamp = f"<t:{timestamp}:F"
+                guild = self.bot.get_guild(config['server_ID'])
+                staffChan = guild.get_channel(1379620414699081818)
+                e = discord.Embed(title="Tyler status change detected", description=f"Status changed from {before.status} to {after.status}", color=0x5a1b85)
                 await staffChan.send(embed=e)
         if before.nick != after.nick:
             nicknameChanged = False
