@@ -24,10 +24,12 @@
   "dependencies": {
     "@discordjs/builders": "^1.14.0",
     "@discordjs/rest": "^2.6.1",
+    "better-profane-words": "^1.0.7",
     "canvas": "^2.11.2",
     "discord-api-types": "^0.38.42",
     "discord.js": "^14.25.1",
     "hex-color-to-color-name": "^1.0.2",
+    "profane-words": "^2.1.0",
     "redis": "^4.7.0",
     "winston": "^3.14.2",
     "winston-daily-rotate-file": "^5.0.0",

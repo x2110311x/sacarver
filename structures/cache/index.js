@@ -34,6 +34,15 @@ class RedisCache {
       return msg;
     }
     
+    async addSwear(userID){
+      await this.client.incr(userID);
+    }
+
+    async getSwear(userID){
+      const count = await this.client.get(userID);
+      return count;
+    }
+    
     static getInstance() {
       if(!instance) {
           instance = new RedisCache();
