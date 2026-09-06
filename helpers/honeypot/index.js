@@ -31,7 +31,7 @@ async function processHoneypot(client, message){
   catch (err){
     client.log.error({message: "Failed to ban user for honeypot detection", error: err})
   }
-
+  await message.delete();
   await staffLog(client, data);
   await addNote(client, data);
 }
