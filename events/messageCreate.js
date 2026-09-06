@@ -15,7 +15,7 @@ module.exports = {
         await client.cache.addSwear(user);
         var count = await client.cache.getSwear(user);
 
-        await message.channel.send(`${message.author.displayName} now has ${count} swears.`);
+        await message.channel.send(`${message.member.displayName} now has ${count} swears.`);
       }
     }
   }
