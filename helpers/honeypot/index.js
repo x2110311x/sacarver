@@ -6,9 +6,8 @@ async function processHoneypot(client, message){
     "user": message.author.id,
     "severity": "high",
     "note": "User sent a message in the honeypot channel.",
-    "msgLink": "",
     "message": message.content,
-    "dateAdded": Math.floor(newInteraction.createdTimestamp/1000),
+    "dateAdded": Math.floor(message.createdTimestamp/1000),
     "noter": client.config.clientID,
     "DMd": false,
     "banned": false
@@ -40,32 +39,33 @@ async function processHoneypot(client, message){
 async function staffLog(client, data){
     const banLogEmbed = new EmbedBuilder()
     .setColor(0xff0000)
-    .setTitle(`User ${data.banned ? "was" : "was not"} banned for honeypot detection.`)
-    .setDescription(data.DMd ? `User was DM'd ban appeal` : `User was unable to be DM'd.`)
+    .setTitle("User sent message in honeypot channel")
+    .setDescription(`${data.DMd ? "User was DM'd ban appeal" : "User was unable to be DM'd."}\n User ${data.banned ? "was" : "was unable to be"} automatically banned for honeypot detection.`)
     .addFields(
       { name: 'User', value: `<@${data.user}> - ${data.user}`},
       { name: 'Message Text', value: `${data.message}` },
-      { name: 'Date Deleted', value: `<t:${Math.floor(entry.createdTimestamp/1000)}:F>`}
+      { name: 'Date banned', value: `<t:${data.dateAdded}:F>`}
     )
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
 
     const banLog = await client.channels.fetch(client.config.channels.banLog);
     const chatModeration = await client.channels.fetch(client.config.channels.chatModeration);
     
-    await banLog.send({ embeds: [deleteLogEmbed]});
-    await chatModeration.send({ embeds: [deleteLogEmbed]});
+    if(data.banned){
+      await banLog.send({ embeds: [banLogEmbed]});
+    }
+    await chatModeration.send({ embeds: [banLogEmbed]});
 }
 
 async function addNote(client, data) {
   let DB = client.DB;
-
+  data.note += `\nUser ${data.banned ? "was" : "was unable to be"} automatically banned.`;
   try{
     await DB.Notes.create({
       "User": data.user,
       "Date": data.dateAdded,
       "Note": data.note,
       "Severity": data.severity,
-      "Link": data.msgLink,
       "Noter": data.noter
     });
   
@@ -75,4 +75,8 @@ async function addNote(client, data) {
     client.log.error({message: "Failed to insert note into database", error: err})
     return;
   }
+}
+
+module.exports = {
+  processHoneypot
 }
