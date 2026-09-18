@@ -15,6 +15,7 @@ class Sacarver {
           GatewayIntentBits.GuildMembers,
           GatewayIntentBits.GuildPresences,
           GatewayIntentBits.GuildVoiceStates,
+          GatewayIntentBits.GuildModeration,
         ],
         makeCache: Options.cacheWithLimits({
           ...Options.DefaultMakeCacheSettings,
