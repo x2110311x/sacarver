@@ -1,3 +1,5 @@
+const { updateMemberCountStatus } = require('../../../helpers/status');
+
 module.exports = {
     builder: function (SlashCommandBuilder){
         SlashCommandBuilder.addSubcommand(subcommand =>
@@ -7,13 +9,7 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        await interaction.guild.fetch().then(guild => {
-            guild.members.fetch().then(() => {
-                interaction.client.log.debug('Fetched all guild members');
-                interaction.client.user.setActivity(`${guild.memberCount} members`, { type: 'WATCHING' });
-            });
-        }).then(() => {
-            interaction.reply({ content: 'Set Status', ephemeral: true });
-        });
+        await updateMemberCountStatus(interaction.client, interaction.guild?.id);
+        await interaction.reply({ content: 'Set Status', ephemeral: true });
     }
 };

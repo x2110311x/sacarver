@@ -1,3 +1,12 @@
+const { ActivityType } = require('discord.js');
+
+const ActivityTypeMap = {
+    PLAYING: ActivityType.Playing,
+    LISTENING: ActivityType.Listening,
+    WATCHING: ActivityType.Watching,
+    COMPETING: ActivityType.Competing
+};
+
 module.exports = {
     builder: function (SlashCommandBuilder){
         SlashCommandBuilder.addSubcommand(subcommand =>
@@ -24,9 +33,10 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-        let type = interaction.options.getString('activity');
+        let typeStr = interaction.options.getString('activity');
         let activity = interaction.options.getString('status');
-        await interaction.client.user.setActivity(activity, { type: type });
+        let type = ActivityTypeMap[typeStr] ?? ActivityType.Playing;
+        await interaction.client.user.setActivity(activity, { type });
         await interaction.reply({ content: 'Status set', ephemeral: true });
     }
 };

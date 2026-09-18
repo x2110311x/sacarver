@@ -3,6 +3,7 @@ const { EmbedBuilder } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const honeypot = require('../helpers/honeypot');
+const { updateMemberCountStatus } = require('../helpers/status');
 
 module.exports = {
 	name: 'clientReady',
@@ -42,7 +43,7 @@ module.exports = {
 		await guild.members.fetch();
 		client.log.info('Fetched all guild members');
 		await weatheredFlag.send("Fetched all guild members");
-		await client.user.setActivity(`${guild.memberCount} members`, { type: 'WATCHING' });
+		await updateMemberCountStatus(client, config.guildID);
 
 		let roles = await guild.roles.fetch();
 		client.roles = roles;

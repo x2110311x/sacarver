@@ -1,4 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
+const { updateMemberCountStatus } = require('../helpers/status');
 
 module.exports = {
 	name: 'guildMemberAdd',
@@ -38,8 +39,6 @@ module.exports = {
 			client.log.error({ message: 'Error logging guildMemberAdd embed', error: err });
 		}
 
-		if (member.guild) {
-			client.user.setActivity(`${member.guild.memberCount} members`, { type: 'WATCHING' });
-		}
+		await updateMemberCountStatus(client, member.guild?.id);
 	},
 };
