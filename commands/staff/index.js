@@ -50,10 +50,10 @@ async function logStaffComamnd(interaction){
         subcommandGroup = ` ${subcommandGroup} `;
     }
     let subcommandName = "/staff " + subcommandGroup + interaction.options.getSubcommand() +" used";
-    let options = interaction.options.data[0].options;
+    let options = (interaction.options.data[0] && interaction.options.data[0].options) ? interaction.options.data[0].options : [];
 
-    if (options[0].type == 1){
-        options = options[0].options;
+    if (options[0] && options[0].type == 1){
+        options = options[0].options || [];
     }
 
     var args = "";
