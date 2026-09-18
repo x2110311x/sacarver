@@ -64,10 +64,12 @@ class Staff(commands.Cog, name="Staff Commands"):
         self._last_member = None
         self.dbinit = True
         self.event_reminder.start()
+        #self.no_spoilers_reminder.start()
         #self.check_vanity.start()
 
     def cog_unload(self):
         self.event_reminder.cancel()
+        self.no_spoilers_reminder.cancel()
         return super().cog_unload()
 
     @commands.Cog.listener()
@@ -75,6 +77,17 @@ class Staff(commands.Cog, name="Staff Commands"):
         if self.dbinit:
             self.DBConn = await DB.connect()
             self.dbinit = False
+
+    @tasks.loop(minutes=15.0)
+    async def no_spoilers_reminder(self):
+        await self.bot.wait_until_ready()
+        await asyncio.sleep(.5)
+        spoilerChannel = self.bot.get_guild(269657133673349120).get_channel(1378145305639387197)
+        reminder = "Since the album is fully out, This channel will be locked <t:1757898000:R>.\nFeel free to discuss elsewhere ;)"
+        reminderEmbed = discord.Embed(colour=0xff0000, title="IMPORTANT NOTICE", description=reminder)
+        reminderEmbed.set_footer(text=f"*This is an automated message*")
+        await spoilerChannel.send(embed=reminderEmbed, delete_after=300.0)
+
 
     @tasks.loop(seconds=20.0)
     async def event_reminder(self):
@@ -1067,7 +1080,7 @@ Thanks!"""
                 blacklistEm.add_field(name ="Blacklisted Phrase", value=f"{phrase}", inline=False)
                 await chatModeration.send(f"{message.author.mention}", embed=blacklistEm)
 
-    async def ping_off(self, message):
+    '''async def ping_off(self, message):
         if len(message.mentions) > 0:
             for mention in message.mentions:
                 if mention.display_name.lower().find("ping off") != -1 or \
@@ -1081,7 +1094,7 @@ Thanks!"""
                     mentionEmbed.set_image(url="https://cdn.discordapp.com/attachments/470406597860917249/1396469355562139781/discord-reply.gif?ex=687e32ef&is=687ce16f&hm=ccc0aca97da124b93043d243caff99fc0c184220ff038835a42f49e0b5fc1b17&")
 
                     await message.reply(mention_author=False, delete_after=15.0,embed=mentionEmbed)
-
+    '''
     async def process_live_link(self, message):
         server = self.bot.get_guild(269657133673349120)
         staff = server.get_role(330877657132564480)
