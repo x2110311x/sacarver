@@ -28,6 +28,10 @@ const consoleLogs = new winston.transports.Console({
 });
 
 
+combinedFileRotate.setMaxListeners(30);
+errorFileRotate.setMaxListeners(30);
+consoleLogs.setMaxListeners(30);
+
 const standardTransports = [
   combinedFileRotate,
   errorFileRotate,
