@@ -800,7 +800,7 @@ Thanks!"""
                 if message.webhook_id is None:
                     await self.process_slurs(message)
                     await self.process_steam_scam(message)
-                    await self.ping_off(message)
+                    # await self.ping_off(message)
                     await self.phraseblacklist(message)
                     await self.process_invites(message)
                     # await self.process_caf(message)
