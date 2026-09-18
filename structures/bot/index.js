@@ -13,6 +13,7 @@ class Sacarver {
           GatewayIntentBits.MessageContent,
           GatewayIntentBits.GuildMembers,
           GatewayIntentBits.GuildPresences,
+          GatewayIntentBits.GuildVoiceStates,
         ],
         makeCache: Options.cacheWithLimits({
           ...Options.DefaultMakeCacheSettings,
