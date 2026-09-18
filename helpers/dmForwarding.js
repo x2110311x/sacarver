@@ -1,8 +1,8 @@
-const { 
-  EmbedBuilder, 
-  ActionRowBuilder, 
-  ButtonBuilder, 
-  ButtonStyle, 
+const {
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ComponentType,
   ModalBuilder,
   TextInputBuilder,
@@ -65,19 +65,19 @@ async function handleDm(client, message) {
       const result = await Promise.race([buttonPromise, textPromise]);
 
       if (result.type === 'button') {
-        await result.interaction.deferUpdate().catch(() => {});
+        await result.interaction.deferUpdate().catch(() => { });
         confirmed = result.interaction.customId === 'dm_forward_confirm';
       } else if (result.type === 'text') {
         confirmed = result.message.content.trim().toLowerCase() === 'yes';
       }
     } catch (e) {
       // Timeout
-      await promptMessage.edit({ components: [] }).catch(() => {});
+      await promptMessage.edit({ components: [] }).catch(() => { });
       await message.channel.send('Timeout reached. Message not sent.');
       return;
     }
 
-    await promptMessage.edit({ components: [] }).catch(() => {});
+    await promptMessage.edit({ components: [] }).catch(() => { });
 
     if (!confirmed) {
       await message.channel.send('Message not sent.');
@@ -141,7 +141,7 @@ async function handleDm(client, message) {
     await message.channel.send('Your message has been sent to staff.\nWe will review it and staff will respond back to you if necessary.\nThanks!');
   } catch (err) {
     client.log.error({ message: 'Error in handleDm', error: err });
-    await message.channel.send('An error occurred while processing your message. Please try again.').catch(() => {});
+    await message.channel.send('An error occurred while processing your message. Please try again.').catch(() => { });
   } finally {
     activeDmSessions.delete(userId);
   }
@@ -157,7 +157,7 @@ async function handleReplyButton(interaction) {
   try {
     const staffRoleId = interaction.client.config?.roles?.staff || '323555864646647808';
     const isStaff = interaction.member?.permissions?.has(PermissionFlagsBits.ModerateMembers) ||
-                    interaction.member?.roles?.cache?.has(staffRoleId);
+      interaction.member?.roles?.cache?.has(staffRoleId);
 
     if (interaction.inGuild() && !isStaff) {
       await interaction.reply({ content: 'You do not have permission to reply to DMs.', flags: 64 });
@@ -197,7 +197,7 @@ async function handleReplyModal(interaction) {
   try {
     const staffRoleId = interaction.client.config?.roles?.staff || '323555864646647808';
     const isStaff = interaction.member?.permissions?.has(PermissionFlagsBits.ModerateMembers) ||
-                    interaction.member?.roles?.cache?.has(staffRoleId);
+      interaction.member?.roles?.cache?.has(staffRoleId);
 
     if (interaction.inGuild() && !isStaff) {
       await interaction.reply({ content: 'You do not have permission to reply to DMs.', flags: 64 });
@@ -214,27 +214,87 @@ async function handleReplyModal(interaction) {
       user = await interaction.client.users.fetch(userId);
     } catch (fetchErr) {
       interaction.client.log.warn({ message: `Could not fetch user ${userId} to send DM`, error: fetchErr });
-      await interaction.editReply(`Could not find user with ID ${userId}.`);
+      const notFoundEmbed = new EmbedBuilder()
+        .setColor(0xed4245)
+        .setTitle('Failed to Send DM Reply')
+        .addFields(
+          { name: 'Staff Member', value: `<@${interaction.user.id}>`, inline: true },
+          { name: 'Recipient ID', value: `${userId}`, inline: true },
+          { name: 'Error', value: `Could not find user with ID ${userId}.` }
+        )
+        .setFooter({
+          text: `© ${new Date().getFullYear()} x2110311x`,
+          iconURL: interaction.client.icon ? `${interaction.client.icon}` : undefined
+        })
+        .setTimestamp(interaction.createdAt);
+
+      await interaction.editReply({ embeds: [notFoundEmbed] });
       return;
     }
 
     try {
       await user.send(text);
-      const displayText = text.length > 1800 ? `${text.substring(0, 1800)}...` : text;
-      const formatted = displayText.includes('\n') ? `>>> ${displayText}` : `\`${displayText}\``;
-      await interaction.editReply(`Message sent to <@${user.id}>\n${formatted}`);
+
+      const staffTag = interaction.user.tag || interaction.user.username;
+      const userTag = user.tag || user.username;
+
+      const replyEmbed = new EmbedBuilder()
+        .setColor(0x753543)
+        .setTitle('DM Reply Sent')
+        .setAuthor({
+          name: staffTag,
+          iconURL: interaction.user.displayAvatarURL()
+        })
+        .addFields(
+          { name: 'Staff Member', value: `<@${interaction.user.id}> - ${staffTag}`, inline: true },
+          { name: 'Recipient', value: `<@${user.id}> - ${userTag}`, inline: true }
+        )
+        .setFooter({
+          text: `© ${new Date().getFullYear()} x2110311x`,
+          iconURL: interaction.client.icon ? `${interaction.client.icon}` : undefined
+        })
+        .setTimestamp(interaction.createdAt);
+
+      if (text.length > 1000) {
+        replyEmbed.addFields(
+          { name: 'Message', value: text.substring(0, 1000) },
+          { name: 'Message Cont.', value: text.substring(1000) }
+        );
+      } else {
+        replyEmbed.addFields({ name: 'Message', value: text });
+      }
+
+      await interaction.editReply({ embeds: [replyEmbed] });
     } catch (error) {
       interaction.client.log.warn({ message: `Could not send DM to user ${userId}`, error: error });
-      await interaction.editReply(`Could not send DM to <@${userId}>. They may have DMs disabled or have blocked the bot.`);
+      const failEmbed = new EmbedBuilder()
+        .setColor(0xed4245)
+        .setTitle('Failed to Send DM Reply')
+        .setAuthor({
+          name: interaction.user.tag || interaction.user.username,
+          iconURL: interaction.user.displayAvatarURL()
+        })
+        .addFields(
+          { name: 'Staff Member', value: `<@${interaction.user.id}>`, inline: true },
+          { name: 'Recipient', value: `<@${userId}>`, inline: true },
+          { name: 'Error', value: 'Could not send DM to user. They may have DMs disabled or have blocked the bot.' }
+        )
+        .setFooter({
+          text: `© ${new Date().getFullYear()} x2110311x`,
+          iconURL: interaction.client.icon ? `${interaction.client.icon}` : undefined
+        })
+        .setTimestamp(interaction.createdAt);
+
+      await interaction.editReply({ embeds: [failEmbed] });
     }
 
     await logStaffDmReply(interaction, userId, text);
   } catch (err) {
     interaction.client.log.error({ message: 'Error in handleReplyModal', error: err });
     if (interaction.deferred || interaction.replied) {
-      await interaction.editReply('An error occurred while attempting to send the message.').catch(() => {});
+      await interaction.editReply('An error occurred while attempting to send the message.').catch(() => { });
     } else {
-      await interaction.reply({ content: 'An error occurred while attempting to send the message.', flags: 64 }).catch(() => {});
+      await interaction.reply({ content: 'An error occurred while attempting to send the message.', flags: 64 }).catch(() => { });
     }
   }
 }
@@ -275,9 +335,9 @@ async function logStaffDmReply(interaction, userId, text) {
         { name: 'Command options', value: args },
         { name: 'Date Used', value: `<t:${Math.floor(interaction.createdTimestamp / 1000)}:F>` }
       )
-      .setFooter({ 
-        text: `© ${new Date().getFullYear()} x2110311x`, 
-        iconURL: client.icon ? `${client.icon}` : undefined 
+      .setFooter({
+        text: `© ${new Date().getFullYear()} x2110311x`,
+        iconURL: client.icon ? `${client.icon}` : undefined
       });
 
     await staffCommandChannel.send({ embeds: [staffCommandEmbed] });
