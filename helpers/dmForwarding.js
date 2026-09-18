@@ -3,7 +3,11 @@ const {
   ActionRowBuilder, 
   ButtonBuilder, 
   ButtonStyle, 
-  ComponentType 
+  ComponentType,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  PermissionFlagsBits
 } = require('discord.js');
 
 const activeDmSessions = new Set();
@@ -121,10 +125,17 @@ async function handleDm(client, message) {
       }
     }
 
+    const replyButton = new ButtonBuilder()
+      .setCustomId(`dm_reply_${message.author.id}`)
+      .setLabel('Reply')
+      .setStyle(ButtonStyle.Primary);
+
+    const replyRow = new ActionRowBuilder().addComponents(replyButton);
+
     if (files.length > 0) {
-      await staffChannel.send({ embeds: [embed], files });
+      await staffChannel.send({ embeds: [embed], files, components: [replyRow] });
     } else {
-      await staffChannel.send({ embeds: [embed] });
+      await staffChannel.send({ embeds: [embed], components: [replyRow] });
     }
 
     await message.channel.send('Your message has been sent to staff.\nWe will review it and staff will respond back to you if necessary.\nThanks!');
@@ -136,7 +147,99 @@ async function handleDm(client, message) {
   }
 }
 
+/**
+ * Handles the "Reply" button click from staff DM forward messages.
+ * Displays a modal prompting the staff member for their reply message.
+ *
+ * @param {import('discord.js').ButtonInteraction} interaction
+ */
+async function handleReplyButton(interaction) {
+  try {
+    const staffRoleId = interaction.client.config?.roles?.staff || '323555864646647808';
+    const isStaff = interaction.member?.permissions?.has(PermissionFlagsBits.ModerateMembers) ||
+                    interaction.member?.roles?.cache?.has(staffRoleId);
+
+    if (interaction.inGuild() && !isStaff) {
+      await interaction.reply({ content: 'You do not have permission to reply to DMs.', flags: 64 });
+      return;
+    }
+
+    const userId = interaction.customId.replace('dm_reply_', '');
+
+    const modal = new ModalBuilder()
+      .setCustomId(`dm_reply_modal_${userId}`)
+      .setTitle('Reply to User');
+
+    const textInput = new TextInputBuilder()
+      .setCustomId('text')
+      .setLabel('Message')
+      .setStyle(TextInputStyle.Paragraph)
+      .setPlaceholder('Enter message to DM the user...')
+      .setRequired(true)
+      .setMaxLength(2000);
+
+    const firstActionRow = new ActionRowBuilder().addComponents(textInput);
+    modal.addComponents(firstActionRow);
+
+    await interaction.showModal(modal);
+  } catch (error) {
+    interaction.client.log.error({ message: 'Error handling DM reply button', error });
+  }
+}
+
+/**
+ * Handles the modal submission for replying to a user via DM.
+ * Sends the DM and notifies staff of success or failure.
+ *
+ * @param {import('discord.js').ModalSubmitInteraction} interaction
+ */
+async function handleReplyModal(interaction) {
+  try {
+    const staffRoleId = interaction.client.config?.roles?.staff || '323555864646647808';
+    const isStaff = interaction.member?.permissions?.has(PermissionFlagsBits.ModerateMembers) ||
+                    interaction.member?.roles?.cache?.has(staffRoleId);
+
+    if (interaction.inGuild() && !isStaff) {
+      await interaction.reply({ content: 'You do not have permission to reply to DMs.', flags: 64 });
+      return;
+    }
+
+    const userId = interaction.customId.replace('dm_reply_modal_', '');
+    const text = interaction.fields.getTextInputValue('text');
+
+    await interaction.deferReply();
+
+    let user;
+    try {
+      user = await interaction.client.users.fetch(userId);
+    } catch (fetchErr) {
+      interaction.client.log.warn({ message: `Could not fetch user ${userId} to send DM`, error: fetchErr });
+      await interaction.editReply(`Could not find user with ID ${userId}.`);
+      return;
+    }
+
+    try {
+      await user.send(text);
+      const displayText = text.length > 1800 ? `${text.substring(0, 1800)}...` : text;
+      const formatted = displayText.includes('\n') ? `>>> ${displayText}` : `\`${displayText}\``;
+      await interaction.editReply(`Message sent to <@${user.id}>\n${formatted}`);
+    } catch (error) {
+      interaction.client.log.warn({ message: `Could not send DM to user ${userId}`, error: error });
+      await interaction.editReply(`Could not send DM to <@${userId}>. They may have DMs disabled or have blocked the bot.`);
+    }
+  } catch (err) {
+    interaction.client.log.error({ message: 'Error in handleReplyModal', error: err });
+    if (interaction.deferred || interaction.replied) {
+      await interaction.editReply('An error occurred while attempting to send the message.').catch(() => {});
+    } else {
+      await interaction.reply({ content: 'An error occurred while attempting to send the message.', flags: 64 }).catch(() => {});
+    }
+  }
+}
+
 module.exports = {
   handleDm,
+  handleReplyButton,
+  handleReplyModal,
   activeDmSessions
 };
