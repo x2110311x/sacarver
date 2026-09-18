@@ -46,7 +46,7 @@ module.exports = {
 
         if (!userObj && !userIdStr) {
             await interaction.editReply({
-                content: '⚠️ Please provide either a **user** (mention/select) or a **userid** (ID string) to ban.'
+                content: 'Please provide either a **user** (mention/select) or a **userid** (ID string) to ban.'
             });
             return;
         }
@@ -71,7 +71,7 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000)
-                .setTitle('🔨 User Banned')
+                .setTitle('User Banned')
                 .addFields(
                     { name: 'Target', value: successTag, inline: false },
                     { name: 'Reason', value: reason, inline: false },
@@ -85,7 +85,7 @@ module.exports = {
         } catch (error) {
             interaction.client.log.error({ message: `Failed to ban user ${targetUserResolvable}`, error: error });
             await interaction.editReply({
-                content: `❌ Could not ban target (\`${targetUserResolvable}\`). Error: ${error.message || error}`
+                content: `Could not ban target (\`${targetUserResolvable}\`). Error: ${error.message || error}`
             });
         }
     }
