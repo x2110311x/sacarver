@@ -33,3 +33,8 @@ Table PlaylistData {
    Month [name: 'month_index'] 
   }
 }
+
+Table Honeypot {
+  ID integer [PK, increment]
+  BannedCount integer [not null, Default: 0]
+}

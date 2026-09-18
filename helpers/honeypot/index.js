@@ -39,6 +39,72 @@ async function processHoneypot(client, message){
   await message.delete();
   await staffLog(client, data);
   await addNote(client, data);
+
+  if (data.banned) {
+    const count = await incrementBannedCount(client);
+    await updateHoneypotChannel(client, count);
+  }
+}
+
+async function getBannedCount(client) {
+  let DB = client.DB;
+  try {
+    const [record] = await DB.Honeypot.findOrCreate({
+      where: { ID: 1 },
+      defaults: { BannedCount: 0 }
+    });
+    return record.BannedCount;
+  } catch (err) {
+    client.log.error({ message: "Failed to get honeypot banned count from DB", error: err });
+    return 0;
+  }
+}
+
+async function setBannedCount(client, count) {
+  let DB = client.DB;
+  try {
+    const [record] = await DB.Honeypot.findOrCreate({
+      where: { ID: 1 },
+      defaults: { BannedCount: count }
+    });
+    record.BannedCount = count;
+    await record.save();
+    client.log.info(`Updated honeypot banned count in database to ${count}`);
+    return record.BannedCount;
+  } catch (err) {
+    client.log.error({ message: "Failed to set honeypot banned count in DB", error: err });
+    return count;
+  }
+}
+
+async function incrementBannedCount(client) {
+  let DB = client.DB;
+  try {
+    const [record] = await DB.Honeypot.findOrCreate({
+      where: { ID: 1 },
+      defaults: { BannedCount: 0 }
+    });
+    record.BannedCount += 1;
+    await record.save();
+    client.log.info(`Incremented honeypot banned count in database to ${record.BannedCount}`);
+    return record.BannedCount;
+  } catch (err) {
+    client.log.error({ message: "Failed to increment honeypot banned count in DB", error: err });
+    return 0;
+  }
+}
+
+async function updateHoneypotChannel(client, count) {
+  try {
+    const honeypotChannel = await client.channels.fetch(client.config.channels.honeypot);
+    if (honeypotChannel && typeof honeypotChannel.setTopic === 'function') {
+      const newTopic = `Scammers Banned: ${count}`;
+      await honeypotChannel.setTopic(newTopic);
+      client.log.info(`Updated honeypot channel topic to "${newTopic}"`);
+    }
+  } catch (err) {
+    client.log.error({ message: "Failed to update honeypot channel topic", error: err });
+  }
 }
 
 async function staffLog(client, data){
@@ -83,5 +149,9 @@ async function addNote(client, data) {
 }
 
 module.exports = {
-  processHoneypot
+  processHoneypot,
+  getBannedCount,
+  setBannedCount,
+  incrementBannedCount,
+  updateHoneypotChannel
 }

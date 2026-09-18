@@ -2,6 +2,7 @@ const config = require('../config.json');
 const { EmbedBuilder } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
+const honeypot = require('../helpers/honeypot');
 
 module.exports = {
 	name: 'clientReady',
@@ -52,5 +53,13 @@ module.exports = {
 		client.guildchannels = channels;
 		client.log.info('Channel Collection populated');
 		await weatheredFlag.send("Fetched all guild channels");
+
+		try {
+			const initialCount = await honeypot.getBannedCount(client);
+			await honeypot.updateHoneypotChannel(client, initialCount);
+			client.log.info(`Honeypot channel topic synced with DB count (${initialCount})`);
+		} catch (err) {
+			client.log.error({message: "Error syncing honeypot topic on clientReady", error: err});
+		}
 	},
 };

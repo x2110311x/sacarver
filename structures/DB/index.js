@@ -19,6 +19,9 @@ class SacarverDB {
         log.debug("Connected to DB");
         log.debug("Initializing DB Object Models");
         this.db = initModels(sequelize);
+        this.db.Honeypot.sync().catch(err => {
+            log.error({message: "Failed to sync Honeypot table", error: err});
+        });
         log.debug("DB Object Models Initialized");
 
         /*log.debug("Loading DB helpers");

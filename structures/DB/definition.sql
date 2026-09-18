@@ -27,6 +27,11 @@ CREATE TABLE `PlaylistData` (
   `Month` integer NOT NULL
 );
 
+CREATE TABLE `Honeypot` (
+  `ID` integer PRIMARY KEY AUTO_INCREMENT,
+  `BannedCount` integer NOT NULL DEFAULT 0
+);
+
 CREATE INDEX `user_index` ON `Notes` (`User`);
 
 CREATE INDEX `month_index` ON `PlaylistData` (`Month`);
