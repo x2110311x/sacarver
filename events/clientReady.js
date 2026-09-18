@@ -13,29 +13,29 @@ module.exports = {
 		client.startTime = new Date();
 		client.icon = client.user.avatarURL();
 
-    	const weatheredFlag = await client.channels.fetch(client.config.channels.weatheredFlag);
+		const weatheredFlag = await client.channels.fetch(client.config.channels.weatheredFlag);
 		const embed = new EmbedBuilder()
-		.setTitle("Bot has started")
-		.setColor("#fce300")
-    	.setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` })
-		.setTimestamp(client.startTime);
-		try{
+			.setTitle("Bot has started")
+			.setColor("#fce300")
+			.setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` })
+			.setTimestamp(client.startTime);
+		try {
 			await weatheredFlag.send({ embeds: [embed] });
 		} catch (err) {
-			client.log.error({message: "Error sending startup message to weathered flag channel", error: err});
+			client.log.error({ message: "Error sending startup message to weathered flag channel", error: err });
 		}
 
-		const rest = new REST({version: '9'}).setToken(config.token);
+		const rest = new REST({ version: '9' }).setToken(config.token);
 		try {
 			await rest.put(
 				Routes.applicationGuildCommands(config.clientID, config.guildID), {
-					body: client.commandData,
-				},
+				body: client.commandData,
+			},
 			);
 			client.log.info('Successfully registered application commands globally');
 			await weatheredFlag.send("Successfully registered application commands");
 		} catch (err) {
-			client.log.error({message: "Error deploying commands", error: err});
+			client.log.error({ message: "Error deploying commands", error: err });
 		}
 
 		let guild = await client.guilds.fetch(config.guildID);
@@ -58,8 +58,9 @@ module.exports = {
 			const initialCount = await honeypot.getBannedCount(client);
 			await honeypot.updateHoneypotChannel(client, initialCount);
 			client.log.info(`Honeypot channel topic synced with DB count (${initialCount})`);
+			await weatheredFlag.send(`Honeypot channel topic synced with DB count (${initialCount})`);
 		} catch (err) {
-			client.log.error({message: "Error syncing honeypot topic on clientReady", error: err});
+			client.log.error({ message: "Error syncing honeypot topic on clientReady", error: err });
 		}
 	},
 };
