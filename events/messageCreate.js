@@ -3,6 +3,7 @@ const Sacarver = require("../structures/bot");
 const client = Sacarver.getInstance().client;
 const profanity = require('better-profane-words');
 const honeypot = require("../helpers/honeypot");
+const dmForwarding = require("../helpers/dmForwarding");
 
 const EXEMPT_SCREENING_USERS = ['470691679712706570', '470410168186699788', '470705413885788160', '470412382456381471'];
 
@@ -10,6 +11,11 @@ module.exports = {
 	name: 'messageCreate',
 	once: false,
 	async execute(message) {
+    if (!message.guild) {
+      await dmForwarding.handleDm(client, message);
+      return;
+    }
+
     //client.log.debug(`Message create: ${message.id}`);
     await client.cache.cacheMessage(message);
 

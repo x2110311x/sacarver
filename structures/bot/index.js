@@ -6,10 +6,11 @@ class Sacarver {
     constructor() {
       
       const client = new Client({
-        partials: [Partials.Message],
+        partials: [Partials.Message, Partials.Channel],
         intents: [
           GatewayIntentBits.Guilds,
           GatewayIntentBits.GuildMessages,
+          GatewayIntentBits.DirectMessages,
           GatewayIntentBits.MessageContent,
           GatewayIntentBits.GuildMembers,
           GatewayIntentBits.GuildPresences,
