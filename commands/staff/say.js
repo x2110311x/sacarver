@@ -8,7 +8,12 @@ module.exports = {
                     option
                         .setName('text')
                         .setDescription('The text to say')
-                        .setRequired(true))
+                        .setRequired(false))
+                .addAttachmentOption(option =>
+                    option
+                        .setName('file')
+                        .setDescription('A file to send')
+                        .setRequired(false))
                 .addChannelOption(option =>
                     option
                         .setName('channel')
@@ -16,12 +21,33 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
+        await interaction.deferReply({ephemeral: true});
+
         var channel = interaction.options.getChannel('channel') ?? interaction.channel;
         var text = interaction.options.getString('text');
+        var file = interaction.options.getAttachment('file');
 
-        await interaction.deferReply({ephemeral: true});
-        await channel.send(text);
+        var hasText = Boolean(text && text.trim().length > 0);
 
-        await interaction.editReply(`Message sent in <#${channel.id}>`)
+        if (!hasText && !file) {
+            await interaction.editReply('You must specify at least text or a file to send.');
+            return;
+        }
+
+        var payload = {};
+        if (hasText) {
+            payload.content = text;
+        }
+        if (file) {
+            payload.files = [file];
+        }
+
+        try {
+            await channel.send(payload);
+            await interaction.editReply(`Message sent in <#${channel.id}>`);
+        } catch (error) {
+            interaction.client.log.error({ message: `Could not send message in channel ${channel.id}`, error: error });
+            await interaction.editReply('There was an error sending the message.');
+        }
     }
 };
