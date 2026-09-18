@@ -2,7 +2,12 @@ const { EmbedBuilder } = require("discord.js");
 
 
 async function processHoneypot(client, message){
-    var data = {
+  if (message.member.roles.cache.some((role) => role.id == client.config.roles.staff)) {
+    client.log.info(`Staff member ${message.author.tag} sent message in honeypot channel, ignoring.`);
+	  return;
+  }
+
+  var data = {
     "user": message.author.id,
     "severity": "high",
     "note": "User sent a message in the honeypot channel.",
@@ -43,7 +48,7 @@ async function staffLog(client, data){
     .setDescription(`${data.DMd ? "User was DM'd ban appeal" : "User was unable to be DM'd."}\n User ${data.banned ? "was" : "was unable to be"} automatically banned for honeypot detection.`)
     .addFields(
       { name: 'User', value: `<@${data.user}> - ${data.user}`},
-      { name: 'Message Text', value: `${data.message}` },
+      { name: 'Message Text', value: `${(data.message == "") ? "No text content" : data.message}` },
       { name: 'Date banned', value: `<t:${data.dateAdded}:F>`}
     )
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
