@@ -227,6 +227,8 @@ async function handleReplyModal(interaction) {
       interaction.client.log.warn({ message: `Could not send DM to user ${userId}`, error: error });
       await interaction.editReply(`Could not send DM to <@${userId}>. They may have DMs disabled or have blocked the bot.`);
     }
+
+    await logStaffDmReply(interaction, userId, text);
   } catch (err) {
     interaction.client.log.error({ message: 'Error in handleReplyModal', error: err });
     if (interaction.deferred || interaction.replied) {
@@ -237,9 +239,57 @@ async function handleReplyModal(interaction) {
   }
 }
 
+/**
+ * Logs the DM reply action to the staffCommandLog channel.
+ *
+ * @param {import('discord.js').ModalSubmitInteraction} interaction
+ * @param {string} userId
+ * @param {string} text
+ */
+async function logStaffDmReply(interaction, userId, text) {
+  try {
+    const client = interaction.client;
+    const staffCommandChannelId = client.config?.channels?.staffCommandLog;
+    if (!staffCommandChannelId) return;
+
+    const staffCommandChannel = await client.channels.fetch(staffCommandChannelId).catch(err => {
+      client.log.warn({ message: `Could not fetch staff command log channel (${staffCommandChannelId})`, error: err });
+      return null;
+    });
+
+    if (!staffCommandChannel) return;
+
+    let args = `user:${userId}, text:${text}, `;
+    if (args.length > 1024) {
+      args = args.substring(0, 1020) + '...';
+    }
+
+    const channelId = interaction.channelId || interaction.channel?.id;
+    const memberId = interaction.member?.id || interaction.user?.id;
+
+    const staffCommandEmbed = new EmbedBuilder()
+      .setTitle('/staff dm used (DM Reply)')
+      .addFields(
+        { name: 'Channel', value: channelId ? `<#${channelId}> - ${channelId}` : 'N/A' },
+        { name: 'User', value: memberId ? `<@${memberId}> - ${memberId}` : 'N/A' },
+        { name: 'Command options', value: args },
+        { name: 'Date Used', value: `<t:${Math.floor(interaction.createdTimestamp / 1000)}:F>` }
+      )
+      .setFooter({ 
+        text: `© ${new Date().getFullYear()} x2110311x`, 
+        iconURL: client.icon ? `${client.icon}` : undefined 
+      });
+
+    await staffCommandChannel.send({ embeds: [staffCommandEmbed] });
+  } catch (err) {
+    interaction.client.log.error({ message: 'Error logging DM reply to staff command log', error: err });
+  }
+}
+
 module.exports = {
   handleDm,
   handleReplyButton,
   handleReplyModal,
+  logStaffDmReply,
   activeDmSessions
 };
