@@ -16,27 +16,42 @@ module.exports = {
         return SlashCommandBuilder;
     },
     execute: async function(interaction){
-      const colorCode = interaction.options.getString('code');
-      var re = new RegExp('[0-9a-gA-G]{6}');
+      const rawColor = interaction.options.getString('code');
+      const colorCode = rawColor.replace('#', '').trim();
+      var re = /^[0-9a-fA-F]{6}$/;
 
       if(!(re.test(colorCode))){
         await interaction.reply({content: "That doesn't look like a proper color code!", ephemeral: true});
         return;
       }
 
+      const num = parseInt(colorCode, 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+
       const canvas = createCanvas(200, 200);
       const context = canvas.getContext('2d');
-      context.fillStyle = `#${colorCode}`;
-      context.fillRect(0, 0, 200, 200);
-      const buf = canvas.toBuffer('image/png', { compressionLevel: 3, filters: canvas.PNG_FILTER_NONE });
-      const attachment = new AttachmentBuilder(buf, { name: 'color.png' });
-      const colorName = GetColorName(colorCode); 
-      const coloeEmbed = new EmbedBuilder()
+      const imgData = context.createImageData(200, 200);
+      for (let i = 0; i < imgData.data.length; i += 4) {
+        imgData.data[i] = r;
+        imgData.data[i + 1] = g;
+        imgData.data[i + 2] = b;
+        imgData.data[i + 3] = 255;
+      }
+      context.putImageData(imgData, 0, 0);
+
+      const buf = canvas.toBuffer('image/png');
+      const filename = `color_${colorCode}_${Date.now()}.png`;
+      const attachment = new AttachmentBuilder(buf, { name: filename });
+      const colorName = GetColorName(colorCode) || `#${colorCode.toUpperCase()}`; 
+      const colorEmbed = new EmbedBuilder()
           .setTitle(colorName)
-          .setDescription(`#${colorCode}`)
-          .setImage("attachment://color.png")
+          .setColor(num)
+          .setDescription(`#${colorCode.toUpperCase()}`)
+          .setImage(`attachment://${filename}`)
           .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
 
-      await interaction.reply({embeds: [coloeEmbed], files:[attachment]});
+      await interaction.reply({embeds: [colorEmbed], files:[attachment]});
     }
 };
