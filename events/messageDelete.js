@@ -22,8 +22,8 @@ module.exports = {
         client.log.warn({ message: `Error fetching cached message ${message.id}`, error: err });
       }
 
-      let authorId = message.author?.id || cachedMessage?.author || null;
-      let authorDisplay = authorId ? `<@${authorId}> - ${authorId}` : 'Unknown User';
+      let authorId = message.author?.id ?? cachedMessage?.author?.id ?? cachedMessage?.author ?? null;
+      let authorDisplay = authorId ? `<@${authorId}>` : 'Unknown User';
 
       if (authorId) {
         const cachedUser = client.users.cache.get(authorId);
@@ -33,9 +33,9 @@ module.exports = {
         }
       }
 
-      let channelId = message.channel?.id || message.channelId || cachedMessage?.channel || null;
-      let channelDisplay = channelId ? `<#${channelId}> - ${channelId}` : 'Unknown Channel';
-
+      let channelId = message.channel?.id ?? message.channelId ?? cachedMessage?.channel?.id ?? cachedMessage?.channel ?? null;
+      let channelDisplay = channelId ? `<#${channelId}>` : 'Unknown Channel';
+      
       let deletedByDisplay = authorDisplay;
 
       if (message.guild) {
