@@ -120,7 +120,7 @@ async function staffLog(client, data) {
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
 
   const banLog = await client.channels.fetch(client.config.channels.banLog);
-  const chatModeration = await client.channels.fetch(client.config.channels.chatModeration);
+  //const chatModeration = await client.channels.fetch(client.config.channels.chatModeration);
 
   if (data.banned) {
     await banLog.send({ embeds: [banLogEmbed] });
