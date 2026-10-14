@@ -17,19 +17,19 @@ var answerList = [
 ];
 
 module.exports = {
-  builder: function (SlashCommandBuilder){
-      SlashCommandBuilder.addSubcommand(subcommand =>
-          subcommand
-              .setName('8ball')
-              .setDescription('Ask the all-knowing 8 ball a question')
-              .addStringOption(option =>
-                  option
-                      .setName('question')
-                      .setDescription('What would you like to ask Sacarver?')
-                      .setRequired(true)));
-      return SlashCommandBuilder;
+  builder: function (SlashCommandBuilder) {
+    SlashCommandBuilder.addSubcommand(subcommand =>
+      subcommand
+        .setName('8ball')
+        .setDescription('Ask the all-knowing 8 ball a question')
+        .addStringOption(option =>
+          option
+            .setName('question')
+            .setDescription('What would you like to ask Sacarver?')
+            .setRequired(true)));
+    return SlashCommandBuilder;
   },
-  execute: async function(interaction){
+  execute: async function (interaction) {
     const preShake = new EmbedBuilder()
       .setColor(0xd5b052)
       .setTitle('Please wait while the 8-ball shakes')
@@ -50,7 +50,7 @@ module.exports = {
       )
       .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 2000));
     await interaction.editReply({ embeds: [postShake] });
   }
 };
