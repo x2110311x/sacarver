@@ -11,6 +11,7 @@ module.exports = {
 	async execute(client) {
 		await client.cache.client.connect();
 		client.log.info('Logged in as ' + client.user.username);
+		client.log.info(`Running version: ${client.version}`);
 		client.startTime = new Date();
 		client.icon = client.user.avatarURL();
 
@@ -18,10 +19,12 @@ module.exports = {
 		const embed = new EmbedBuilder()
 			.setTitle("Bot has started")
 			.setColor("#fce300")
+			.addFields({ name: 'Version', value: `\`${client.version}\``, inline: true })
 			.setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` })
 			.setTimestamp(client.startTime);
 		try {
 			await weatheredFlag.send({ embeds: [embed] });
+			await weatheredFlag.send(`Running version: \`${client.version}\``);
 		} catch (err) {
 			client.log.error({ message: "Error sending startup message to weathered flag channel", error: err });
 		}

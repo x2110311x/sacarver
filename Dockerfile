@@ -20,6 +20,9 @@ automake \
 COPY package.json /usr/src/bot
 RUN npm install
 
+ARG GIT_COMMIT=unknown
+ENV GIT_COMMIT=${GIT_COMMIT}
+
 # Copy bot files
 COPY . /usr/src/bot
 

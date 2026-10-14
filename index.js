@@ -5,6 +5,7 @@ const config = require('./config.json');
 const logging = require('./structures/logging');
 const RedisCache = require('./structures/cache');
 const SacarverDB = require('./structures/DB');
+const { getVersion } = require('./helpers/version');
 
 
 const client = Sacarver.getInstance().client;
@@ -12,6 +13,7 @@ client.config = config;
 client.log = logging.getInstance().logger;
 client.cache = RedisCache.getInstance();
 client.DB = SacarverDB.getInstance().db;
+client.version = getVersion();
 
 
 const commandFiles = fs.readdirSync('./commands',  { withFileTypes: true }).filter((item) => item.isDirectory()).map((item) => item.name);

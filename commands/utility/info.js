@@ -14,7 +14,7 @@ module.exports = {
             .setTitle('Sacarver Bot Information')
 			.setColor('#d5b052')
 			.addFields(
-				{ name: 'Version', value: `${packageJson.version}` },
+				{ name: 'Version', value: `${packageJson.version} (\`${interaction.client.version || 'unknown'}\`)` },
 				{ name: 'Discord JS Version', value: `${(packageJson.dependencies['discord.js']).replace('^','')}` },
                 { name: 'Developer', value: 'x2110311x' },
                 { name: 'Source Code', value: `[GitHub Repository](${packageJson.homepage})` }
