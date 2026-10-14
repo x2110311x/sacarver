@@ -9,7 +9,7 @@ module.exports = {
                 .addIntegerOption(option =>
                     option
                         .setName("sides")
-                        .setMinValue(0)
+                        .setMinValue(2)
                         .setDescription("How many sides should the die have. Defaults to 6")));
         return SlashCommandBuilder;
     },
@@ -17,7 +17,6 @@ module.exports = {
         const preRoll = new EmbedBuilder()
             .setColor(0xd5b052)
             .setTitle("Please wait while the die is rolled")
-            .setImage('https://c.tenor.com/HcK7RSiai-AAAAAi/dice-roll-dice.gif')
             .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
 
         await interaction.reply({ embeds: [preRoll] });
@@ -30,7 +29,7 @@ module.exports = {
             .setDescription(`${result}`)
             .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
 
-        await new Promise(resolve => setTimeout(resolve, 4000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await interaction.editReply({ embeds: [postRoll] });
     }
 };
