@@ -3,44 +3,37 @@ const { createCanvas, loadImage, registerFont } = require('canvas');
 const path = require('path');
 const fs = require('fs');
 
-// Try registering Impact font if locally available in assets/fonts/
-const customFontPath = path.resolve(__dirname, '../../assets/fonts/impact.ttf');
-if (fs.existsSync(customFontPath)) {
+// Register Impact font from assets/fonts/impact.ttf
+const impactFontPath = path.resolve(__dirname, '../../assets/fonts/impact.ttf');
+let memeFontFamily = 'sans-serif';
+
+if (fs.existsSync(impactFontPath)) {
     try {
-        registerFont(customFontPath, { family: 'Impact' });
+        registerFont(impactFontPath, { family: 'Impact' });
+        memeFontFamily = 'Impact';
     } catch {
-        // Ignore font registration error and fall back to system fonts
+        memeFontFamily = 'sans-serif';
     }
 }
 
 let cachedMockImage = null;
 
-/**
- * Capitalizes every other letter of the input text, preserving non-letter characters.
- * Example: "look at mock.js" -> "lOoK aT mOcK.jS"
- * @param {string} text
- * @returns {string}
- */
-function mockText(text) {
-    let capitalize = false;
-    let result = '';
 
-    for (const char of text) {
-        // Check if the character is a letter (Unicode-aware)
-        if (char.toLowerCase() !== char.toUpperCase()) {
-            result += capitalize ? char.toUpperCase() : char.toLowerCase();
-            capitalize = !capitalize;
-        } else {
-            result += char;
+function mockText(str) {
+    let result = '';
+    let lower = true;
+    for (const ch of str) {
+        result += lower ? ch.toLowerCase() : ch.toUpperCase();
+        if (ch.match(/[a-z]/i)) {
+            lower = !lower;
         }
     }
-
     return result;
 }
 
 /**
- * Retrieves and caches the SpongeBob mock template image.
- * If the image is not in assets/images/, checks if a user uploaded file is available and copies it over.
+ * Retrieves and caches the high-resolution SpongeBob mock template image.
+ * Uses assets/images/mock.jpg.
  * @returns {Promise<Image>}
  */
 async function getMockImage() {
@@ -48,19 +41,26 @@ async function getMockImage() {
 
     const defaultJpgPath = path.resolve(__dirname, '../../assets/images/mock.jpg');
     const defaultPngPath = path.resolve(__dirname, '../../assets/images/mock.png');
+    const scratchSpongebob = '/root/.gemini/antigravity-ide/brain/d11c716c-f13c-4cc1-8f82-a1515b468b21/scratch/Mocking-Spongebob/img/spongebob.jpg';
+
+    // Upgrade low-res thumbnail if high-res template is available
+    if (fs.existsSync(scratchSpongebob)) {
+        try {
+            const highResStat = fs.statSync(scratchSpongebob);
+            const currentStat = fs.existsSync(defaultJpgPath) ? fs.statSync(defaultJpgPath) : null;
+            if (!currentStat || currentStat.size < highResStat.size) {
+                fs.copyFileSync(scratchSpongebob, defaultJpgPath);
+            }
+        } catch { /* ignore */ }
+    }
 
     let imagePath = null;
     if (fs.existsSync(defaultJpgPath)) {
         imagePath = defaultJpgPath;
     } else if (fs.existsSync(defaultPngPath)) {
         imagePath = defaultPngPath;
-    } else if (fs.existsSync(fallbackUploadPath)) {
-        try {
-            fs.copyFileSync(fallbackUploadPath, defaultJpgPath);
-            imagePath = defaultJpgPath;
-        } catch {
-            imagePath = fallbackUploadPath;
-        }
+    } else if (fs.existsSync(scratchSpongebob)) {
+        imagePath = scratchSpongebob;
     }
 
     if (!imagePath) {
@@ -71,87 +71,114 @@ async function getMockImage() {
     return cachedMockImage;
 }
 
-/**
- * Word-wraps text within the given maximum width.
- * Splits long words if a single word exceeds maxWidth.
- * @param {CanvasRenderingContext2D} ctx
- * @param {string} text
- * @param {number} maxWidth
- * @returns {string[]}
- */
-function wrapText(ctx, text, maxWidth) {
-    const words = text.split(/\s+/);
-    const lines = [];
-    let currentLine = '';
+function formatText(ctx, str, canvasWidth, canvasHeight) {
+    const MAX_LINE_BOX_WIDTH = Math.round(canvasWidth * 0.92);
+    const MIN_LINE_BOX_WIDTH = 1;
+    const MIN_FONT_SIZE = 14;
 
-    for (const word of words) {
-        if (!word) continue;
+    // Initial max font size (up to 80px, proportional to canvas)
+    const INITIAL_FONT_SIZE = Math.min(
+        Math.round(canvasWidth * 0.18),
+        Math.round(canvasHeight * 0.24),
+        150
+    );
 
-        const testLine = currentLine ? `${currentLine} ${word}` : word;
-        const testWidth = ctx.measureText(testLine).width;
+    if (!str || str.trim() === '') {
+        return { lines: [], fontSize: INITIAL_FONT_SIZE };
+    }
 
-        if (testWidth <= maxWidth) {
-            currentLine = testLine;
-        } else {
-            if (currentLine) {
-                lines.push(currentLine);
-            }
+    const words = str.trim().split(/\s+/);
+    let linesByWord;
 
-            // Check if the single word itself is wider than maxWidth
-            if (ctx.measureText(word).width > maxWidth) {
-                let chunk = '';
-                for (const char of word) {
-                    const testChunk = chunk + char;
-                    if (ctx.measureText(testChunk).width <= maxWidth) {
-                        chunk = testChunk;
-                    } else {
-                        if (chunk) lines.push(chunk);
-                        chunk = char;
+    function getTextWidth(text) {
+        return ctx.measureText(text).width;
+    }
+
+    function fitIntoLinesAtSize(fontSize, boxWidth) {
+        // Limits number of lines so total height (lines * fontSize) never exceeds INITIAL_FONT_SIZE (~80px)
+        const maxNumberOfLines = Math.max(1, Math.floor(INITIAL_FONT_SIZE / fontSize));
+
+        return (word) => {
+            const currentLine = linesByWord[linesByWord.length - 1];
+            const modifiedLine = currentLine.concat(word).join(' ').trim();
+
+            if (getTextWidth(modifiedLine) > boxWidth) {
+                // If a single word is wider than boxWidth, break it at minimum font size
+                if (getTextWidth(word) > boxWidth) {
+                    if (fontSize <= MIN_FONT_SIZE) {
+                        let chunk = '';
+                        for (const char of word) {
+                            if (getTextWidth(chunk + char) <= boxWidth) {
+                                chunk += char;
+                            } else {
+                                if (chunk) linesByWord.push([chunk]);
+                                chunk = char;
+                            }
+                        }
+                        if (chunk) linesByWord.push([chunk]);
+                        return true;
                     }
+                    return false;
                 }
-                currentLine = chunk;
+
+                linesByWord.push([word]);
+                return linesByWord.length <= maxNumberOfLines;
             } else {
-                currentLine = word;
+                currentLine.push(word);
+                return true;
+            }
+        };
+    }
+
+    function tryFormatAllWords(fontSize, boxWidth) {
+        ctx.font = `bold ${fontSize}px ${memeFontFamily}`;
+        linesByWord = [[]];
+        return words.every(fitIntoLinesAtSize(fontSize, boxWidth));
+    }
+
+    // Binary search 1: find maximum font size that fits all words within MAX_LINE_BOX_WIDTH
+    let lowerFontSize = MIN_FONT_SIZE - 1;
+    let upperFontSize = INITIAL_FONT_SIZE;
+    let numberOfLines = 0;
+
+    while (lowerFontSize !== upperFontSize) {
+        const currentFontSize = Math.floor((upperFontSize + lowerFontSize) / 2);
+        const formattedAllWords = tryFormatAllWords(currentFontSize, MAX_LINE_BOX_WIDTH);
+
+        if (formattedAllWords) {
+            lowerFontSize = currentFontSize + 1;
+            numberOfLines = linesByWord.length;
+        } else {
+            upperFontSize = currentFontSize;
+        }
+    }
+
+    const finalFontSize = Math.max(MIN_FONT_SIZE, lowerFontSize - 1);
+
+    // Binary search 2: if multiple lines, find the minimal box width that balances lines evenly
+    let lowerBoxWidth = MIN_LINE_BOX_WIDTH - 1;
+    let upperBoxWidth = MAX_LINE_BOX_WIDTH;
+
+    if (numberOfLines > 1) {
+        while (lowerBoxWidth !== upperBoxWidth) {
+            const currentBoxWidth = Math.floor((upperBoxWidth + lowerBoxWidth) / 2);
+            const formattedAllWords = tryFormatAllWords(finalFontSize, currentBoxWidth);
+
+            if (formattedAllWords) {
+                upperBoxWidth = currentBoxWidth;
+            } else {
+                lowerBoxWidth = currentBoxWidth + 1;
             }
         }
     }
 
-    if (currentLine) {
-        lines.push(currentLine);
-    }
+    const finalBoxWidth = upperBoxWidth;
+    tryFormatAllWords(finalFontSize, finalBoxWidth);
 
-    return lines;
-}
-
-/**
- * Finds the optimal font size to fit the text into the top section of the image,
- * ensuring it doesn't exceed maxFontSize or cover the main subject (SpongeBob).
- * @param {CanvasRenderingContext2D} ctx
- * @param {string} text
- * @param {number} maxWidth
- * @param {number} maxHeight
- * @param {number} maxFontSize
- * @param {number} minFontSize
- * @returns {{fontSize: number, lines: string[], lineHeight: number}}
- */
-function fitText(ctx, text, maxWidth, maxHeight, maxFontSize, minFontSize = 12) {
-    for (let size = maxFontSize; size >= minFontSize; size -= 1) {
-        ctx.font = `bold ${size}px Impact, "Arial Black", "DejaVu Sans", sans-serif`;
-        const lines = wrapText(ctx, text, maxWidth);
-        const lineHeight = Math.round(size * 1.18);
-        const totalHeight = lines.length * lineHeight;
-
-        const fitsWidth = lines.every(line => ctx.measureText(line).width <= maxWidth);
-        if (fitsWidth && totalHeight <= maxHeight) {
-            return { fontSize: size, lines, lineHeight };
-        }
-    }
-
-    // Fallback to minFontSize if text is very long
-    ctx.font = `bold ${minFontSize}px Impact, "Arial Black", "DejaVu Sans", sans-serif`;
-    const lines = wrapText(ctx, text, maxWidth);
-    const lineHeight = Math.round(minFontSize * 1.18);
-    return { fontSize: minFontSize, lines, lineHeight };
+    return {
+        lines: linesByWord.map(line => line.join(' ').trim()).filter(line => line.length > 0),
+        fontSize: finalFontSize
+    };
 }
 
 module.exports = {
@@ -180,10 +207,10 @@ module.exports = {
                 return;
             }
 
-            // Convert input text to alternating case
+            // Convert input text to alternating case (denk0403 altsl style)
             const mockedText = mockText(inputText.trim());
 
-            // Load base image template
+            // Load high-resolution base image template
             const baseImg = await getMockImage();
 
             // Create canvas matching base image dimensions
@@ -193,40 +220,36 @@ module.exports = {
             // Draw base SpongeBob image
             ctx.drawImage(baseImg, 0, 0, canvas.width, canvas.height);
 
-            // Boundaries for text placement
-            const maxWidth = Math.round(canvas.width * 0.92);
-            // Keep text in the top 35% of the image to prevent covering SpongeBob
-            const maxHeight = Math.round(canvas.height * 0.35);
+            // Calculate optimal font size and balanced line breaks
+            const { lines, fontSize } = formatText(ctx, mockedText, canvas.width, canvas.height);
 
-            // Max font size so short text doesn't balloon to cover the image
-            const maxFontSize = Math.min(
-                Math.round(canvas.height * 0.14),
-                Math.round(canvas.width * 0.09),
-                48
-            );
+            if (lines.length > 0) {
+                // Typography & styling:
+                // Use registered Impact font (or sans-serif fallback), bold, centered, bottom aligned
+                ctx.font = `bold ${fontSize}px ${memeFontFamily}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.lineJoin = 'round';
+                ctx.miterLimit = 2;
 
-            // Autosize font and wrap text
-            const { fontSize, lines, lineHeight } = fitText(ctx, mockedText, maxWidth, maxHeight, maxFontSize);
+                // Outline width: proportional to font size (14% of font size, min 4px)
+                const lineWidth = Math.max(4, Math.round(fontSize * 0.14));
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = '#000000';
+                ctx.fillStyle = '#FFFFFF';
 
-            // Imgflip meme style typography:
-            // Impact bold font, centered, thick black stroke outline, white fill
-            ctx.font = `bold ${fontSize}px Impact, "Arial Black", "DejaVu Sans", sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            ctx.lineJoin = 'round';
-            ctx.miterLimit = 2;
-            ctx.lineWidth = Math.max(3, Math.round(fontSize / 6));
-            ctx.strokeStyle = '#000000';
-            ctx.fillStyle = '#FFFFFF';
+                // Position at the bottom of the image, padded above the bottom edge
+                const BOTTOM_MARGIN = Math.max(10, Math.round(canvas.height * 0.03));
+                const boxBottom = canvas.height - BOTTOM_MARGIN - Math.ceil(lineWidth / 2);
+                const lineHeight = Math.round(fontSize * 1.08);
+                const centerX = Math.round(canvas.width / 2);
 
-            const topPadding = Math.max(10, Math.round(canvas.height * 0.04));
-            const centerX = Math.round(canvas.width / 2);
-
-            // Render each line with stroke outline followed by fill
-            for (let i = 0; i < lines.length; i++) {
-                const lineY = topPadding + (i * lineHeight);
-                ctx.strokeText(lines[i], centerX, lineY);
-                ctx.fillText(lines[i], centerX, lineY);
+                // Render each line: thick black border first, solid white fill on top
+                for (let i = 0; i < lines.length; i++) {
+                    const lineY = boxBottom - ((lines.length - 1 - i) * lineHeight);
+                    ctx.strokeText(lines[i], centerX, lineY);
+                    ctx.fillText(lines[i], centerX, lineY);
+                }
             }
 
             const outBuffer = canvas.toBuffer('image/png');
