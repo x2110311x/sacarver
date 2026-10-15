@@ -112,16 +112,7 @@ MYSQL_HOST=db
 MYSQL_PORT=3306
 ```
 
-### 2. Deploy Slash Commands
-
-Register application slash commands with the Discord API:
-```bash
-npm run deploy
-```
-
-*(To remove registered slash commands if needed: `npm run remove`)*
-
-### 3. Running with Docker Compose
+### 2. Running with Docker Compose
 
 Launch the complete stack (bot, MariaDB, Redis, OCR server, Adminer):
 ```bash
@@ -133,7 +124,10 @@ View live logs:
 docker compose logs -f bot
 ```
 
-### 4. Running Locally for Development
+> [!NOTE]
+> **Automatic Command Deployment**: Slash commands are automatically registered and synchronized with Discord on bot startup (during `clientReady`). You do not need to run a deployment script beforehand.
+
+### 3. Running Locally for Development
 
 ```bash
 # 1. Install system dependencies for node-canvas (Ubuntu/Debian)
@@ -157,8 +151,8 @@ npm start
 | :--- | :--- | :--- |
 | `npm test` | `node tests/index.js` | Runs all automated test suites (pHash, cache, commands, events, config, helpers) |
 | `npm run lint` | `eslint . --ext .js` | Runs ESLint static analysis across the codebase |
-| `npm run deploy` | `node scripts/deploy.js` | Deploys slash commands to the configured Discord guild |
-| `npm run remove` | `node scripts/remove.js` | Removes registered slash commands from Discord |
+| `npm run deploy` | `node scripts/deploy.js` | *(Debugging)* Manually forces slash command registration to Discord without starting the bot |
+| `npm run remove` | `node scripts/remove.js` | *(Debugging)* Clears registered slash commands from Discord |
 | `npm run update` | `source ./scripts/update.sh` | Pulls latest git commits, regenerates models, and rebuilds containers |
 | `npm run generateDB` | `source ./scripts/generateDBModels.sh` | Regenerates Sequelize models from the active database schema |
 
