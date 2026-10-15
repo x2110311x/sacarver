@@ -32,7 +32,17 @@ CREATE TABLE `Honeypot` (
   `BannedCount` integer NOT NULL DEFAULT 0
 );
 
+CREATE TABLE `ScamImageHashes` (
+  `ID` integer PRIMARY KEY AUTO_INCREMENT,
+  `Hash` varchar(64) NOT NULL UNIQUE,
+  `Label` varchar(255) DEFAULT 'Scam Image',
+  `AddedBy` bigint NOT NULL,
+  `DateAdded` bigint NOT NULL,
+  `MatchCount` integer DEFAULT 0
+);
+
 CREATE INDEX `user_index` ON `Notes` (`User`);
+CREATE INDEX `hash_index` ON `ScamImageHashes` (`Hash`);
 
 CREATE INDEX `month_index` ON `PlaylistData` (`Month`);
 

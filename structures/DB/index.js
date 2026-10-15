@@ -22,6 +22,9 @@ class SacarverDB {
         this.db.Honeypot.sync().catch(err => {
             log.error({message: "Failed to sync Honeypot table", error: err});
         });
+        this.db.ScamImageHashes.sync().catch(err => {
+            log.error({message: "Failed to sync ScamImageHashes table", error: err});
+        });
         log.debug("DB Object Models Initialized");
 
         /*log.debug("Loading DB helpers");
