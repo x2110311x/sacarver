@@ -137,19 +137,19 @@ async function addScamHash(client, hexHash, label, addedById) {
  * @returns {Promise<{ buffer: Buffer, hash: string, flagDetails: object } | null>}
  */
 async function checkMessage(client, message, isStaff = false) {
-  if (message.author?.bot) {
-    client.log.debug(`[ImageGuard] Author ${message.author?.id} is a bot user. Skipping Image Guard processing.`);
+  if (message.author && message.author.bot) {
+    client.log.debug(`[ImageGuard] Author ${message.author.id} is a bot user. Skipping Image Guard processing.`);
     return null;
   }
 
-  const staffRoleId = client.config.roles?.staff || '323555864646647808';
-  const hasStaffRole = isStaff || (message.member && message.member.roles.cache.has(staffRoleId));
+  const staffRoleId = (client.config.roles && client.config.roles.staff) || '323555864646647808';
+  const hasStaffRole = isStaff || (message.member && message.member.roles && message.member.roles.cache && message.member.roles.cache.has(staffRoleId));
   if (hasStaffRole) {
-    client.log.debug(`[ImageGuard] Author ${message.author?.id} has staff role. Skipping Image Guard processing.`);
+    client.log.debug(`[ImageGuard] Author ${message.author ? message.author.id : 'unknown'} has staff role. Skipping Image Guard processing.`);
     return null;
   }
 
-  if (!client.config.imageGuard?.enabled) {
+  if (!client.config.imageGuard || !client.config.imageGuard.enabled) {
     client.log.debug('[ImageGuard] imageGuard is disabled in config. Skipping.');
     return null;
   }
@@ -158,7 +158,7 @@ async function checkMessage(client, message, isStaff = false) {
     await loadHashes(client);
   }
 
-  const scamLogChannelId = client.config.channels?.scamLog;
+  const scamLogChannelId = client.config.channels && client.config.channels.scamLog;
   client.log.debug(`[ImageGuard] Active config: mode="${client.config.imageGuard.mode}", ocrUrl="${client.config.imageGuard.ocrUrl}", threshold=${client.config.imageGuard.hammingThreshold || 8}, scamLogChannel="${scamLogChannelId}"`);
 
   const imageAttachments = message.attachments.filter(att => {
@@ -444,9 +444,10 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
   // 2. Ban Member
   try {
     const guild = await client.guilds.fetch(client.config.guildID);
+    const matchType = (flagDetails && flagDetails.matchType) || 'manual review';
     await guild.members.ban(userId, {
       deleteMessageSeconds: 300,
-      reason: `Scam image detected by Image Guard (${flagDetails?.matchType || 'manual review'})${staffUser ? ` by ${staffUser.tag}` : ''}`
+      reason: `Scam image detected by Image Guard (${matchType})${staffUser ? ` by ${staffUser.tag}` : ''}`
     });
     banned = true;
   } catch (banErr) {
@@ -470,7 +471,8 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
 
   // 4. Record Note in DB.Notes
   try {
-    const noteText = `User was banned for posting a scam image (${flagDetails?.matchType || 'review'}).${staffUser ? ` Action confirmed by ${staffUser.tag}.` : ' Automatically enforced.'}`;
+    const actionType = (flagDetails && flagDetails.matchType) || 'review';
+    const noteText = `User was banned for posting a scam image (${actionType}).${staffUser ? ` Action confirmed by ${staffUser.tag}.` : ' Automatically enforced.'}`;
     await client.DB.Notes.create({
       User: userId,
       Date: Math.floor(Date.now() / 1000),
@@ -497,7 +499,7 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
         )
         .addFields(
           { name: 'User', value: `<@${userId}> - ${userId}`, inline: true },
-          { name: 'Trigger', value: flagDetails?.matchType || 'Manual Review', inline: true },
+          { name: 'Trigger', value: (flagDetails && flagDetails.matchType) || 'Manual Review', inline: true },
           { name: 'Moderator', value: staffUser ? `<@${staffUser.id}>` : 'Image Guard Auto', inline: true }
         )
         .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: client.icon })
@@ -519,12 +521,12 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
   // 6. Post to #scam-log with Re-uploaded Image (for automatic bans)
   if (!staffUser) {
     try {
-      const scamLogChannelId = client.config.channels?.scamLog;
+      const scamLogChannelId = client.config.channels && client.config.channels.scamLog;
       if (scamLogChannelId) {
         const scamLogChannel = await client.channels.fetch(scamLogChannelId);
         if (scamLogChannel) {
           const filename = `autoban_scam_${messageId}.png`;
-          const isExact = flagDetails?.distance === 0;
+          const isExact = flagDetails && flagDetails.distance === 0;
           const scamEmbed = new EmbedBuilder()
             .setColor(0xff0000)
             .setTitle(isExact ? '⚡ Automatic Ban: Exact Scam Image Match' : '🔨 User Automatically Banned for Scam Image')
@@ -532,9 +534,9 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
               `A confirmed scam image was detected in <#${channelId}> posted by <@${userId}>.\n\n` +
               `• **Action Taken:** User automatically banned, purge (300s) executed, message deleted.\n` +
               `• **Appeal DM:** ${dmd ? "Sent to user" : "Unable to DM user"}\n` +
-              `• **Trigger:** ${isExact ? '**Exact pHash Match (Distance 0)**' : (flagDetails?.matchType || 'Automatic Enforce')}\n` +
-              (flagDetails?.label ? `• **Database Label:** *${flagDetails.label}*\n` : '') +
-              (flagDetails?.hexHash ? `• **pHash:** \`${flagDetails.hexHash}\`\n` : '')
+              `• **Trigger:** ${isExact ? '**Exact pHash Match (Distance 0)**' : ((flagDetails && flagDetails.matchType) || 'Automatic Enforce')}\n` +
+              ((flagDetails && flagDetails.label) ? `• **Database Label:** *${flagDetails.label}*\n` : '') +
+              ((flagDetails && flagDetails.hexHash) ? `• **pHash:** \`${flagDetails.hexHash}\`\n` : '')
             )
             .addFields(
               { name: 'User', value: `<@${userId}> (${userId})`, inline: true },
@@ -580,7 +582,13 @@ async function handleReviewInteraction(interaction) {
     const channelId = parts[2];
     const messageId = parts[3];
     const userId = parts[4];
-    const hexHash = parts[5] || interaction.message.embeds[0]?.fields?.find(f => f.name === 'Calculated pHash')?.value?.replace(/`/g, '') || null;
+    let hexHash = parts[5] || null;
+    if (!hexHash && interaction.message.embeds && interaction.message.embeds[0] && interaction.message.embeds[0].fields) {
+      const field = interaction.message.embeds[0].fields.find(f => f.name === 'Calculated pHash');
+      if (field && field.value) {
+        hexHash = field.value.replace(/`/g, '');
+      }
+    }
 
     await interaction.deferUpdate();
 

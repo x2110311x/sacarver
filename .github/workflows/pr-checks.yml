@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create test config from example
+        run: cp config.example.json config.json
+
       - name: Run ESLint
         run: npm run lint
 

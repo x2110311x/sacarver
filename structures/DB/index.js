@@ -1,7 +1,6 @@
 let instance = null;
 
 const { Sequelize } = require('sequelize');
-const fs = require('fs');
 const initModels = require("./models/init-models");
 const config = require('../../config.json');
 const logging = require('../logging');
