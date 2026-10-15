@@ -4,7 +4,7 @@
   "description": "Bot for twentyonepilots server",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node tests/imageGuard.test.js",
     "start": "node .",
     "generateDB": "source ./scripts/generateDBModels.sh",
     "update": "source ./scripts/update.sh",
@@ -29,6 +29,7 @@
     "discord-api-types": "^0.38.42",
     "discord.js": "^14.25.1",
     "hex-color-to-color-name": "^1.0.2",
+    "imghash": "^1.1.5",
     "profane-words": "^2.1.0",
     "redis": "^4.7.0",
     "winston": "^3.14.2",

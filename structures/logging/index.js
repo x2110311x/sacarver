@@ -9,6 +9,7 @@ const { combine, timestamp, json, errors, cli } = winston.format;
 
 const combinedFileRotate = new winston.transports.DailyRotateFile({
   filename: './logs/combined-%DATE%.log',
+  level: 'debug',
   datePattern: 'YYYY-MM-DD',
   maxFiles: '14d',
   format: combine(errors({ stack: true }), timestamp(), json())
@@ -42,6 +43,7 @@ const standardTransports = [
 class SacarverLogger {
     constructor() {
         const logger = winston.createLogger({
+          level: 'debug',
           exitOnError: false,
           defaultMeta: { service_name: 'Sacarver-bot' },
           transports: standardTransports,

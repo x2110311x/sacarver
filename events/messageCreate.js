@@ -4,6 +4,7 @@ const client = Sacarver.getInstance().client;
 const profanity = require('better-profane-words');
 const honeypot = require("../helpers/honeypot");
 const dmForwarding = require("../helpers/dmForwarding");
+const imageGuard = require("../helpers/imageGuard");
 
 const EXEMPT_SCREENING_USERS = ['470691679712706570', '470410168186699788', '470705413885788160', '470412382456381471'];
 
@@ -19,10 +20,18 @@ module.exports = {
     //client.log.debug(`Message create: ${message.id}`);
     await client.cache.cacheMessage(message);
 
+    const staffRoleId = client.config.roles.staff || '323555864646647808';
+    const isStaff = message.member ? message.member.roles.cache.has(staffRoleId) : false;
+
+    // Run Image Guard scan and buffer capture BEFORE Honeypot (skip staff completely)
+    let imageGuardResult = null;
+    if (!isStaff && message.attachments.size > 0) {
+      client.log.debug(`[messageCreate] Message ${message.id} by ${message.author.tag} in <#${message.channelId}> has ${message.attachments.size} attachment(s). isStaff=false`);
+      imageGuardResult = await imageGuard.checkMessage(client, message, false);
+    }
+
     const screeningChannelId = client.config.channels.weatheredFlag || '470406597860917249';
     if (message.channelId === screeningChannelId && !message.webhookId && message.member) {
-      const staffRoleId = client.config.roles.staff || '323555864646647808';
-      const isStaff = message.member.roles.cache.has(staffRoleId);
       if (!isStaff && !EXEMPT_SCREENING_USERS.includes(message.author.id)) {
         try {
           const embedJoin = new EmbedBuilder()
@@ -46,8 +55,9 @@ module.exports = {
       }
     }
 
-    if(message.channelId == client.config.channels.honeypot){
-      await honeypot.processHoneypot(client, message);
+    if (message.channelId == client.config.channels.honeypot) {
+      await honeypot.processHoneypot(client, message, imageGuardResult);
+      return;
     }
 
     if(message.channelId == 1309644276795310110 || message.channelId == 1326261449701720104){

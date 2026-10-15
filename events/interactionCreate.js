@@ -13,6 +13,15 @@ module.exports = {
 				}
 				return;
 			}
+			if (interaction.customId.startsWith('imageguard_')) {
+				try {
+					const imageGuard = require('../helpers/imageGuard');
+					await imageGuard.handleReviewInteraction(interaction);
+				} catch (error) {
+					interaction.client.log.error({ message: 'Error handling Image Guard review button', error });
+				}
+				return;
+			}
 		}
 
 		if (interaction.isModalSubmit()) {
