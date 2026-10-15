@@ -1,10 +1,32 @@
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, AttachmentBuilder } = require("discord.js");
 
 
-async function processHoneypot(client, message) {
+async function processHoneypot(client, message, preloadedAttachment = null) {
   if (message.member.roles.cache.some((role) => role.id == client.config.roles.staff)) {
     client.log.info(`Staff member ${message.author.tag} sent message in honeypot channel, ignoring.`);
     return;
+  }
+
+  // Capture attachment buffer BEFORE message deletion so image survives
+  const attachedFiles = [];
+  if (preloadedAttachment && preloadedAttachment.buffer) {
+    const filename = preloadedAttachment.name || `honeypot_${message.id}.png`;
+    const file = new AttachmentBuilder(preloadedAttachment.buffer, { name: filename });
+    attachedFiles.push({ file, filename });
+  } else if (message.attachments && message.attachments.size > 0) {
+    for (const [, attachment] of message.attachments) {
+      try {
+        const response = await fetch(attachment.url);
+        if (response.ok) {
+          const buffer = Buffer.from(await response.arrayBuffer());
+          const filename = attachment.name || `honeypot_${message.id}.png`;
+          const file = new AttachmentBuilder(buffer, { name: filename });
+          attachedFiles.push({ file, filename });
+        }
+      } catch (fetchErr) {
+        client.log.warn({ message: "Failed to download honeypot attachment before deletion", error: fetchErr });
+      }
+    }
   }
 
   var data = {
@@ -15,7 +37,8 @@ async function processHoneypot(client, message) {
     "dateAdded": Math.floor(message.createdTimestamp / 1000),
     "noter": client.config.clientID,
     "DMd": false,
-    "banned": false
+    "banned": false,
+    "attachments": attachedFiles
   }
 
   // DM the user
@@ -122,8 +145,14 @@ async function staffLog(client, data) {
   const banLog = await client.channels.fetch(client.config.channels.banLog);
   const chatModeration = await client.channels.fetch(client.config.channels.chatModeration);
 
+  const payload = { embeds: [banLogEmbed] };
+  if (data.attachments && data.attachments.length > 0) {
+    payload.files = data.attachments.map(a => a.file);
+    banLogEmbed.setImage(`attachment://${data.attachments[0].filename}`);
+  }
+
   if (data.banned) {
-    await banLog.send({ embeds: [banLogEmbed] });
+    await banLog.send(payload);
   }
   //await chatModeration.send({ embeds: [banLogEmbed] });
 }

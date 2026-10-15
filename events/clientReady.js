@@ -3,6 +3,7 @@ const { EmbedBuilder } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const honeypot = require('../helpers/honeypot');
+const imageGuard = require('../helpers/imageGuard');
 const { updateMemberCountStatus } = require('../helpers/status');
 
 module.exports = {
@@ -65,6 +66,12 @@ module.exports = {
 			await weatheredFlag.send(`Honeypot channel topic synced with DB count (${initialCount})`);
 		} catch (err) {
 			client.log.error({ message: "Error syncing honeypot topic on clientReady", error: err });
+		}
+
+		try {
+			await imageGuard.loadHashes(client);
+		} catch (err) {
+			client.log.error({ message: "Error loading Image Guard scam hashes on clientReady", error: err });
 		}
 	},
 };

@@ -3,12 +3,14 @@ var _Honeypot = require("./Honeypot");
 var _Notes = require("./Notes");
 var _PlaylistConfig = require("./PlaylistConfig");
 var _PlaylistData = require("./PlaylistData");
+var _ScamImageHashes = require("./ScamImageHashes");
 
 function initModels(sequelize) {
   var Honeypot = _Honeypot(sequelize, DataTypes);
   var Notes = _Notes(sequelize, DataTypes);
   var PlaylistConfig = _PlaylistConfig(sequelize, DataTypes);
   var PlaylistData = _PlaylistData(sequelize, DataTypes);
+  var ScamImageHashes = _ScamImageHashes(sequelize, DataTypes);
 
   PlaylistData.belongsTo(PlaylistConfig, { as: "Month_PlaylistConfig", foreignKey: "Month"});
   PlaylistConfig.hasMany(PlaylistData, { as: "PlaylistData", foreignKey: "Month"});
@@ -18,6 +20,7 @@ function initModels(sequelize) {
     Notes,
     PlaylistConfig,
     PlaylistData,
+    ScamImageHashes,
   };
 }
 module.exports = initModels;
