@@ -143,7 +143,7 @@ async function staffLog(client, data) {
     .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
 
   const banLog = await client.channels.fetch(client.config.channels.banLog);
-  const chatModeration = await client.channels.fetch(client.config.channels.chatModeration);
+  const scamLog = await client.channels.fetch(client.config.channels.scamLog);
 
   const payload = { embeds: [banLogEmbed] };
   if (data.attachments && data.attachments.length > 0) {
@@ -154,7 +154,7 @@ async function staffLog(client, data) {
   if (data.banned) {
     await banLog.send(payload);
   }
-  //await chatModeration.send({ embeds: [banLogEmbed] });
+  await scamLog.send(payload);
 }
 
 async function addNote(client, data) {
