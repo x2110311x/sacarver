@@ -1,3 +1,14 @@
+const fs = require('fs');
+const path = require('path');
+
+const configPath = path.resolve(__dirname, '../config.json');
+const exampleConfigPath = path.resolve(__dirname, '../config.example.json');
+let tempConfigCreated = false;
+if (!fs.existsSync(configPath) && fs.existsSync(exampleConfigPath)) {
+  fs.copyFileSync(exampleConfigPath, configPath);
+  tempConfigCreated = true;
+}
+
 const assert = require('assert');
 const { AttachmentBuilder } = require('discord.js');
 const RedisCache = require('../structures/cache');
@@ -22,7 +33,8 @@ async function runTests() {
       return memoryStore.has(key) ? 1 : 0;
     },
     async incr(key) {
-      const current = parseInt(memoryStore.get(key)?.value || '0', 10);
+      const entry = memoryStore.get(key);
+      const current = parseInt((entry && entry.value) || '0', 10);
       memoryStore.set(key, { value: String(current + 1) });
       return current + 1;
     }
@@ -83,7 +95,7 @@ async function runTests() {
   console.log('\nTest 5: downloadAndCacheAttachments handles size limits and existing cache');
   let fetchCount = 0;
   const originalFetch = global.fetch;
-  global.fetch = async (url) => {
+  global.fetch = async (_url) => {
     fetchCount++;
     return {
       ok: true,
@@ -126,7 +138,7 @@ async function runTests() {
   };
 
   let msgFetchCalled = false;
-  global.fetch = async (url) => {
+  global.fetch = async (_url) => {
     msgFetchCalled = true;
     return {
       ok: true,
@@ -150,7 +162,17 @@ async function runTests() {
   console.log('\n--- All Attachment Cache Tests Passed Successfully! ---');
 }
 
-runTests().catch((err) => {
-  console.error('Test failed:', err);
-  process.exit(1);
-});
+runTests()
+  .catch((err) => {
+    console.error('Test failed:', err);
+    process.exit(1);
+  })
+  .finally(() => {
+    if (tempConfigCreated && fs.existsSync(configPath)) {
+      try {
+        fs.unlinkSync(configPath);
+      } catch (_err) {
+        // ignore
+      }
+    }
+  });

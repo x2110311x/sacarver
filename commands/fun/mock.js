@@ -54,13 +54,6 @@ async function getMockImage() {
         imagePath = defaultJpgPath;
     } else if (fs.existsSync(defaultPngPath)) {
         imagePath = defaultPngPath;
-    } else if (fs.existsSync(fallbackUploadPath)) {
-        try {
-            fs.copyFileSync(fallbackUploadPath, defaultJpgPath);
-            imagePath = defaultJpgPath;
-        } catch {
-            imagePath = fallbackUploadPath;
-        }
     }
 
     if (!imagePath) {

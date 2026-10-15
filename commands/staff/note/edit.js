@@ -2,7 +2,6 @@ const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInpu
 const crypto = require("crypto");
 
 async function catchModal(interaction, newInteraction, noteID){
-    let client = interaction.client;
     var originalnote = interaction.note;
   
     var severity = originalnote.Severity;
@@ -72,8 +71,6 @@ async function catchModal(interaction, newInteraction, noteID){
 }
   
 async function catchButton(interaction, newInteraction, data) {
-    let client = interaction.client;
-
     await newInteraction.update({components:[]});
 
     if (newInteraction.customId == 'submit'){

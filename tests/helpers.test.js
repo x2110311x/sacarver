@@ -58,7 +58,7 @@ async function runTests() {
 
   await updateMemberCountStatus(mockClient);
   assert.strictEqual(activitySet, '42000 members', 'Status activity should be formatted with member count');
-  assert.strictEqual(activityOptions?.type, ActivityType.Watching, 'Status activity should be Watching');
+  assert.strictEqual(activityOptions && activityOptions.type, ActivityType.Watching, 'Status activity should be Watching');
   console.log('✓ updateMemberCountStatus sets Watching status.');
 
   // Error resilience test

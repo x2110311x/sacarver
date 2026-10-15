@@ -3,6 +3,9 @@
   "version": "2.0.1",
   "description": "Bot for twentyonepilots server",
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "test": "node tests/index.js",
     "lint": "eslint . --ext .js --ignore-path .gitignore",

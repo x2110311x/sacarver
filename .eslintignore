@@ -3,3 +3,5 @@ logs/**
 node_modules/**
 coverage/**
 assets/**
+config.json
+.env

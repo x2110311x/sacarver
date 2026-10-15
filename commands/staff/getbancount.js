@@ -1,9 +1,10 @@
-const { Collection, EmbedBuilder } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 async function fetchBanCount(guild) {
     if (!guild || typeof guild !== 'object')
       throw new Error(`Expected a guild, got "${typeof guild}"`);
   
+    const client = guild.client;
     let lastId = null;
     let limit = 1000;
     let count = 1000;
@@ -22,7 +23,7 @@ async function fetchBanCount(guild) {
   
         total += count;
         lastId = bans.last().user.id ?? bans.last();
-        client.log.debug(`Fetch ${fetches}. Count: ${count}. Last: ${lastId}`);
+        client?.log?.debug(`Fetch ${fetches}. Count: ${count}. Last: ${lastId}`);
     }
   
     return total;
@@ -40,7 +41,6 @@ module.exports = {
     execute: async function(interaction){
         await interaction.deferReply();
         const guild = interaction.guild;
-        let client = interaction.client;
         const bans = await fetchBanCount(guild);
 
         const banEmbed = new EmbedBuilder()
