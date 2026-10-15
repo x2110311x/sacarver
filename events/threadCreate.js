@@ -5,7 +5,7 @@ const fetchNotes = require("../helpers/notes/fetchnotes");
 module.exports = {
 	name: 'threadCreate',
 	once: false,
-	async execute(thread, newlycreated) {
+	async execute(thread, _newlycreated) {
         await thread.join();
         if (thread.parentId == client.config.channels.tbApps){
             client.log.info(`Joined new TB App thread ${thread.name} (${thread.id})`);

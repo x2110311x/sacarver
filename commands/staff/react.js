@@ -24,18 +24,19 @@ module.exports = {
   execute: async function(interaction){
     await interaction.deferReply({ephemeral: true});
     var channel = interaction.options.getChannel('channel');
-    var message = interaction.options.getString('message');
+    var messageId = interaction.options.getString('message');
     var emoji = interaction.options.getString('emoji') ?? '';
 
+    var targetMessage;
     try {
-        var message = await channel.messages.fetch(message);
+        targetMessage = await channel.messages.fetch(messageId);
     } catch {
         await interaction.editReply("Could not find message");
         return;
     }
 
     try{
-        await message.react(emoji);
+        await targetMessage.react(emoji);
 
         await interaction.editReply("Message has been reacted to")
     } catch{

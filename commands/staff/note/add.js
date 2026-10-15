@@ -39,8 +39,6 @@ async function sendModal(interaction){
 }
 
 async function catchModal(interaction, newInteraction){
-  let client = interaction.client;
-
   var severity = interaction.options.getString('severity');
   var user = interaction.options.getUser('user');
   if (user == null){
@@ -108,8 +106,6 @@ async function catchModal(interaction, newInteraction){
 }
 
 async function catchButton(interaction, newInteraction, data) {
-  let client = interaction.client;
-
   await newInteraction.update({components:[]});
 
   if (newInteraction.customId == 'submit'){
@@ -214,8 +210,6 @@ module.exports = {
       return SlashCommandBuilder;
   },
   execute: async function(interaction){
-    const client = interaction.client;
-
     var user = interaction.options.getUser('user');
     if (user == null){
         user = interaction.options.getString('userid');

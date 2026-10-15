@@ -35,7 +35,6 @@ module.exports = {
     var forum = interaction.options.getChannel('forum');
     var name = interaction.options.getString('name');
     var text = interaction.options.getString('text') ?? '';
-    var client = interaction.client;
     var embed;
 
 

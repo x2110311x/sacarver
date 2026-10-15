@@ -44,7 +44,7 @@ async function processHoneypot(client, message, preloadedAttachment = null) {
   // DM the user
   try {
     var dmChannel = await message.author.createDM();
-    await dmChannel.send("You have been banned from \`twenty one pilots\` for sending a message in our honeypot channel.\nThis channel is designed to automatically combat scam messages. If you believe this was a mistake, please submit a ban appeal at https://bans.discordclique.com");
+    await dmChannel.send("You have been banned from `twenty one pilots` for sending a message in our honeypot channel.\nThis channel is designed to automatically combat scam messages. If you believe this was a mistake, please submit a ban appeal at https://bans.discordclique.com");
     data.DMd = true;
   } catch (err) {
     client.log.error({ message: "Failed to DM user about honeypot ban", error: err })

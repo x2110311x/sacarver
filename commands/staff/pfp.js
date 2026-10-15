@@ -1,5 +1,3 @@
-const { EmbedBuilder } = require('discord.js');
-
 module.exports = {
   builder: function (SlashCommandBuilder){
       SlashCommandBuilder.addSubcommand(subcommand =>
