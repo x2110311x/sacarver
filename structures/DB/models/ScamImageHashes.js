@@ -10,12 +10,12 @@ module.exports = function(sequelize, DataTypes) {
     Hash: {
       type: DataTypes.STRING(64),
       allowNull: false,
-      unique: 'Hash'
+      unique: "Hash"
     },
     Label: {
       type: DataTypes.STRING(255),
       allowNull: true,
-      defaultValue: 'Scam Image'
+      defaultValue: "Scam Image"
     },
     AddedBy: {
       type: DataTypes.BIGINT,
