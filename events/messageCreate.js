@@ -25,8 +25,9 @@ module.exports = {
 
     // Run Image Guard scan and buffer capture BEFORE Honeypot
     let imageGuardResult = null;
-    if (message.attachments.size > 0 && !isStaff) {
-      imageGuardResult = await imageGuard.checkMessage(client, message);
+    if (message.attachments.size > 0) {
+      client.log.debug(`[messageCreate] Message ${message.id} by ${message.author.tag} in <#${message.channelId}> has ${message.attachments.size} attachment(s). isStaff=${isStaff}`);
+      imageGuardResult = await imageGuard.checkMessage(client, message, isStaff);
     }
 
     const screeningChannelId = client.config.channels.weatheredFlag || '470406597860917249';

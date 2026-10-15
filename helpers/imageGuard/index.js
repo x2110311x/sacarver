@@ -18,6 +18,7 @@ let isInitialized = false;
  */
 async function loadHashes(client) {
   try {
+    client.log.debug('[ImageGuard] Querying ScamImageHashes table from database...');
     const records = await client.DB.ScamImageHashes.findAll();
     cachedHashes.clear();
     for (const record of records) {
@@ -29,9 +30,13 @@ async function loadHashes(client) {
         label: record.Label || 'Scam Image',
         matchCount: record.MatchCount || 0
       });
+      client.log.debug(`[ImageGuard] Cached hash [ID ${record.ID}]: hex="${hex}", label="${record.Label}"`);
     }
     isInitialized = true;
-    client.log.info(`[ImageGuard] Loaded ${cachedHashes.size} scam image hashes from database.`);
+    client.log.info(`[ImageGuard] Loaded ${cachedHashes.size} scam image hash(es) from database.`);
+    if (cachedHashes.size === 0) {
+      client.log.debug('[ImageGuard] Note: Database currently contains 0 scam hashes. pHash comparison will only match once hashes are registered via /staff scamimage add or OCR catches.');
+    }
   } catch (err) {
     client.log.error({ message: '[ImageGuard] Failed to load scam hashes from database', error: err });
   }
@@ -74,16 +79,28 @@ async function addScamHash(client, hexHash, label, addedById) {
  * Checks an incoming message for scam images.
  * @param {import('discord.js').Client} client
  * @param {import('discord.js').Message} message
+ * @param {boolean} [isStaff=false]
  * @returns {Promise<{ buffer: Buffer, hash: string, flagDetails: object } | null>}
  */
-async function checkMessage(client, message) {
-  if (!client.config.imageGuard?.enabled) return null;
-  if (!isInitialized) await loadHashes(client);
+async function checkMessage(client, message, isStaff = false) {
+  client.log.debug(`[ImageGuard] checkMessage started for message ${message.id} from ${message.author?.tag} (${message.author?.id}) in channel ${message.channelId} (isStaff=${isStaff})`);
+
+  if (!client.config.imageGuard?.enabled) {
+    client.log.debug('[ImageGuard] imageGuard is disabled in config. Skipping.');
+    return null;
+  }
+  if (!isInitialized) {
+    client.log.debug('[ImageGuard] Hashes not initialized yet. Calling loadHashes()...');
+    await loadHashes(client);
+  }
+
+  const scamLogChannelId = client.config.channels?.scamLog;
+  client.log.debug(`[ImageGuard] Active config: mode="${client.config.imageGuard.mode}", ocrUrl="${client.config.imageGuard.ocrUrl}", threshold=${client.config.imageGuard.hammingThreshold || 8}, scamLogChannel="${scamLogChannelId}"`);
 
   const imageAttachments = message.attachments.filter(att => {
     const name = (att.name || '').toLowerCase();
     const contentType = (att.contentType || '').toLowerCase();
-    return (
+    const isImg = (
       contentType.startsWith('image/') ||
       name.endsWith('.png') ||
       name.endsWith('.jpg') ||
@@ -91,26 +108,46 @@ async function checkMessage(client, message) {
       name.endsWith('.webp') ||
       name.endsWith('.bmp')
     );
+    client.log.debug(`[ImageGuard] Attachment check: name="${att.name}", type="${att.contentType}", isImage=${isImg}`);
+    return isImg;
   });
 
-  if (imageAttachments.size === 0) return null;
+  if (imageAttachments.size === 0) {
+    client.log.debug(`[ImageGuard] Message ${message.id} has no image attachments. Skipping.`);
+    return null;
+  }
+
+  client.log.debug(`[ImageGuard] Found ${imageAttachments.size} image attachment(s) to scan in message ${message.id}.`);
 
   for (const [, attachment] of imageAttachments) {
     try {
+      client.log.debug(`[ImageGuard] Downloading attachment from ${attachment.url}...`);
       const response = await fetch(attachment.url);
-      if (!response.ok) continue;
+      if (!response.ok) {
+        client.log.warn(`[ImageGuard] Failed to fetch attachment (HTTP ${response.status}) from ${attachment.url}`);
+        continue;
+      }
 
       const buffer = Buffer.from(await response.arrayBuffer());
+      client.log.debug(`[ImageGuard] Downloaded buffer for ${attachment.name}: ${buffer.length} bytes.`);
+
+      client.log.debug(`[ImageGuard] Computing 2D DCT pHash for ${attachment.name}...`);
       const binaryHash = await computePHash(buffer);
       const hexHash = binaryToHex(binaryHash);
       const threshold = client.config.imageGuard.hammingThreshold || 8;
+      client.log.debug(`[ImageGuard] Computed pHash for ${attachment.name}: hex="${hexHash}" (binary length: ${binaryHash.length})`);
 
       let flagDetails = null;
 
       // 1. Layer 1: pHash comparison against cached database
+      client.log.debug(`[ImageGuard] Comparing against ${cachedHashes.size} known scam hash(es) (threshold: ${threshold})...`);
+      let lowestDistance = 64;
       for (const [, known] of cachedHashes) {
         const distance = hammingDistance(binaryHash, known.binary);
+        if (distance < lowestDistance) lowestDistance = distance;
+        client.log.debug(`[ImageGuard] Hash compare: distance=${distance} to [ID ${known.id}] ${known.hex} ("${known.label}")`);
         if (distance <= threshold) {
+          client.log.info(`[ImageGuard] pHash MATCH FOUND! Distance ${distance} <= threshold ${threshold} for [ID ${known.id}] "${known.label}"`);
           flagDetails = {
             matchType: 'pHash',
             distance: distance,
@@ -123,8 +160,13 @@ async function checkMessage(client, message) {
         }
       }
 
+      if (!flagDetails) {
+        client.log.debug(`[ImageGuard] No pHash match for ${attachment.name}. Lowest distance seen was ${lowestDistance} (threshold: ${threshold}).`);
+      }
+
       // 2. Layer 2: OCR Fallback if no pHash match
       if (!flagDetails && client.config.imageGuard.ocrUrl) {
+        client.log.debug(`[ImageGuard] Querying OCR microservice at ${client.config.imageGuard.ocrUrl}...`);
         try {
           const ocrFormData = new FormData();
           ocrFormData.append('file', new Blob([buffer]), attachment.name || 'image.png');
@@ -133,6 +175,8 @@ async function checkMessage(client, message) {
             method: 'POST',
             body: ocrFormData
           });
+
+          client.log.debug(`[ImageGuard] OCR response status: ${ocrResponse.status} ${ocrResponse.statusText}`);
 
           if (ocrResponse.ok) {
             const ocrResult = await ocrResponse.text();
@@ -144,8 +188,13 @@ async function checkMessage(client, message) {
               // Plain text response from ocrserver
             }
 
+            client.log.debug(`[ImageGuard] OCR extracted text (${extractedText.length} chars): "${extractedText.trim().replace(/\n+/g, ' ')}"`);
+
             const analysis = analyzeText(extractedText);
+            client.log.debug(`[ImageGuard] Heuristics result: isScam=${analysis.isScam}, patterns=${JSON.stringify(analysis.matchedPatterns)}, confidence=${analysis.confidence}`);
+
             if (analysis.isScam) {
+              client.log.info(`[ImageGuard] OCR Heuristic MATCH FOUND! Patterns: ${analysis.matchedPatterns.join(', ')}`);
               flagDetails = {
                 matchType: 'OCR',
                 hexHash: hexHash,
@@ -155,10 +204,14 @@ async function checkMessage(client, message) {
                 attachmentName: attachment.name || 'image.png'
               };
             }
+          } else {
+            client.log.warn(`[ImageGuard] OCR service returned error HTTP ${ocrResponse.status}`);
           }
         } catch (ocrErr) {
-          client.log.warn({ message: '[ImageGuard] OCR microservice call failed', error: ocrErr });
+          client.log.warn({ message: `[ImageGuard] OCR microservice call failed to ${client.config.imageGuard.ocrUrl}`, error: ocrErr });
         }
+      } else if (!flagDetails) {
+        client.log.debug('[ImageGuard] OCR url not configured. Skipping Layer 2 OCR check.');
       }
 
       // If matched, take action or send review card
@@ -167,17 +220,28 @@ async function checkMessage(client, message) {
 
         // If in Honeypot channel, let honeypot do its ban, but return preloaded buffer
         if (message.channelId === client.config.channels.honeypot) {
+          client.log.debug(`[ImageGuard] Message is in honeypot channel (${message.channelId}). Returning buffer for honeypot ban.`);
           return { buffer, hash: hexHash, flagDetails };
         }
 
         const mode = client.config.imageGuard.mode || 'review';
+        client.log.debug(`[ImageGuard] Current moderation mode is "${mode}".`);
+
         if (mode === 'review') {
-          await sendReviewCard(client, message, buffer, flagDetails);
+          client.log.debug(`[ImageGuard] Calling sendReviewCard for message ${message.id}...`);
+          await sendReviewCard(client, message, buffer, flagDetails, isStaff);
         } else if (mode === 'enforce') {
-          await executeBanAndPurge(client, message, buffer, flagDetails);
+          if (isStaff) {
+            client.log.info(`[ImageGuard] User ${message.author.id} is staff. Skipping automatic ban/delete in enforce mode.`);
+          } else {
+            client.log.debug(`[ImageGuard] Calling executeBanAndPurge for message ${message.id}...`);
+            await executeBanAndPurge(client, message, buffer, flagDetails);
+          }
         }
 
         return { buffer, hash: hexHash, flagDetails };
+      } else {
+        client.log.debug(`[ImageGuard] Image ${attachment.name} in message ${message.id} was evaluated as SAFE (no pHash or OCR flag).`);
       }
     } catch (err) {
       client.log.error({ message: `[ImageGuard] Error processing attachment for message ${message.id}`, error: err });
@@ -190,13 +254,23 @@ async function checkMessage(client, message) {
 /**
  * Sends a review card to #scam-log with the re-uploaded image buffer and interactive buttons.
  */
-async function sendReviewCard(client, message, buffer, flagDetails) {
+async function sendReviewCard(client, message, buffer, flagDetails, isStaff = false) {
   const scamLogChannelId = client.config.channels.scamLog;
-  if (!scamLogChannelId) return;
+  client.log.debug(`[ImageGuard] sendReviewCard called for message ${message.id}. scamLogChannelId="${scamLogChannelId}"`);
+
+  if (!scamLogChannelId) {
+    client.log.warn('[ImageGuard] No scamLog channel ID configured in config.channels.scamLog! Review card cannot be sent.');
+    return;
+  }
 
   try {
     const scamLogChannel = await client.channels.fetch(scamLogChannelId);
-    if (!scamLogChannel) return;
+    if (!scamLogChannel) {
+      client.log.error(`[ImageGuard] Failed to fetch scamLog channel with ID "${scamLogChannelId}". Does the bot have permission to view it?`);
+      return;
+    }
+
+    client.log.debug(`[ImageGuard] Fetched scamLog channel #${scamLogChannel.name || scamLogChannelId}. Creating embed and AttachmentBuilder...`);
 
     const filename = `flagged_${message.id}.png`;
     const imageAttachment = new AttachmentBuilder(buffer, { name: filename });
@@ -206,6 +280,10 @@ async function sendReviewCard(client, message, buffer, flagDetails) {
       reasonText = `**Perceptual Hash Match**\n• Distance: \`${flagDetails.distance} / 64\`\n• Known Hash: \`${flagDetails.matchedHash}\`\n• Label: *${flagDetails.label}*`;
     } else {
       reasonText = `**OCR Heuristic Match**\n• Triggers: ${flagDetails.matchedPatterns.map(p => `\`${p}\``).join(', ')}\n• Text Snippet: "${flagDetails.extractedText}"`;
+    }
+
+    if (isStaff) {
+      reasonText += '\n\n⚠️ *Notice: Author has the Staff role (Test/Preview mode).*';
     }
 
     const embed = new EmbedBuilder()
