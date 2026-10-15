@@ -1,0 +1,44 @@
+{
+  "token": "",
+  "guildID": "",
+  "clientID": "",
+  "roles": {
+    "staff": "",
+    "newMember": "",
+    "vc": ""
+  },
+  "channels": {
+    "deleteLog": "",
+    "editLog": "",
+    "weatheredFlag": "",
+    "joinLeaveLog": "",
+    "nickLog": "",
+    "vcLog": "",
+    "staffCommandLog": "",
+    "tbApps": "",
+    "honeypot": "",
+    "banLog": "",
+    "chatModeration": "",
+    "staffDmLog": "",
+    "scamLog": ""
+  },
+  "imageGuard": {
+    "enabled": true,
+    "mode": "review",
+    "ocrUrl": "http://ocr:8080/file",
+    "hammingThreshold": 8,
+    "autoBanExactMatch": true,
+    "banAppealUrl": "https://bans.discordclique.com"
+  },
+  "db": {
+    "DBName": "sacarver",
+    "user": "",
+    "pass": "",
+    "host": "db",
+    "port": "3306"
+  },
+  "cacheExpiration": 2419200,
+  "attachmentCacheExpiration": 86400,
+  "maxAttachmentCacheSize": 26214400,
+  "swearJarChannels": []
+}

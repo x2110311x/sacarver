@@ -4,12 +4,13 @@
   "description": "Bot for twentyonepilots server",
   "main": "index.js",
   "scripts": {
-    "test": "node tests/imageGuard.test.js && node tests/attachmentCache.test.js",
+    "test": "node tests/index.js",
+    "lint": "eslint . --ext .js --ignore-path .gitignore",
     "start": "node .",
     "generateDB": "source ./scripts/generateDBModels.sh",
     "update": "source ./scripts/update.sh",
-    "deploy": "node deploy",
-    "remove": "node remove"
+    "deploy": "node ./scripts/deploy.js",
+    "remove": "node ./scripts/remove.js"
   },
   "repository": {
     "type": "git",
