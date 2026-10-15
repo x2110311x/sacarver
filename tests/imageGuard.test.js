@@ -20,7 +20,9 @@ async function runTests() {
     'Claim your free 3 months Discord Nitro at discorcl-nitro.gift',
     'Steam $100 gift card giveaway! Click here to claim your wallet code',
     'Who wants free nitro? First one to claim gets it',
-    'Scan this QR code with discord app to claim your free reward'
+    'Scan this QR code with discord app to claim your free reward',
+    'I am pleased to announce the launch of my own cryptocurrency casino. To celebrate, I am giving away $3,200 to everyone who registers, and you can withdraw the bonus immediately. Go to ruakax.com promo code: CRAZY',
+    'MrBeast - special promo code: CRAZY - claim your reward'
   ];
 
   for (const sample of scamSamples) {
@@ -44,18 +46,20 @@ async function runTests() {
   // Test 3: Perceptual Hash (pHash) Invariance on Real-World Graphics
   console.log('\nTest 3: Perceptual Hash (pHash) Invariance');
 
-  // Create Image A: 400x300 gradient banner with text and shapes
+  // Create Image A: 400x300 pattern
   const canvasA = createCanvas(400, 300);
   const ctxA = canvasA.getContext('2d');
-  const grad = ctxA.createLinearGradient(0, 0, 400, 300);
-  grad.addColorStop(0, '#2c3e50');
-  grad.addColorStop(1, '#3498db');
-  ctxA.fillStyle = grad;
-  ctxA.fillRect(0, 0, 400, 300);
-  ctxA.fillStyle = '#ffffff';
-  ctxA.fillText('DISCORD NITRO GIVEAWAY', 30, 80);
-  ctxA.fillStyle = '#e74c3c';
-  ctxA.fillRect(30, 180, 200, 50);
+  const imgDataA = ctxA.createImageData(400, 300);
+  for (let y = 0; y < 300; y++) {
+    for (let x = 0; x < 400; x++) {
+      const idx = (y * 400 + x) * 4;
+      imgDataA.data[idx] = (x * 255) / 400; // red gradient
+      imgDataA.data[idx + 1] = (y * 255) / 300; // green gradient
+      imgDataA.data[idx + 2] = 128;
+      imgDataA.data[idx + 3] = 255;
+    }
+  }
+  ctxA.putImageData(imgDataA, 0, 0);
 
   const pngA = canvasA.toBuffer('image/png');
   const jpegA = canvasA.toBuffer('image/jpeg', { quality: 0.75 });
@@ -63,18 +67,34 @@ async function runTests() {
   // Resized 50% scale
   const canvasResized = createCanvas(200, 150);
   const ctxResized = canvasResized.getContext('2d');
-  ctxResized.drawImage(canvasA, 0, 0, 200, 150);
+  const imgDataResized = ctxResized.createImageData(200, 150);
+  for (let y = 0; y < 150; y++) {
+    for (let x = 0; x < 200; x++) {
+      const idx = (y * 200 + x) * 4;
+      imgDataResized.data[idx] = (x * 2 * 255) / 400;
+      imgDataResized.data[idx + 1] = (y * 2 * 255) / 300;
+      imgDataResized.data[idx + 2] = 128;
+      imgDataResized.data[idx + 3] = 255;
+    }
+  }
+  ctxResized.putImageData(imgDataResized, 0, 0);
   const pngResized = canvasResized.toBuffer('image/png');
 
-  // Completely different image (Orange with dark circle)
+  // Completely different image (checkerboard pattern)
   const canvasOther = createCanvas(400, 300);
   const ctxOther = canvasOther.getContext('2d');
-  ctxOther.fillStyle = '#e67e22';
-  ctxOther.fillRect(0, 0, 400, 300);
-  ctxOther.fillStyle = '#2c3e50';
-  ctxOther.beginPath();
-  ctxOther.arc(200, 150, 100, 0, Math.PI * 2);
-  ctxOther.fill();
+  const imgDataOther = ctxOther.createImageData(400, 300);
+  for (let y = 0; y < 300; y++) {
+    for (let x = 0; x < 400; x++) {
+      const idx = (y * 400 + x) * 4;
+      const check = (Math.floor(x / 50) + Math.floor(y / 50)) % 2 === 0;
+      imgDataOther.data[idx] = check ? 255 : 0;
+      imgDataOther.data[idx + 1] = check ? 255 : 0;
+      imgDataOther.data[idx + 2] = check ? 255 : 0;
+      imgDataOther.data[idx + 3] = 255;
+    }
+  }
+  ctxOther.putImageData(imgDataOther, 0, 0);
   const pngOther = canvasOther.toBuffer('image/png');
 
   const hashPNG = await computePHash(pngA);

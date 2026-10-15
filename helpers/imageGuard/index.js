@@ -5,8 +5,62 @@ const {
   ButtonStyle,
   AttachmentBuilder
 } = require('discord.js');
+const { createCanvas, loadImage } = require('canvas');
 const { computePHash, hammingDistance, binaryToHex, hexToBinary } = require('./phash');
 const { analyzeText } = require('./heuristics');
+
+/**
+ * Inverts an image buffer and calculates average luminance.
+ * Useful for dark-mode screenshots where Tesseract performs poorly without inversion.
+ * @param {Buffer} buffer
+ * @returns {Promise<{ invertedBuffer: Buffer, avgLuminance: number }>}
+ */
+async function invertImageBuffer(buffer) {
+  const img = await loadImage(buffer);
+  const w = img.width;
+  const h = img.height;
+  const canvas = createCanvas(w, h);
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const d = imgData.data;
+  let totalLuminance = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    totalLuminance += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+    d[i] = 255 - d[i];
+    d[i + 1] = 255 - d[i + 1];
+    d[i + 2] = 255 - d[i + 2];
+  }
+  const avgLuminance = totalLuminance / (w * h);
+  ctx.putImageData(imgData, 0, 0);
+  const invertedBuffer = canvas.toBuffer('image/png');
+  return { invertedBuffer, avgLuminance };
+}
+
+/**
+ * Sends an image buffer to the OCR microservice and extracts the text.
+ * @param {string} ocrUrl
+ * @param {Buffer} buf
+ * @param {string} filename
+ * @returns {Promise<string>}
+ */
+async function requestOcr(ocrUrl, buf, filename) {
+  const ocrFormData = new FormData();
+  ocrFormData.append('file', new Blob([buf]), filename || 'image.png');
+  const ocrResponse = await fetch(ocrUrl, {
+    method: 'POST',
+    body: ocrFormData
+  });
+  if (!ocrResponse.ok) return '';
+  const ocrResult = await ocrResponse.text();
+  try {
+    const parsed = JSON.parse(ocrResult);
+    return parsed.result || parsed.text || parsed.data || ocrResult;
+  } catch {
+    return ocrResult;
+  }
+}
 
 // In-memory cache of known scam hashes: Map<hexHash, { id, binaryHash, label, matchCount }>
 let cachedHashes = new Map();
@@ -168,44 +222,42 @@ async function checkMessage(client, message, isStaff = false) {
       if (!flagDetails && client.config.imageGuard.ocrUrl) {
         client.log.debug(`[ImageGuard] Querying OCR microservice at ${client.config.imageGuard.ocrUrl}...`);
         try {
-          const ocrFormData = new FormData();
-          ocrFormData.append('file', new Blob([buffer]), attachment.name || 'image.png');
+          // Pass 1: Original image
+          let extractedText = await requestOcr(client.config.imageGuard.ocrUrl, buffer, attachment.name);
+          let analysis = analyzeText(extractedText);
 
-          const ocrResponse = await fetch(client.config.imageGuard.ocrUrl, {
-            method: 'POST',
-            body: ocrFormData
-          });
+          client.log.debug(`[ImageGuard] Pass 1 OCR extracted text (${(extractedText || '').length} chars): "${(extractedText || '').trim().replace(/\n+/g, ' ')}"`);
+          client.log.debug(`[ImageGuard] Pass 1 Heuristics: isScam=${analysis.isScam}, patterns=${JSON.stringify(analysis.matchedPatterns)}, confidence=${analysis.confidence}`);
 
-          client.log.debug(`[ImageGuard] OCR response status: ${ocrResponse.status} ${ocrResponse.statusText}`);
-
-          if (ocrResponse.ok) {
-            const ocrResult = await ocrResponse.text();
-            let extractedText = ocrResult;
+          // Pass 2: Inverted image (critical for dark mode / dark screen photos where Tesseract fails)
+          if (!analysis.isScam) {
             try {
-              const parsed = JSON.parse(ocrResult);
-              extractedText = parsed.text || parsed.data || ocrResult;
-            } catch {
-              // Plain text response from ocrserver
+              const { invertedBuffer, avgLuminance } = await invertImageBuffer(buffer);
+              client.log.debug(`[ImageGuard] Image average luminance: ${avgLuminance.toFixed(1)} (dark mode: ${avgLuminance < 128}). Running inverted OCR pass...`);
+              const invertedText = await requestOcr(client.config.imageGuard.ocrUrl, invertedBuffer, 'inverted.png');
+              const invertedAnalysis = analyzeText(invertedText);
+              client.log.debug(`[ImageGuard] Pass 2 (Inverted) OCR extracted text (${(invertedText || '').length} chars): "${(invertedText || '').trim().replace(/\n+/g, ' ')}"`);
+              client.log.debug(`[ImageGuard] Pass 2 Heuristics: isScam=${invertedAnalysis.isScam}, patterns=${JSON.stringify(invertedAnalysis.matchedPatterns)}, confidence=${invertedAnalysis.confidence}`);
+
+              if (invertedAnalysis.isScam) {
+                extractedText = invertedText;
+                analysis = invertedAnalysis;
+              }
+            } catch (invErr) {
+              client.log.warn({ message: '[ImageGuard] Error during inverted OCR pass', error: invErr });
             }
+          }
 
-            client.log.debug(`[ImageGuard] OCR extracted text (${extractedText.length} chars): "${extractedText.trim().replace(/\n+/g, ' ')}"`);
-
-            const analysis = analyzeText(extractedText);
-            client.log.debug(`[ImageGuard] Heuristics result: isScam=${analysis.isScam}, patterns=${JSON.stringify(analysis.matchedPatterns)}, confidence=${analysis.confidence}`);
-
-            if (analysis.isScam) {
-              client.log.info(`[ImageGuard] OCR Heuristic MATCH FOUND! Patterns: ${analysis.matchedPatterns.join(', ')}`);
-              flagDetails = {
-                matchType: 'OCR',
-                hexHash: hexHash,
-                extractedText: extractedText.trim().substring(0, 300),
-                matchedPatterns: analysis.matchedPatterns,
-                confidence: analysis.confidence,
-                attachmentName: attachment.name || 'image.png'
-              };
-            }
-          } else {
-            client.log.warn(`[ImageGuard] OCR service returned error HTTP ${ocrResponse.status}`);
+          if (analysis.isScam) {
+            client.log.info(`[ImageGuard] OCR Heuristic MATCH FOUND! Patterns: ${analysis.matchedPatterns.join(', ')}`);
+            flagDetails = {
+              matchType: 'OCR',
+              hexHash: hexHash,
+              extractedText: extractedText.trim().substring(0, 300),
+              matchedPatterns: analysis.matchedPatterns,
+              confidence: analysis.confidence,
+              attachmentName: attachment.name || 'image.png'
+            };
           }
         } catch (ocrErr) {
           client.log.warn({ message: `[ImageGuard] OCR microservice call failed to ${client.config.imageGuard.ocrUrl}`, error: ocrErr });
@@ -307,7 +359,7 @@ async function sendReviewCard(client, message, buffer, flagDetails, isStaff = fa
     // imageguard_save_<hexHash>
     // imageguard_dismiss_<messageId>
     const banButton = new ButtonBuilder()
-      .setCustomId(`imageguard_ban_${message.channelId}_${message.id}_${message.author.id}`)
+      .setCustomId(`imageguard_ban_${message.channelId}_${message.id}_${message.author.id}_${flagDetails.hexHash}`)
       .setLabel('🔨 Ban & Delete')
       .setStyle(ButtonStyle.Danger);
 
@@ -466,6 +518,7 @@ async function handleReviewInteraction(interaction) {
     const channelId = parts[2];
     const messageId = parts[3];
     const userId = parts[4];
+    const hexHash = parts[5] || interaction.message.embeds[0]?.fields?.find(f => f.name === 'Calculated pHash')?.value?.replace(/`/g, '') || null;
 
     await interaction.deferUpdate();
 
@@ -490,17 +543,32 @@ async function handleReviewInteraction(interaction) {
       interaction.user
     );
 
-    // Update review card embed and disable buttons
+    // Also save hash on ban and delete as requested
+    let hashSaved = false;
+    if (hexHash) {
+      try {
+        await addScamHash(interaction.client, hexHash, 'Banned Scam Image', interaction.user.id);
+        hashSaved = true;
+      } catch (saveErr) {
+        interaction.client.log.warn({ message: '[ImageGuard] Error saving scam hash during ban', error: saveErr });
+      }
+    }
+
+    // Update review card embed and remove buttons completely
     const updatedEmbed = EmbedBuilder.from(originalEmbed)
       .setColor(0x880000)
-      .setFooter({ text: `🔨 Action Taken: Banned by ${interaction.user.tag}` });
+      .setFooter({ text: `🔨 Action Taken: Banned by ${interaction.user.tag}${hashSaved ? ' • Hash Saved' : ''}` });
 
     await interaction.message.edit({
       embeds: [updatedEmbed],
       components: []
     });
 
-    await interaction.followUp({ content: `✅ User <@${userId}> was banned, message purged, note created, and audit logged to banLog.`, ephemeral: true });
+    // Public follow-up message so everyone in the channel sees the action
+    await interaction.followUp({
+      content: `🔨 <@${interaction.user.id}> banned <@${userId}> and purged the scam message.${hashSaved ? ` Perceptual hash \`${hexHash}\` was saved to the database.` : ''}`,
+      ephemeral: false
+    });
     return;
   }
 
@@ -512,34 +580,27 @@ async function handleReviewInteraction(interaction) {
     try {
       const { created } = await addScamHash(interaction.client, hexHash, 'Verified Scam Image', interaction.user.id);
 
-      // Disable or update the Save button
-      const oldRows = interaction.message.components;
-      const updatedRow = new ActionRowBuilder();
+      const originalEmbed = interaction.message.embeds[0];
+      const updatedEmbed = EmbedBuilder.from(originalEmbed)
+        .setColor(0x2ecc71)
+        .setFooter({ text: `💾 Scam hash saved by ${interaction.user.tag}` });
 
-      for (const comp of oldRows[0].components) {
-        if (comp.customId.startsWith('imageguard_save_')) {
-          updatedRow.addComponents(
-            new ButtonBuilder()
-              .setCustomId('saved_disabled')
-              .setLabel('💾 Hash Saved')
-              .setStyle(ButtonStyle.Success)
-              .setDisabled(true)
-          );
-        } else {
-          updatedRow.addComponents(ButtonBuilder.from(comp));
-        }
-      }
+      // Remove buttons completely
+      await interaction.message.edit({
+        embeds: [updatedEmbed],
+        components: []
+      });
 
-      await interaction.message.edit({ components: [updatedRow] });
+      // Public follow-up message so everyone in the channel sees the action
       await interaction.followUp({
         content: created
-          ? `✅ Perceptual hash \`${hexHash}\` has been permanently saved to the scam database.`
-          : `ℹ️ Hash \`${hexHash}\` was already registered in the database.`,
-        ephemeral: true
+          ? `💾 <@${interaction.user.id}> saved perceptual hash \`${hexHash}\` to the scam database.`
+          : `ℹ️ <@${interaction.user.id}> attempted to save hash \`${hexHash}\`, but it was already registered in the database.`,
+        ephemeral: false
       });
     } catch (err) {
       interaction.client.log.error({ message: '[ImageGuard] Error saving scam hash', error: err });
-      await interaction.followUp({ content: '❌ Failed to save scam hash to database.', ephemeral: true });
+      await interaction.followUp({ content: '❌ Failed to save scam hash to database.', ephemeral: false });
     }
     return;
   }
@@ -553,12 +614,17 @@ async function handleReviewInteraction(interaction) {
       .setColor(0x555555)
       .setFooter({ text: `❌ Dismissed by ${interaction.user.tag} (False Positive)` });
 
+    // Remove buttons completely
     await interaction.message.edit({
       embeds: [updatedEmbed],
       components: []
     });
 
-    await interaction.followUp({ content: 'Dismissed review alert.', ephemeral: true });
+    // Public follow-up message so everyone in the channel sees the action
+    await interaction.followUp({
+      content: `❌ <@${interaction.user.id}> dismissed this review alert (false positive).`,
+      ephemeral: false
+    });
   }
 }
 
