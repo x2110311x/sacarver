@@ -46,20 +46,24 @@ async function runTests() {
   // Test 3: Perceptual Hash (pHash) Invariance on Real-World Graphics
   console.log('\nTest 3: Perceptual Hash (pHash) Invariance');
 
-  // Create Image A: 400x300 pattern
+  // Create Image A: 400x300 graphic banner with high-contrast shapes and text
   const canvasA = createCanvas(400, 300);
   const ctxA = canvasA.getContext('2d');
-  const imgDataA = ctxA.createImageData(400, 300);
-  for (let y = 0; y < 300; y++) {
-    for (let x = 0; x < 400; x++) {
-      const idx = (y * 400 + x) * 4;
-      imgDataA.data[idx] = (x * 255) / 400; // red gradient
-      imgDataA.data[idx + 1] = (y * 255) / 300; // green gradient
-      imgDataA.data[idx + 2] = 128;
-      imgDataA.data[idx + 3] = 255;
-    }
-  }
-  ctxA.putImageData(imgDataA, 0, 0);
+  // Background
+  ctxA.fillStyle = '#1e293b';
+  ctxA.fillRect(0, 0, 400, 300);
+  // High contrast banner elements
+  ctxA.fillStyle = '#ef4444';
+  ctxA.fillRect(40, 40, 160, 100);
+  ctxA.fillStyle = '#eab308';
+  ctxA.beginPath();
+  ctxA.arc(300, 120, 50, 0, Math.PI * 2);
+  ctxA.fill();
+  ctxA.fillStyle = '#3b82f6';
+  ctxA.fillRect(60, 180, 280, 80);
+  ctxA.fillStyle = '#ffffff';
+  ctxA.font = '24px sans-serif';
+  ctxA.fillText('DISCORD NITRO PROMO', 70, 230);
 
   const pngA = canvasA.toBuffer('image/png');
   const jpegA = canvasA.toBuffer('image/jpeg', { quality: 0.75 });
@@ -67,34 +71,18 @@ async function runTests() {
   // Resized 50% scale
   const canvasResized = createCanvas(200, 150);
   const ctxResized = canvasResized.getContext('2d');
-  const imgDataResized = ctxResized.createImageData(200, 150);
-  for (let y = 0; y < 150; y++) {
-    for (let x = 0; x < 200; x++) {
-      const idx = (y * 200 + x) * 4;
-      imgDataResized.data[idx] = (x * 2 * 255) / 400;
-      imgDataResized.data[idx + 1] = (y * 2 * 255) / 300;
-      imgDataResized.data[idx + 2] = 128;
-      imgDataResized.data[idx + 3] = 255;
-    }
-  }
-  ctxResized.putImageData(imgDataResized, 0, 0);
+  ctxResized.drawImage(canvasA, 0, 0, 200, 150);
   const pngResized = canvasResized.toBuffer('image/png');
 
-  // Completely different image (checkerboard pattern)
+  // Completely different image (green circle on white background)
   const canvasOther = createCanvas(400, 300);
   const ctxOther = canvasOther.getContext('2d');
-  const imgDataOther = ctxOther.createImageData(400, 300);
-  for (let y = 0; y < 300; y++) {
-    for (let x = 0; x < 400; x++) {
-      const idx = (y * 400 + x) * 4;
-      const check = (Math.floor(x / 50) + Math.floor(y / 50)) % 2 === 0;
-      imgDataOther.data[idx] = check ? 255 : 0;
-      imgDataOther.data[idx + 1] = check ? 255 : 0;
-      imgDataOther.data[idx + 2] = check ? 255 : 0;
-      imgDataOther.data[idx + 3] = 255;
-    }
-  }
-  ctxOther.putImageData(imgDataOther, 0, 0);
+  ctxOther.fillStyle = '#ffffff';
+  ctxOther.fillRect(0, 0, 400, 300);
+  ctxOther.fillStyle = '#10b981';
+  ctxOther.beginPath();
+  ctxOther.arc(200, 150, 80, 0, Math.PI * 2);
+  ctxOther.fill();
   const pngOther = canvasOther.toBuffer('image/png');
 
   const hashPNG = await computePHash(pngA);
