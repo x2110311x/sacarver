@@ -23,9 +23,9 @@ module.exports = {
     const staffRoleId = client.config.roles.staff || '323555864646647808';
     const isStaff = message.member ? message.member.roles.cache.has(staffRoleId) : false;
 
-    // Run Image Guard scan and buffer capture BEFORE Honeypot (skip staff completely)
+    // Run Image Guard scan and buffer capture BEFORE Honeypot (skip staff and bot users)
     let imageGuardResult = null;
-    if (!isStaff && message.attachments.size > 0) {
+    if (!isStaff && !message.author?.bot && message.attachments.size > 0) {
       client.log.debug(`[messageCreate] Message ${message.id} by ${message.author.tag} in <#${message.channelId}> has ${message.attachments.size} attachment(s). isStaff=false`);
       imageGuardResult = await imageGuard.checkMessage(client, message, false);
     }

@@ -1,5 +1,6 @@
 let instance = null;
-const { createClient } = require('redis');
+const { createClient, commandOptions } = require('redis');
+const { AttachmentBuilder } = require('discord.js');
 
 const log = require('../logging').getInstance().logger;
 const config = require('../../config.json');
@@ -17,21 +18,132 @@ class RedisCache {
     }
 
     async cacheMessage(message){
+      let rawAttachments = [];
+      if (message.attachments) {
+        if (typeof message.attachments.toJSON === 'function') {
+          rawAttachments = message.attachments.toJSON();
+        } else if (Array.isArray(message.attachments)) {
+          rawAttachments = message.attachments;
+        } else if (typeof message.attachments.values === 'function') {
+          rawAttachments = Array.from(message.attachments.values());
+        }
+      }
+
       const msg = {
-        author: message.author.id,
-        channel: message.channelId,
+        author: message.author?.id ?? message.author,
+        channel: message.channelId ?? message.channel?.id ?? message.channel,
         content: message.content,
         createdTimestamp: message.createdTimestamp,
-        attachments: message.attachments.toJSON()
+        attachments: rawAttachments
       };
       const msgJson = JSON.stringify(msg);
       await this.client.set(message.id, msgJson, {EX:config.cacheExpiration, NX: true});
+
+      if (rawAttachments.length > 0) {
+        await this.downloadAndCacheAttachments(rawAttachments);
+      }
     }
 
     async getMessage(id){
       const msgJson = await this.client.get(id);
       const msg = JSON.parse(msgJson);
       return msg;
+    }
+
+    async cacheAttachment(attachmentId, buffer, ttl = config.attachmentCacheExpiration || 86400) {
+      const key = `attachment:${attachmentId}`;
+      await this.client.set(key, buffer, { EX: ttl });
+    }
+
+    async getAttachment(attachmentId) {
+      const key = `attachment:${attachmentId}`;
+      const buffer = await this.client.get(commandOptions({ returnBuffers: true }), key);
+      return buffer;
+    }
+
+    async hasAttachment(attachmentId) {
+      const key = `attachment:${attachmentId}`;
+      const exists = await this.client.exists(key);
+      return exists === 1;
+    }
+
+    async downloadAndCacheAttachments(attachments) {
+      const maxFileSize = config.maxAttachmentCacheSize || 25 * 1024 * 1024;
+      const ttl = config.attachmentCacheExpiration || 86400;
+
+      const downloadPromises = attachments.map(async (attachment) => {
+        try {
+          if (!attachment?.id || !attachment?.url) return;
+
+          if (attachment.size && attachment.size > maxFileSize) {
+            log.warn(`Attachment ${attachment.id} (${attachment.name || 'unnamed'}) exceeds max cache size (${attachment.size} > ${maxFileSize}), skipping.`);
+            return;
+          }
+
+          if (await this.hasAttachment(attachment.id)) {
+            return;
+          }
+
+          try {
+            const res = await fetch(attachment.url, { signal: AbortSignal.timeout(10000) });
+            if (!res.ok) {
+              log.warn(`Failed to fetch attachment ${attachment.id} from ${attachment.url}: HTTP ${res.status}`);
+              return;
+            }
+
+            const buffer = Buffer.from(await res.arrayBuffer());
+            if (buffer.length > maxFileSize) {
+              log.warn(`Attachment ${attachment.id} downloaded size (${buffer.length}) exceeds max limit (${maxFileSize}), skipping.`);
+              return;
+            }
+
+            await this.cacheAttachment(attachment.id, buffer, ttl);
+            log.debug(`Cached attachment ${attachment.id} (${attachment.name || 'unnamed'}, ${buffer.length} bytes, TTL ${ttl}s)`);
+          } catch (fetchErr) {
+            log.warn({ message: `Error downloading attachment ${attachment.id} (${attachment.url})`, error: fetchErr });
+          }
+        } catch (err) {
+          log.warn({ message: `Error processing attachment ${attachment?.id} for caching`, error: err });
+        }
+      });
+
+      await Promise.allSettled(downloadPromises);
+    }
+
+    async getAttachmentFiles(attachments) {
+      const files = [];
+      let extraContent = '';
+      let totalFileSize = 0;
+      const MAX_PAYLOAD_SIZE = 24 * 1024 * 1024; // 24MB safe headroom for Discord 25MB limit
+
+      if (attachments && attachments.length > 0) {
+        for (const attachment of attachments) {
+          let buffer = null;
+          if (attachment?.id) {
+            try {
+              buffer = await this.getAttachment(attachment.id);
+            } catch (err) {
+              log.warn({ message: `Error retrieving cached attachment ${attachment.id}`, error: err });
+            }
+          }
+
+          if (buffer) {
+            if (totalFileSize + buffer.length <= MAX_PAYLOAD_SIZE && files.length < 10) {
+              const filename = attachment.name || `attachment_${attachment.id}`;
+              files.push(new AttachmentBuilder(buffer, { name: filename }));
+              totalFileSize += buffer.length;
+            } else {
+              extraContent += `📁 ${attachment.name || 'Attachment'} (${attachment.id}): Exceeded upload size/count limit\n`;
+            }
+          } else {
+            if (attachment?.url) {
+              extraContent += `${attachment.url} *(File not cached or expired)*\n`;
+            }
+          }
+        }
+      }
+
+      return { files, extraContent };
     }
     
     async addSwear(userID){

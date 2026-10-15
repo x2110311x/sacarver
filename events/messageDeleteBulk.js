@@ -97,16 +97,27 @@ module.exports = {
 					)
 					.setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: client.icon ? `${client.icon}` : undefined });
 
+				let files = [];
 				let extraContent = "";
 				if (attachments && attachments.length > 0) {
-					for (const attachment of attachments) {
-						if (attachment?.url) {
-							extraContent += `${attachment.url}\n`;
+					try {
+						const result = await client.cache.getAttachmentFiles(attachments);
+						files = result.files || [];
+						extraContent = result.extraContent || "";
+					} catch (attErr) {
+						client.log.warn({ message: "Error resolving attachment files for messageDeleteBulk", error: attErr });
+						for (const attachment of attachments) {
+							if (attachment?.url) {
+								extraContent += `${attachment.url}\n`;
+							}
 						}
 					}
 				}
 
 				const payload = { embeds: [deleteLogEmbed] };
+				if (files.length > 0) {
+					payload.files = files;
+				}
 				if (extraContent.trim().length > 0) {
 					payload.content = extraContent.trim();
 				}

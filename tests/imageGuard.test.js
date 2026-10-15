@@ -120,6 +120,22 @@ async function runTests() {
   assert.strictEqual(exactDist, 0, 'Identical images must have hamming distance 0');
   console.log('✓ Perfect pHash exact match (distance 0) confirmed.');
 
+  // Test 5: Bot user exclusion in checkMessage
+  console.log('\nTest 5: Bot user exclusion in checkMessage');
+  const { checkMessage } = require('../helpers/imageGuard');
+  const mockClient = {
+    config: { roles: { staff: '123' }, imageGuard: { enabled: true } },
+    log: { debug: () => {} }
+  };
+  const mockBotMessage = {
+    author: { id: 'bot_999', bot: true },
+    member: { roles: { cache: new Map() } },
+    attachments: new Map()
+  };
+  const result = await checkMessage(mockClient, mockBotMessage);
+  assert.strictEqual(result, null, 'checkMessage must return null and ignore bot users');
+  console.log('✓ Bot users ignored by Image Guard.');
+
   console.log('\n--- All Image Guard Tests Passed Successfully! ---');
 }
 
