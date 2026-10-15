@@ -23,11 +23,11 @@ module.exports = {
     const staffRoleId = client.config.roles.staff || '323555864646647808';
     const isStaff = message.member ? message.member.roles.cache.has(staffRoleId) : false;
 
-    // Run Image Guard scan and buffer capture BEFORE Honeypot
+    // Run Image Guard scan and buffer capture BEFORE Honeypot (skip staff completely)
     let imageGuardResult = null;
-    if (message.attachments.size > 0) {
-      client.log.debug(`[messageCreate] Message ${message.id} by ${message.author.tag} in <#${message.channelId}> has ${message.attachments.size} attachment(s). isStaff=${isStaff}`);
-      imageGuardResult = await imageGuard.checkMessage(client, message, isStaff);
+    if (!isStaff && message.attachments.size > 0) {
+      client.log.debug(`[messageCreate] Message ${message.id} by ${message.author.tag} in <#${message.channelId}> has ${message.attachments.size} attachment(s). isStaff=false`);
+      imageGuardResult = await imageGuard.checkMessage(client, message, false);
     }
 
     const screeningChannelId = client.config.channels.weatheredFlag || '470406597860917249';

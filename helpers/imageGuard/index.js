@@ -137,7 +137,12 @@ async function addScamHash(client, hexHash, label, addedById) {
  * @returns {Promise<{ buffer: Buffer, hash: string, flagDetails: object } | null>}
  */
 async function checkMessage(client, message, isStaff = false) {
-  client.log.debug(`[ImageGuard] checkMessage started for message ${message.id} from ${message.author?.tag} (${message.author?.id}) in channel ${message.channelId} (isStaff=${isStaff})`);
+  const staffRoleId = client.config.roles?.staff || '323555864646647808';
+  const hasStaffRole = isStaff || (message.member && message.member.roles.cache.has(staffRoleId));
+  if (hasStaffRole) {
+    client.log.debug(`[ImageGuard] Author ${message.author?.id} has staff role. Skipping Image Guard processing.`);
+    return null;
+  }
 
   if (!client.config.imageGuard?.enabled) {
     client.log.debug('[ImageGuard] imageGuard is disabled in config. Skipping.');
