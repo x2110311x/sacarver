@@ -114,7 +114,11 @@ async function runTests() {
   assert(distJPEG <= 6, `JPEG compressed image must match with distance <= 6 (got ${distJPEG})`);
   assert(distResized <= 6, `Resized image must match with distance <= 6 (got ${distResized})`);
   assert(distOther > 15, `Dissimilar image must differ with distance > 15 (got ${distOther})`);
-  console.log('✓ Perceptual hash invariance passed.');
+  // Test 4: Perfect pHash Exact Match (Distance 0)
+  console.log('\nTest 4: Perfect pHash exact match validation');
+  const exactDist = hammingDistance(hashPNG, hashPNG);
+  assert.strictEqual(exactDist, 0, 'Identical images must have hamming distance 0');
+  console.log('✓ Perfect pHash exact match (distance 0) confirmed.');
 
   console.log('\n--- All Image Guard Tests Passed Successfully! ---');
 }

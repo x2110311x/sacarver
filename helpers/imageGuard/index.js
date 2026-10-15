@@ -202,6 +202,8 @@ async function checkMessage(client, message, isStaff = false) {
         client.log.debug(`[ImageGuard] Hash compare: distance=${distance} to [ID ${known.id}] ${known.hex} ("${known.label}")`);
         if (distance <= threshold) {
           client.log.info(`[ImageGuard] pHash MATCH FOUND! Distance ${distance} <= threshold ${threshold} for [ID ${known.id}] "${known.label}"`);
+          known.matchCount++;
+          client.DB.ScamImageHashes.increment('MatchCount', { where: { ID: known.id } }).catch(() => {});
           flagDetails = {
             matchType: 'pHash',
             distance: distance,
@@ -277,9 +279,16 @@ async function checkMessage(client, message, isStaff = false) {
         }
 
         const mode = client.config.imageGuard.mode || 'review';
-        client.log.debug(`[ImageGuard] Current moderation mode is "${mode}".`);
+        const autoBanExact = client.config.imageGuard.autoBanExactMatch !== false;
+        const isPerfectPHashMatch = flagDetails.matchType === 'pHash' && flagDetails.distance === 0;
 
-        if (mode === 'review') {
+        client.log.debug(`[ImageGuard] Moderation decision: mode="${mode}", isPerfectPHashMatch=${isPerfectPHashMatch}, autoBanExact=${autoBanExact}, isStaff=${isStaff}`);
+
+        // Perfect pHash matches (distance 0) automatically ban non-staff users immediately
+        if (isPerfectPHashMatch && autoBanExact && !isStaff) {
+          client.log.info(`[ImageGuard] Perfect pHash match (distance 0) for message ${message.id} from user ${message.author.id}. Automatically executing ban, purge, manual delete, and dual logging to ban-log and scam-log.`);
+          await executeBanAndPurge(client, message, buffer, flagDetails);
+        } else if (mode === 'review' || (isPerfectPHashMatch && isStaff)) {
           client.log.debug(`[ImageGuard] Calling sendReviewCard for message ${message.id}...`);
           await sendReviewCard(client, message, buffer, flagDetails, isStaff);
         } else if (mode === 'enforce') {
@@ -495,6 +504,49 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
     }
   } catch (logErr) {
     client.log.error({ message: '[ImageGuard] Error logging to banLog', error: logErr });
+  }
+
+  // 6. Post to #scam-log with Re-uploaded Image (for automatic bans)
+  if (!staffUser) {
+    try {
+      const scamLogChannelId = client.config.channels?.scamLog;
+      if (scamLogChannelId) {
+        const scamLogChannel = await client.channels.fetch(scamLogChannelId);
+        if (scamLogChannel) {
+          const filename = `autoban_scam_${messageId}.png`;
+          const isExact = flagDetails?.distance === 0;
+          const scamEmbed = new EmbedBuilder()
+            .setColor(0xff0000)
+            .setTitle(isExact ? '⚡ Automatic Ban: Exact Scam Image Match' : '🔨 User Automatically Banned for Scam Image')
+            .setDescription(
+              `A confirmed scam image was detected in <#${channelId}> posted by <@${userId}>.\n\n` +
+              `• **Action Taken:** User automatically banned, purge (300s) executed, message deleted.\n` +
+              `• **Appeal DM:** ${dmd ? "Sent to user" : "Unable to DM user"}\n` +
+              `• **Trigger:** ${isExact ? '**Exact pHash Match (Distance 0)**' : (flagDetails?.matchType || 'Automatic Enforce')}\n` +
+              (flagDetails?.label ? `• **Database Label:** *${flagDetails.label}*\n` : '') +
+              (flagDetails?.hexHash ? `• **pHash:** \`${flagDetails.hexHash}\`\n` : '')
+            )
+            .addFields(
+              { name: 'User', value: `<@${userId}> (${userId})`, inline: true },
+              { name: 'Channel', value: `<#${channelId}>`, inline: true },
+              { name: 'Moderator', value: 'Image Guard (Auto Ban)', inline: true }
+            )
+            .setFooter({ text: `Image Guard • Auto Ban • Message ID: ${messageId}` })
+            .setTimestamp();
+
+          const payload = { embeds: [scamEmbed] };
+          if (buffer) {
+            const file = new AttachmentBuilder(buffer, { name: filename });
+            payload.files = [file];
+            scamEmbed.setImage(`attachment://${filename}`);
+          }
+
+          await scamLogChannel.send(payload);
+        }
+      }
+    } catch (scamErr) {
+      client.log.error({ message: '[ImageGuard] Error logging auto-ban to scamLog', error: scamErr });
+    }
   }
 }
 
