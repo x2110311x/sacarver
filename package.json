@@ -4,7 +4,7 @@
   "description": "Bot for twentyonepilots server",
   "main": "index.js",
   "scripts": {
-    "test": "node tests/imageGuard.test.js",
+    "test": "node tests/imageGuard.test.js && node tests/attachmentCache.test.js",
     "start": "node .",
     "generateDB": "source ./scripts/generateDBModels.sh",
     "update": "source ./scripts/update.sh",
