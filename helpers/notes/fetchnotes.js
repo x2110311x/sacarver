@@ -107,17 +107,17 @@ module.exports = async function fetchNotes(client, user, options = {}) {
       // Format message link
       let messageLinkText = '';
       if (note.Link && note.Link !== 'N/A') {
-        messageLinkText = `🔗 **Message Link:** [Jump to Message](${note.Link})`;
+        messageLinkText = `**Message Link:** [Jump to Message](${note.Link})`;
       }
 
       // Format edit attribution line
       let editLine = '';
       if (editorId && editTimestamp) {
-        editLine = `✏️ **Last edited by:** <@${editorId}> • 🕒 <t:${editTimestamp}:R> (<t:${editTimestamp}:d>)`;
+        editLine = `**Last edited by:** <@${editorId}> • <t:${editTimestamp}:R> (<t:${editTimestamp}:d>)`;
       }
 
       // Format added by line
-      const addedByLine = `👤 **Added by:** <@${note.Noter}> • 🕒 <t:${note.Date}:R> (<t:${note.Date}:d>)`;
+      const addedByLine = `**Added by:** <@${note.Noter}> • <t:${note.Date}:R> (<t:${note.Date}:d>)`;
 
       // Quote note text lines
       const quotedNote = rawNoteText
@@ -139,10 +139,13 @@ module.exports = async function fetchNotes(client, user, options = {}) {
       }
 
       const fieldValue = `${safeQuotedNote}\n\n${metadataBlock}`;
-      const severityEmoji = SEVERITY_EMOJIS[note.Severity] || '⚪';
+      const severityEmoji = SEVERITY_EMOJIS[note.Severity] || '';
+      const fieldTitle = severityEmoji 
+        ? `Note #${note.ID} • ${severityEmoji} ${note.Severity || 'Unknown'} Severity`
+        : `Note #${note.ID} • ${note.Severity || 'Unknown'} Severity`;
 
       noteEmbed.addFields({
-        name: `📌 Note #${note.ID} • ${severityEmoji} ${note.Severity || 'Unknown'} Severity`,
+        name: fieldTitle,
         value: fieldValue
       });
     }

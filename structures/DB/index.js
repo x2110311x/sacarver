@@ -24,6 +24,13 @@ class SacarverDB {
         this.db.ScamImageHashes.sync().catch(err => {
             log.error({message: "Failed to sync ScamImageHashes table", error: err});
         });
+        this.db.Notes.sequelize.query(`
+            ALTER TABLE \`Notes\`
+              ADD COLUMN IF NOT EXISTS \`EditedBy\` bigint NULL,
+              ADD COLUMN IF NOT EXISTS \`EditedDate\` bigint NULL;
+        `).catch(err => {
+            log.warn({message: "Could not alter Notes table", error: err});
+        });
         this.db.Notes.sync({ alter: true }).catch(err => {
             log.error({message: "Failed to sync Notes table", error: err});
         });

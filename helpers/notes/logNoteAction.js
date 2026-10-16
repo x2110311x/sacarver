@@ -40,7 +40,7 @@ async function logNoteAction(client, params) {
     if (params.action === 'add') {
       embed
         .setColor(0x57F287) // Green
-        .setTitle('📋 Staff Note Added')
+        .setTitle('Staff Note Added')
         .addFields(
           { name: 'Target User', value: `<@${params.targetUserId}> (${params.targetUserId})`, inline: true },
           { name: 'Added By', value: `<@${params.staffMemberId}> (${params.staffMemberId})`, inline: true },
@@ -56,7 +56,7 @@ async function logNoteAction(client, params) {
     } else if (params.action === 'edit') {
       embed
         .setColor(0x3498DB) // Blue
-        .setTitle(`✏️ Staff Note Edited (Note #${params.noteId || 'Unknown'})`)
+        .setTitle(`Staff Note Edited (Note #${params.noteId || 'Unknown'})`)
         .addFields(
           { name: 'Target User', value: `<@${params.targetUserId}> (${params.targetUserId})`, inline: true },
           { name: 'Edited By', value: `<@${params.staffMemberId}> (${params.staffMemberId})`, inline: true },

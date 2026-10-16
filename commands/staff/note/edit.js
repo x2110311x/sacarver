@@ -205,15 +205,18 @@ async function submitEdit(interaction, originalReplyInteraction, originalNote, d
   const nowTimestamp = Math.floor(Date.now() / 1000);
 
   try {
-    await DB.Notes.update(
-      {
-        Note: data.note,
-        Link: data.msgLink,
-        EditedBy: data.editor,
-        EditedDate: nowTimestamp
-      },
-      { where: { ID: data.ID } }
-    );
+    const updatePayload = {
+      Note: `${data.note}\nEdited by <@${data.editor}> on <t:${nowTimestamp}:F>`,
+      Link: data.msgLink
+    };
+    if (DB.Notes.rawAttributes && DB.Notes.rawAttributes.EditedBy) {
+      updatePayload.EditedBy = data.editor;
+    }
+    if (DB.Notes.rawAttributes && DB.Notes.rawAttributes.EditedDate) {
+      updatePayload.EditedDate = nowTimestamp;
+    }
+
+    await DB.Notes.update(updatePayload, { where: { ID: data.ID } });
 
     client.log.info(`Updated note #${data.ID} in database`);
   } catch (err) {

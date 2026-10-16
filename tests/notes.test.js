@@ -84,19 +84,19 @@ async function runTests() {
   // Validate fields in embed
   const fields = resultEmbed.data.fields;
   assert.strictEqual(fields.length, 2, 'Embed should contain 2 fields for 2 notes');
-  assert(fields[0].name.includes('📌 Note #101'), 'Field 1 should mention Note #101');
+  assert(fields[0].name.includes('Note #101'), 'Field 1 should mention Note #101');
   assert(fields[0].name.includes('🔴 High Severity'), 'Field 1 should have High severity badge');
   assert(fields[0].value.includes('Jump to Message'), 'Field 1 should include message link');
   assert(!fields[0].value.includes('Last edited by'), 'Unedited note should not have Last edited by');
 
-  assert(fields[1].name.includes('📌 Note #102'), 'Field 2 should mention Note #102');
+  assert(fields[1].name.includes('Note #102'), 'Field 2 should mention Note #102');
   assert(fields[1].value.includes('**Last edited by:** <@888888888888888888>'), 'Field 2 should show native Last edited by');
 
   // Test Page 2 with legacy edit trail
   const page2Embed = await fetchNotes(mockClient, '111111111111111111', { page: 2, pageSize: 2 });
   assert.strictEqual(page2Embed.notes.length, 1, 'Page 2 should have 1 note');
   const page2Field = page2Embed.data.fields[0];
-  assert(page2Field.name.includes('📌 Note #103'), 'Page 2 note should be Note #103');
+  assert(page2Field.name.includes('Note #103'), 'Page 2 note should be Note #103');
   assert(page2Field.value.includes('**Last edited by:** <@777777777777777777>'), 'Legacy edit trail should be converted to Last edited by');
   assert(!page2Field.value.includes('Edited by <@777777777777777777> on <t:'), 'Legacy raw string should be stripped from note text');
 
@@ -158,7 +158,7 @@ async function runTests() {
 
   assert(sentPayload && sentPayload.embeds && sentPayload.embeds.length === 1, 'Should send an embed payload');
   const addEmbed = sentPayload.embeds[0].data;
-  assert.strictEqual(addEmbed.title, '📋 Staff Note Added', 'Embed title should match add action');
+  assert.strictEqual(addEmbed.title, 'Staff Note Added', 'Embed title should match add action');
   assert(addEmbed.fields.some(f => f.name === 'Target User' && f.value.includes('111')), 'Embed should include Target User');
 
   // Test edit log

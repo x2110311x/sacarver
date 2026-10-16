@@ -8,9 +8,21 @@ async function migrateNoteEdits() {
   console.log(`========================================`);
 
   const DB = SacarverDB.getInstance().db;
+  const sequelize = DB.Notes.sequelize;
   
   // Ensure table schema has new columns before querying/updating
-  await DB.Notes.sync({ alter: true });
+  try {
+    await sequelize.query(`
+      ALTER TABLE \`Notes\`
+        ADD COLUMN IF NOT EXISTS \`EditedBy\` bigint NULL,
+        ADD COLUMN IF NOT EXISTS \`EditedDate\` bigint NULL;
+    `);
+    console.log("Verified database table columns (EditedBy, EditedDate).");
+  } catch (schemaErr) {
+    console.warn("Schema alter note:", schemaErr.message);
+  }
+
+  await DB.Notes.sync({ alter: true }).catch(() => {});
 
   const notes = await DB.Notes.findAll({
     where: {
