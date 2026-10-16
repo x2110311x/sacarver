@@ -140,9 +140,9 @@ module.exports = async function fetchNotes(client, user, options = {}) {
 
       const fieldValue = `${safeQuotedNote}\n\n${metadataBlock}`;
       const severityEmoji = SEVERITY_EMOJIS[note.Severity] || '';
-      const fieldTitle = severityEmoji 
-        ? `Note #${note.ID} • ${severityEmoji} ${note.Severity || 'Unknown'} Severity`
-        : `Note #${note.ID} • ${note.Severity || 'Unknown'} Severity`;
+      const fieldTitle = severityEmoji
+        ? `📝 Note #${note.ID} • ${severityEmoji} ${note.Severity || 'Unknown'} Severity`
+        : `📝 Note #${note.ID} • ${note.Severity || 'Unknown'} Severity`;
 
       noteEmbed.addFields({
         name: fieldTitle,
