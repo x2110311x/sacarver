@@ -8,3 +8,6 @@ logs/*
 config.yml
 .gitignore
 database-dump.sql
+backups/
+*.sql
+*.tar.gz
