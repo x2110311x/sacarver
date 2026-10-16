@@ -5,7 +5,9 @@ CREATE TABLE `Notes` (
   `Note` text NOT NULL,
   `Severity` varchar(8) NOT NULL,
   `Link` text,
-  `Noter` bigint NOT NULL
+  `Noter` bigint NOT NULL,
+  `EditedBy` bigint,
+  `EditedDate` bigint
 );
 
 CREATE TABLE `PlaylistConfig` (

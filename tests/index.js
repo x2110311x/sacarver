@@ -36,7 +36,8 @@ const testSuites = [
   { name: 'Slash Commands Validation', path: 'commands.test.js' },
   { name: 'Event Handlers Validation', path: 'events.test.js' },
   { name: 'Config Template Validation', path: 'config.test.js' },
-  { name: 'Helper Functions Suite', path: 'helpers.test.js' }
+  { name: 'Helper Functions Suite', path: 'helpers.test.js' },
+  { name: 'Staff Note System Suite', path: 'notes.test.js' }
 ];
 
 async function runSuite(suite) {

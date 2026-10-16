@@ -24,6 +24,9 @@ class SacarverDB {
         this.db.ScamImageHashes.sync().catch(err => {
             log.error({message: "Failed to sync ScamImageHashes table", error: err});
         });
+        this.db.Notes.sync({ alter: true }).catch(err => {
+            log.error({message: "Failed to sync Notes table", error: err});
+        });
         log.debug("DB Object Models Initialized");
 
         /*log.debug("Loading DB helpers");

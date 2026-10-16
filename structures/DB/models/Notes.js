@@ -30,6 +30,14 @@ module.exports = function(sequelize, DataTypes) {
     Noter: {
       type: DataTypes.BIGINT,
       allowNull: false
+    },
+    EditedBy: {
+      type: DataTypes.BIGINT,
+      allowNull: true
+    },
+    EditedDate: {
+      type: DataTypes.BIGINT,
+      allowNull: true
     }
   }, {
     sequelize,

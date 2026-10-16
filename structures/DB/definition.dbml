@@ -6,6 +6,8 @@ Table Notes {
   Severity varchar(8) [not null]
   Link text
   Noter bigint [not null]
+  EditedBy bigint
+  EditedDate bigint
   INDEXES {
    User [name: 'user_index'] 
   }
