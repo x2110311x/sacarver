@@ -231,6 +231,17 @@ async function submitEdit(interaction, originalReplyInteraction, originalNote, d
     return;
   }
 
+  // Record new version in NoteVersions table
+  const { recordVersion } = require('../../../helpers/notes/noteHistory');
+  await recordVersion(client, {
+    noteId: data.ID,
+    noteText: data.note,
+    severity: data.severity,
+    link: data.msgLink,
+    editorId: data.editor,
+    timestamp: nowTimestamp
+  });
+
   // Send audit embed to staff log channel
   await logNoteAction(client, {
     action: 'edit',

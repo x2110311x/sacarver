@@ -11,6 +11,8 @@
     "lint": "eslint . --ext .js --ignore-path .gitignore",
     "start": "node .",
     "backup": "bash ./scripts/backupDB.sh",
+    "migrate-notes": "node ./scripts/migrateNoteEdits.js",
+    "backfill-note-versions": "node ./scripts/backfillNoteVersions.js",
     "generateDB": "source ./scripts/generateDBModels.sh",
     "update": "source ./scripts/update.sh",
     "deploy": "node ./scripts/deploy.js",

@@ -1,6 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
 const fetchNotes = require("../../../helpers/notes/fetchnotes");
 const { startEditFlow } = require("./edit");
+const { startHistoryViewer } = require("../../../helpers/notes/noteHistory");
 
 function buildNavigationRow(currentPage, totalPages, totalNotes, disabled = false) {
   const prevButton = new ButtonBuilder()
@@ -24,7 +25,14 @@ function buildNavigationRow(currentPage, totalPages, totalNotes, disabled = fals
     .setStyle(ButtonStyle.Primary)
     .setDisabled(disabled || totalNotes === 0);
 
-  return new ActionRowBuilder().addComponents(prevButton, nextButton, editButton);
+  const historyButton = new ButtonBuilder()
+    .setCustomId('note_view_history')
+    .setLabel("History")
+    .setEmoji("📜")
+    .setStyle(ButtonStyle.Secondary)
+    .setDisabled(disabled || totalNotes === 0);
+
+  return new ActionRowBuilder().addComponents(prevButton, nextButton, editButton, historyButton);
 }
 
 module.exports = {
@@ -182,6 +190,55 @@ module.exports = {
           });
 
           // Reset the view message components back to navigation buttons
+          await response.edit({
+            components: [buildNavigationRow(currentPage, noteEmbed.totalPages, noteEmbed.totalNotes)]
+          }).catch(() => {});
+        } else if (i.customId === 'note_view_history') {
+          // Present dropdown of notes on the current page to view history
+          const notesOnPage = noteEmbed.notes || [];
+          if (notesOnPage.length === 0) {
+            await i.reply({ ephemeral: true, content: "No notes on this page to view history for." });
+            return;
+          }
+
+          const selectOptions = notesOnPage.map(n => {
+            const cleanText = n.Note.replace(/(?:\r?\n)+Edited by <@!?\d+> on <t:\d+(?::[A-Za-z])?>/g, '').replace(/\s+/g, ' ').trim();
+            const snippet = cleanText.length > 70 ? `${cleanText.substring(0, 67)}...` : cleanText;
+            return {
+              label: `Note #${n.ID} (${n.Severity || 'Note'})`,
+              description: snippet || 'No note text',
+              value: String(n.ID)
+            };
+          });
+
+          const selectMenu = new StringSelectMenuBuilder()
+            .setCustomId('note_select_to_history')
+            .setPlaceholder("Select a note from this page to view history...")
+            .addOptions(selectOptions);
+
+          const backButton = new ButtonBuilder()
+            .setCustomId('note_history_cancel_back')
+            .setLabel("Back to Navigation")
+            .setEmoji("↩️")
+            .setStyle(ButtonStyle.Secondary);
+
+          const selectRow = new ActionRowBuilder().addComponents(selectMenu);
+          const backRow = new ActionRowBuilder().addComponents(backButton);
+
+          await i.update({
+            components: [selectRow, backRow]
+          });
+        } else if (i.customId === 'note_history_cancel_back') {
+          // Restore navigation buttons
+          await i.update({
+            components: [buildNavigationRow(currentPage, noteEmbed.totalPages, noteEmbed.totalNotes)]
+          });
+        } else if (i.customId === 'note_select_to_history') {
+          const selectedNoteId = parseInt(i.values[0], 10);
+          // Launch history viewer ephemerally
+          await startHistoryViewer(i, selectedNoteId, true);
+
+          // Restore the main view message components back to navigation buttons
           await response.edit({
             components: [buildNavigationRow(currentPage, noteEmbed.totalPages, noteEmbed.totalNotes)]
           }).catch(() => {});

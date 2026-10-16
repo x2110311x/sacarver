@@ -217,6 +217,19 @@ async function submitNote(interaction, data) {
     return;
   }
 
+  if (createdNote) {
+    const { recordVersion } = require('../../../helpers/notes/noteHistory');
+    await recordVersion(client, {
+      noteId: createdNote.ID,
+      noteText: data.note,
+      severity: data.severity,
+      link: data.msgLink,
+      editorId: data.noter,
+      timestamp: data.dateAdded,
+      isInitial: true
+    });
+  }
+
   // Log to staff audit log channel
   await logNoteAction(client, {
     action: 'add',

@@ -40,3 +40,18 @@ Table Honeypot {
   ID integer [PK, increment]
   BannedCount integer [not null, Default: 0]
 }
+
+Table NoteVersions {
+  ID integer [PK, increment]
+  NoteID integer [Ref: > Notes.ID, not null]
+  Version integer [not null]
+  Note text [not null]
+  Severity varchar(8) [not null]
+  Link text
+  Editor bigint [not null]
+  Date bigint [not null]
+
+  INDEXES {
+    (NoteID, Version) [name: 'note_version_idx']
+  }
+}

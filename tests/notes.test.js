@@ -184,6 +184,142 @@ async function runTests() {
 
   console.log('✓ logNoteAction creates valid add & edit audit embeds.');
 
+  // Test 4: helpers/notes/noteHistory.js
+  console.log('\nTest 4: helpers/notes/noteHistory.js versioning and formatting');
+  const {
+    cleanLegacyNoteText,
+    recordVersion,
+    fetchNoteHistory,
+    buildVersionEmbed,
+    buildHistoryButtons
+  } = require('../helpers/notes/noteHistory');
+
+  // Test cleanLegacyNoteText
+  const sampleClean = cleanLegacyNoteText("Regular note text");
+  assert.strictEqual(sampleClean, "Regular note text", "Should return clean string unchanged");
+  const sampleLegacy = cleanLegacyNoteText("Note content\nEdited by <@12345> on <t:1700000000:R>");
+  assert.strictEqual(sampleLegacy, "Note content", "Should strip legacy edit stamp");
+
+  // Test buildHistoryButtons
+  const buttonsFirst = buildHistoryButtons(0, 3);
+  const compsFirst = buttonsFirst.components;
+  assert.strictEqual(compsFirst.length, 3, "History should have 3 navigation buttons");
+  assert.strictEqual(compsFirst[0].data.disabled, true, "Older button should be disabled on first version");
+  assert.strictEqual(compsFirst[1].data.disabled, false, "Newer button should be enabled on first version");
+
+  const buttonsMid = buildHistoryButtons(1, 3);
+  assert.strictEqual(buttonsMid.components[0].data.disabled, false, "Older button should be enabled on middle version");
+  assert.strictEqual(buttonsMid.components[1].data.disabled, false, "Newer button should be enabled on middle version");
+
+  const buttonsLast = buildHistoryButtons(2, 3);
+  assert.strictEqual(buttonsLast.components[0].data.disabled, false, "Older button should be enabled on last version");
+  assert.strictEqual(buttonsLast.components[1].data.disabled, true, "Newer button should be disabled on last version");
+
+  // Test buildVersionEmbed
+  const mockNoteRecord = {
+    ID: 55,
+    User: '111111111111111111'
+  };
+  const mockVersion1 = {
+    ID: 1,
+    NoteID: 55,
+    Version: 1,
+    Note: 'Original note contents',
+    Severity: 'High',
+    Link: 'https://discord.com/msg/1',
+    Editor: '999999999999999999',
+    Date: 1700000000
+  };
+  const v1Embed = await buildVersionEmbed(mockClient, mockNoteRecord, mockVersion1, 2, mockNoteRecord.User);
+  assert(v1Embed.data.title.includes('Note #55 Version History'), 'Embed title should mention Note #55 Version History');
+  assert(v1Embed.data.description.includes('Version **1** of **2** (Original Note)'), 'Embed description should identify Original Note');
+  assert(v1Embed.data.fields[0].value.includes('> Original note contents'), 'Embed should blockquote note text');
+  assert(v1Embed.data.fields[1].value.includes('Added by:'), 'Version 1 should state Added by');
+  assert(v1Embed.data.fields[1].value.includes('Jump to Message'), 'Version 1 should include message link');
+
+  // Test recordVersion & fetchNoteHistory
+  const inMemoryVersions = [];
+  const mockHistoryClient = {
+    log: { debug() {}, info() {}, warn() {}, error() {} },
+    DB: {
+      Notes: {
+        async findOne({ where }) {
+          if (where.ID === 55) {
+            return {
+              ID: 55,
+              User: '111111111111111111',
+              Date: 1700000000,
+              Note: 'Original note contents',
+              Severity: 'High',
+              Link: 'N/A',
+              Noter: '999999999999999999',
+              EditedBy: '888888888888888888',
+              EditedDate: 1700010000
+            };
+          }
+          return null;
+        }
+      },
+      NoteVersions: {
+        async findAll({ where }) {
+          return inMemoryVersions.filter(v => v.NoteID === where.NoteID);
+        },
+        async create(record) {
+          inMemoryVersions.push({ ...record, ID: inMemoryVersions.length + 1 });
+          return record;
+        }
+      }
+    }
+  };
+
+  // Record initial version 1
+  await recordVersion(mockHistoryClient, {
+    noteId: 55,
+    noteText: 'Initial creation',
+    severity: 'High',
+    link: 'N/A',
+    editorId: '999999999999999999',
+    timestamp: 1700000000,
+    isInitial: true
+  });
+  assert.strictEqual(inMemoryVersions.length, 1, 'Should record 1 initial version');
+  assert.strictEqual(inMemoryVersions[0].Version, 1, 'Initial version should be 1');
+
+  // Record an edit (version 2)
+  await recordVersion(mockHistoryClient, {
+    noteId: 55,
+    noteText: 'Edited note text',
+    severity: 'Medium',
+    link: 'https://discord.com',
+    editorId: '888888888888888888',
+    timestamp: 1700020000,
+    isInitial: false
+  });
+  assert.strictEqual(inMemoryVersions.length, 2, 'Should record version 2');
+  assert.strictEqual(inMemoryVersions[1].Version, 2, 'Second version should be 2');
+  assert.strictEqual(inMemoryVersions[1].Note, 'Edited note text', 'Second version should have updated text');
+
+  const historyResult = await fetchNoteHistory(mockHistoryClient, 55);
+  assert.strictEqual(historyResult.length, 2, 'fetchNoteHistory should return 2 versions');
+
+  console.log('✓ noteHistory helpers, embed rendering, and version tracking passed.');
+
+  // Test 5: commands/staff/note/history.js builder
+  console.log('\nTest 5: commands/staff/note/history.js slash command builder');
+  const { SlashCommandBuilder } = require('discord.js');
+  const historyCmd = require('../commands/staff/note/history');
+
+  const baseBuilder = new SlashCommandBuilder().setName('testnote').setDescription('testing');
+  historyCmd.builder(baseBuilder);
+  const builtJson = baseBuilder.toJSON();
+  const historyOption = builtJson.options.find(opt => opt.name === 'history');
+  assert(historyOption, 'Command should have history subcommand');
+  const noteIdOption = historyOption.options.find(opt => opt.name === 'noteid');
+  assert(noteIdOption, 'History subcommand should have noteid option');
+  assert.strictEqual(noteIdOption.required, true, 'noteid option should be required');
+
+  console.log('✓ /staff note history subcommand builder passed.');
+
   console.log('\n--- All Staff Note Tests Passed ---');
 }
 
