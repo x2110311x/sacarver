@@ -5,7 +5,9 @@ CREATE TABLE `Notes` (
   `Note` text NOT NULL,
   `Severity` varchar(8) NOT NULL,
   `Link` text,
-  `Noter` bigint NOT NULL
+  `Noter` bigint NOT NULL,
+  `EditedBy` bigint,
+  `EditedDate` bigint
 );
 
 CREATE TABLE `PlaylistConfig` (
@@ -47,3 +49,17 @@ CREATE INDEX `hash_index` ON `ScamImageHashes` (`Hash`);
 CREATE INDEX `month_index` ON `PlaylistData` (`Month`);
 
 ALTER TABLE `PlaylistData` ADD FOREIGN KEY (`Month`) REFERENCES `PlaylistConfig` (`ID`);
+
+CREATE TABLE `NoteVersions` (
+  `ID` integer PRIMARY KEY AUTO_INCREMENT,
+  `NoteID` integer NOT NULL,
+  `Version` integer NOT NULL,
+  `Note` text NOT NULL,
+  `Severity` varchar(8) NOT NULL,
+  `Link` text,
+  `Editor` bigint NOT NULL,
+  `Date` bigint NOT NULL
+);
+
+CREATE INDEX `note_version_idx` ON `NoteVersions` (`NoteID`, `Version`);
+ALTER TABLE `NoteVersions` ADD FOREIGN KEY (`NoteID`) REFERENCES `Notes` (`ID`) ON DELETE CASCADE;

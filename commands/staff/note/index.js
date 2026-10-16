@@ -1,17 +1,19 @@
 const add = require('./add');
 const view = require('./view');
 const edit = require('./edit');
+const history = require('./history');
 
 module.exports = {
     builder: function (SlashCommandBuilder){
         SlashCommandBuilder.addSubcommandGroup(subcommandGroup => {
             subcommandGroup
                 .setName('note')
-                .setDescription('Add or view a staff note');
+                .setDescription('Add, view, edit, or check history of a staff note');
                 
                 subcommandGroup = add.builder(subcommandGroup);
                 subcommandGroup = view.builder(subcommandGroup);
                 subcommandGroup = edit.builder(subcommandGroup);
+                subcommandGroup = history.builder(subcommandGroup);
                 return subcommandGroup;
             });
 
@@ -25,6 +27,8 @@ module.exports = {
         await view.execute(interaction);
       } else if (subcommandName == 'edit'){
         await edit.execute(interaction);
+      } else if (subcommandName == 'history'){
+        await history.execute(interaction);
       } else {
         await interaction.reply({ephemeral:true, content: "Unknown command"});
       }

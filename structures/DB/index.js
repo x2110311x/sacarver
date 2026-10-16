@@ -24,6 +24,35 @@ class SacarverDB {
         this.db.ScamImageHashes.sync().catch(err => {
             log.error({message: "Failed to sync ScamImageHashes table", error: err});
         });
+        this.db.Notes.sequelize.query(`
+            ALTER TABLE \`Notes\`
+              ADD COLUMN IF NOT EXISTS \`EditedBy\` bigint NULL,
+              ADD COLUMN IF NOT EXISTS \`EditedDate\` bigint NULL;
+        `).catch(err => {
+            log.warn({message: "Could not alter Notes table", error: err});
+        });
+        this.db.Notes.sync({ alter: true }).catch(err => {
+            log.error({message: "Failed to sync Notes table", error: err});
+        });
+        this.db.Notes.sequelize.query(`
+            CREATE TABLE IF NOT EXISTS \`NoteVersions\` (
+              \`ID\` integer PRIMARY KEY AUTO_INCREMENT,
+              \`NoteID\` integer NOT NULL,
+              \`Version\` integer NOT NULL,
+              \`Note\` text NOT NULL,
+              \`Severity\` varchar(8) NOT NULL,
+              \`Link\` text,
+              \`Editor\` bigint NOT NULL,
+              \`Date\` bigint NOT NULL,
+              INDEX \`note_version_idx\` (\`NoteID\`, \`Version\`),
+              FOREIGN KEY (\`NoteID\`) REFERENCES \`Notes\` (\`ID\`) ON DELETE CASCADE
+            );
+        `).catch(err => {
+            log.warn({message: "Could not sync NoteVersions table", error: err});
+        });
+        this.db.NoteVersions.sync().catch(err => {
+            log.error({message: "Failed to sync NoteVersions table", error: err});
+        });
         log.debug("DB Object Models Initialized");
 
         /*log.debug("Loading DB helpers");

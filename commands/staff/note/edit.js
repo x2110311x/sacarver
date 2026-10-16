@@ -1,187 +1,286 @@
 const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle } = require('discord.js');
 const crypto = require("crypto");
+const logNoteAction = require('../../../helpers/notes/logNoteAction');
 
-async function catchModal(interaction, newInteraction, noteID){
-    var originalnote = interaction.note;
-  
-    var severity = originalnote.Severity;
-    var user = originalnote.User;
-    var note = newInteraction.fields.getTextInputValue('note');
-    const msgLink = newInteraction.fields.getTextInputValue('link');
-    const editor = interaction.member.id;
-    const dateEdited = Math.floor(newInteraction.createdTimestamp/1000);
+function cleanLegacyNoteText(text) {
+  if (!text) return '';
+  const legacyRegex = /(?:\r?\n)+Edited by <@!?(\d+)> on <t:(\d+)(?::[A-Za-z])?>/g;
+  return text.replace(legacyRegex, '').trim();
+}
 
-    note += `\nEdited by <@${editor}> on <t:${dateEdited}:F>`
-
-    var data = {
-      "user": user,
-      "severity": severity,
-      "note": note,
-      "msgLink": msgLink,
-      "dateAdded": Math.floor(newInteraction.createdTimestamp/1000),
-      "noter": interaction.member.id,
-      "ID": noteID
-    }
-    
-    const noteEmbed = new EmbedBuilder()
+function buildReviewEmbed(data, originalNote, client) {
+  return new EmbedBuilder()
     .setColor(0xffff88)
     .setTitle("Edited Staff Note")
-    .setDescription("Please review, and then click Submit or Cancel")
+    .setDescription("Please review, and then click **Submit**, **Edit**, or **Cancel**")
     .addFields(
-      { name: 'User', value: `<@${user}> - ${user}` },
-      { name: 'Note', value: `${note}`},
-      { name: 'Severity', value: `${severity}`},
-      { name: 'Message Link', value: `${msgLink}` },
-      { name: 'Date Originally Added', value: `<t:${originalnote.Date}:F>`},
+      { name: 'Target User', value: `<@${data.user}> - ${data.user}` },
+      { name: 'Updated Note', value: `${data.note}` },
+      { name: 'Severity', value: `${data.severity}` },
+      { name: 'Message Link', value: `${data.msgLink}` },
+      { name: 'Date Originally Added', value: `<t:${originalNote.Date}:F>` },
+      { name: 'Editor', value: `<@${data.editor}>` }
     )
-    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
-  
-    const submitButton = new ButtonBuilder()
-      .setCustomId('submit')
-      .setLabel("Submit")
-      .setStyle(ButtonStyle.Success);
-    
-    // eslint-disable-next-line no-unused-vars
-    const editButton = new ButtonBuilder()
-      .setCustomId('edit')
-      .setLabel("Edit")
-      .setDisabled(true)
-      .setStyle(ButtonStyle.Primary);
-  
-    const cancelButton = new ButtonBuilder()
-      .setCustomId('cancel')
-      .setLabel("Cancel")
-      .setStyle(ButtonStyle.Secondary);
-  
-    const buttonRow = new ActionRowBuilder()
-      .addComponents(submitButton, editButton, cancelButton); 
-  
-    let response = await newInteraction.reply({ephemeral:true, embeds: [noteEmbed], components: [buttonRow], fetchReply: true});  
-  
-    const collectorFilter = i => 
-      (i.user.id === interaction.user.id && 
-        (i.customId === "edit" || i.customId === "cancel" || i.customId === "submit" ));
-    
-      await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 })
-        .then(i=> {
-          catchButton(newInteraction, i, data);
-        }).catch(err => {
-        interaction.client.log.warn({message: `Error with button response for /staff note edit`, error:err});
+    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+}
+
+function buildReviewButtons(disabled = false) {
+  const submitButton = new ButtonBuilder()
+    .setCustomId('submit')
+    .setLabel("Submit")
+    .setStyle(ButtonStyle.Success)
+    .setDisabled(disabled);
+
+  const editButton = new ButtonBuilder()
+    .setCustomId('edit')
+    .setLabel("Edit")
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(disabled);
+
+  const cancelButton = new ButtonBuilder()
+    .setCustomId('cancel')
+    .setLabel("Cancel")
+    .setStyle(ButtonStyle.Secondary)
+    .setDisabled(disabled);
+
+  return new ActionRowBuilder().addComponents(submitButton, editButton, cancelButton);
+}
+
+/**
+ * Initiates the interactive edit flow for a staff note.
+ * Can be called from /staff note edit or from the dropdown in /staff note view.
+ *
+ * @param {import('discord.js').Interaction} interaction - Interaction to show modal on
+ * @param {object} note - Database note instance/object
+ * @param {object} [options] - Optional settings
+ * @param {Function} [options.onSuccess] - Callback executed on successful DB commit
+ */
+async function startEditFlow(interaction, note, options = {}) {
+  const modalID = crypto.randomBytes(16).toString("hex");
+  const modal = new ModalBuilder()
+    .setCustomId(modalID)
+    .setTitle(`Edit Note #${note.ID}`);
+
+  const initialNoteText = cleanLegacyNoteText(note.Note);
+  const noteInput = new TextInputBuilder()
+    .setCustomId('note')
+    .setLabel("Note")
+    .setRequired(true)
+    .setValue(initialNoteText)
+    .setMaxLength(1_000)
+    .setStyle(TextInputStyle.Paragraph);
+
+  const messageLinkInput = new TextInputBuilder()
+    .setCustomId('link')
+    .setLabel("Message Link")
+    .setValue(note.Link || "N/A")
+    .setRequired(false)
+    .setMaxLength(200)
+    .setStyle(TextInputStyle.Short);
+
+  modal.addComponents(
+    new ActionRowBuilder().addComponents(noteInput),
+    new ActionRowBuilder().addComponents(messageLinkInput)
+  );
+
+  await interaction.showModal(modal);
+
+  const filter = i => (i.user.id === interaction.user.id && i.customId === modalID);
+
+  let initialModalSubmit;
+  try {
+    initialModalSubmit = await interaction.awaitModalSubmit({ time: 600_000, filter });
+  } catch (err) {
+    interaction.client.log.warn({ message: `Modal submit timed out for note edit #${note.ID}`, error: err });
+    return;
+  }
+
+  const editor = interaction.user.id;
+  const data = {
+    user: note.User,
+    severity: note.Severity,
+    note: initialModalSubmit.fields.getTextInputValue('note'),
+    msgLink: initialModalSubmit.fields.getTextInputValue('link'),
+    editor: editor,
+    ID: note.ID
+  };
+
+  const reviewEmbed = buildReviewEmbed(data, note, interaction.client);
+  const buttonRow = buildReviewButtons();
+
+  let response = await initialModalSubmit.reply({
+    ephemeral: true,
+    embeds: [reviewEmbed],
+    components: [buttonRow],
+    fetchReply: true
+  });
+
+  let active = true;
+  while (active) {
+    let buttonInteraction;
+    try {
+      buttonInteraction = await response.awaitMessageComponent({
+        filter: i => i.user.id === interaction.user.id && ['submit', 'edit', 'cancel'].includes(i.customId),
+        time: 300_000
       });
-}
-  
-async function catchButton(interaction, newInteraction, data) {
-    await newInteraction.update({components:[]});
-
-    if (newInteraction.customId == 'submit'){
-        await submitNote(interaction, data);
-    } else if (newInteraction.customId == 'edit'){
-        await newInteraction.reply({ephemeral: true, content: "This feature has not been implemented yet"});
-    } else if (newInteraction.customId == 'cancel'){
-        let cancelEmbed = new EmbedBuilder()
-        .setTitle("Note cancelled")
-        .setDescription("Note edit has been cancelled")
-        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
-        
-        await newInteraction.reply({ephemeral: true, embeds:[cancelEmbed]});
-    } else {
-        let errorEmbed = new EmbedBuilder()
-            .setColor(0xff0000)
-            .setTitle("Command Error")
-            .setDescription("Something went very wrong")
-            .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
-        
-        
-        interaction.client.error(`Received unknown button ID ${newInteraction.customId} in /staff note edit`);
-        
-        
-        await newInteraction.reply({ephemeral: true, embeds:[errorEmbed]})
-    }
-}
-
-async function submitNote(interaction, data) {
-    let client = interaction.client;
-    let DB = client.DB;
-
-    try{
-        await DB.Notes.update(
-            { 
-                "Note": data.note,
-                "Link": data.msgLink
-            },
-            { where: { ID: data.ID } }
-        );
-
-        client.log.info("Edited note in database");
-    } catch (err){
-        client.log.error({message: "Failed to update note in database", error: err})
-        let errorEmbed = new EmbedBuilder()
-            .setColor(0xff0000)
-            .setTitle("Command Error")
-            .setDescription("Something went very wrong")
-            .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
-        await interaction.editReply({embeds: [errorEmbed]});
-        return;
+    } catch (_err) {
+      try {
+        await response.edit({ components: [buildReviewButtons(true)] });
+      } catch (_e) {}
+      return;
     }
 
-
-        
-    let submitEmbed = new EmbedBuilder()
-        .setColor(0x00FF00)
-        .setTitle("Note edited")
-        .setDescription("Your note has been updated!")
-        .addFields(
-        { name: 'User', value: `<@${data.user}> - ${data.user}` },
-        { name: 'Note', value: `${data.note}`},
-        { name: 'Severity', value: `${data.severity}`},
-        { name: 'Message Link', value: `${data.msgLink}` },
-        { name: 'Date Added', value: `<t:${data.dateAdded}:F>`},
-        { name: 'Added by', value: `<@${data.noter}>`},
-        )
+    if (buttonInteraction.customId === 'cancel') {
+      active = false;
+      const cancelEmbed = new EmbedBuilder()
+        .setTitle("Note edit cancelled")
+        .setDescription(`Changes to Note #${note.ID} have been discarded.`)
         .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${interaction.client.icon}` });
 
-        await interaction.deleteReply();
-        await interaction.followUp({embeds: [submitEmbed]});
+      await buttonInteraction.update({ embeds: [cancelEmbed], components: [] });
+      return;
+    }
 
-}
+    if (buttonInteraction.customId === 'submit') {
+      active = false;
+      await buttonInteraction.update({ components: [] });
+      await submitEdit(interaction, initialModalSubmit, note, data, options);
+      return;
+    }
 
-async function sendModal(interaction, noteID){
-    var note = interaction.note;
-    const modalID = crypto.randomBytes(16).toString("hex");
-    const modal = new ModalBuilder()
-        .setCustomId(modalID)
-        .setTitle("Edit note details");
+    if (buttonInteraction.customId === 'edit') {
+      const editModalID = crypto.randomBytes(16).toString("hex");
+      const editModal = new ModalBuilder()
+        .setCustomId(editModalID)
+        .setTitle(`Edit Note #${note.ID}`);
 
-    const noteInput = new TextInputBuilder()
+      const editNoteInput = new TextInputBuilder()
         .setCustomId('note')
         .setLabel("Note")
         .setRequired(true)
-        .setValue(note.Note)
+        .setValue(data.note)
         .setMaxLength(1_000)
         .setStyle(TextInputStyle.Paragraph);
-    
-    const messageLinkInput = new TextInputBuilder()
+
+      const editLinkInput = new TextInputBuilder()
         .setCustomId('link')
         .setLabel("Message Link")
-        .setValue(note.Link)
+        .setValue(data.msgLink || "N/A")
         .setRequired(false)
         .setMaxLength(200)
         .setStyle(TextInputStyle.Short);
 
-    const firstActionRow = new ActionRowBuilder().addComponents(noteInput);
-    const secondActionRow = new ActionRowBuilder().addComponents(messageLinkInput);
+      editModal.addComponents(
+        new ActionRowBuilder().addComponents(editNoteInput),
+        new ActionRowBuilder().addComponents(editLinkInput)
+      );
 
-    modal.addComponents(firstActionRow, secondActionRow);
-    await interaction.showModal(modal);
+      await buttonInteraction.showModal(editModal);
 
-    const collectorFilter = i => (i.user.id === interaction.user.id && i.customId === modalID);
+      let modalSubmit;
+      try {
+        modalSubmit = await buttonInteraction.awaitModalSubmit({
+          time: 300_000,
+          filter: i => i.user.id === interaction.user.id && i.customId === editModalID
+        });
+      } catch (modalErr) {
+        interaction.client.log.warn({ message: `Modal submit timed out in /staff note edit cycle #${note.ID}`, error: modalErr });
+        return;
+      }
 
-    interaction.awaitModalSubmit({ time: 600_000, collectorFilter })
-    .then(i => {
-      catchModal(interaction, i, noteID);
-    }).catch(err => {
-        interaction.client.log.warn({message: `Error with modal response for /staff note edit`, error:err});
-    });
+      data.note = modalSubmit.fields.getTextInputValue('note');
+      data.msgLink = modalSubmit.fields.getTextInputValue('link');
+
+      await modalSubmit.update({
+        embeds: [buildReviewEmbed(data, note, interaction.client)],
+        components: [buildReviewButtons()]
+      });
+    }
+  }
+}
+
+async function submitEdit(interaction, originalReplyInteraction, originalNote, data, options = {}) {
+  const client = interaction.client;
+  const DB = client.DB;
+  const nowTimestamp = Math.floor(Date.now() / 1000);
+
+  try {
+    const updatePayload = {
+      Note: `${data.note}\nEdited by <@${data.editor}> on <t:${nowTimestamp}:F>`,
+      Link: data.msgLink
+    };
+    if (DB.Notes.rawAttributes && DB.Notes.rawAttributes.EditedBy) {
+      updatePayload.EditedBy = data.editor;
+    }
+    if (DB.Notes.rawAttributes && DB.Notes.rawAttributes.EditedDate) {
+      updatePayload.EditedDate = nowTimestamp;
+    }
+
+    await DB.Notes.update(updatePayload, { where: { ID: data.ID } });
+
+    client.log.info(`Updated note #${data.ID} in database`);
+  } catch (err) {
+    client.log.error({ message: `Failed to update note #${data.ID} in database`, error: err });
+    const errorEmbed = new EmbedBuilder()
+      .setColor(0xff0000)
+      .setTitle("Command Error")
+      .setDescription("Failed to update the note in the database.")
+      .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+
+    await originalReplyInteraction.followUp({ ephemeral: true, embeds: [errorEmbed] });
+    return;
+  }
+
+  // Record new version in NoteVersions table
+  const { recordVersion } = require('../../../helpers/notes/noteHistory');
+  await recordVersion(client, {
+    noteId: data.ID,
+    noteText: data.note,
+    severity: data.severity,
+    link: data.msgLink,
+    editorId: data.editor,
+    timestamp: nowTimestamp
+  });
+
+  // Send audit embed to staff log channel
+  await logNoteAction(client, {
+    action: 'edit',
+    targetUserId: data.user,
+    staffMemberId: data.editor,
+    noteId: data.ID,
+    severity: data.severity,
+    oldNoteText: cleanLegacyNoteText(originalNote.Note),
+    newNoteText: data.note,
+    oldLink: originalNote.Link,
+    newLink: data.msgLink,
+    timestamp: nowTimestamp
+  });
+
+  const successEmbed = new EmbedBuilder()
+    .setColor(0x00FF00)
+    .setTitle("Note updated")
+    .setDescription(`Note **#${data.ID}** has been successfully updated!`)
+    .addFields(
+      { name: 'Target User', value: `<@${data.user}> - ${data.user}` },
+      { name: 'Note', value: `${data.note}` },
+      { name: 'Severity', value: `${data.severity}` },
+      { name: 'Message Link', value: `${data.msgLink}` },
+      { name: 'Edited by', value: `<@${data.editor}>` },
+      { name: 'Date Edited', value: `<t:${nowTimestamp}:F>` }
+    )
+    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+
+  await originalReplyInteraction.deleteReply().catch(() => {});
+  await originalReplyInteraction.followUp({ ephemeral: true, embeds: [successEmbed] });
+
+  // If a post-update callback was registered (e.g. to refresh the view embed), call it
+  if (typeof options.onSuccess === 'function') {
+    try {
+      await options.onSuccess(data);
+    } catch (cbErr) {
+      client.log.warn({ message: "Error in note edit onSuccess callback", error: cbErr });
+    }
+  }
 }
 
 module.exports = {
@@ -199,23 +298,31 @@ module.exports = {
   },
   execute: async function(interaction){
     const client = interaction.client;
+    const noteID = interaction.options.getInteger('noteid');
 
-    var noteID = interaction.options.getInteger('noteid');
-    try{
-        const note = await client.DB.Notes.findOne({
-            where: {
-                ID: noteID
-            }
-        });
-        interaction.note = note;
-    }
-    catch (err) {
-        interaction.client.log.error({message: `Error fetching note for /staff note edit`, error:err});
-        await interaction.reply({ephemeral: true, content: "There was an error fetching the note"});
-        return;
+    let note;
+    try {
+      note = await client.DB.Notes.findOne({
+        where: { ID: noteID }
+      });
+    } catch (err) {
+      interaction.client.log.error({message: `Error fetching note for /staff note edit`, error:err});
+      await interaction.reply({ephemeral: true, content: "There was an error fetching the note from the database."});
+      return;
     }
 
-    await sendModal(interaction, noteID);
-    
+    if (!note) {
+      const notFoundEmbed = new EmbedBuilder()
+        .setColor(0xff0000)
+        .setTitle("Note Not Found")
+        .setDescription(`No staff note was found with ID **#${noteID}**.`)
+        .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+
+      await interaction.reply({ ephemeral: true, embeds: [notFoundEmbed] });
+      return;
     }
+
+    await startEditFlow(interaction, note);
+  },
+  startEditFlow
 };
