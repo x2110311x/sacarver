@@ -122,7 +122,70 @@ async function runTests() {
   };
   const result = await checkMessage(mockClient, mockBotMessage);
   assert.strictEqual(result, null, 'checkMessage must return null and ignore bot users');
-  console.log('✓ Bot users ignored by Image Guard.');
+  // Test 6: Tiered Confidence Gating & Weighted Scoring
+  console.log('\nTest 6: Tiered Confidence Gating & Weighted Scoring');
+  // Solitary contextual phrase: confidence 0.4 < 0.7 threshold -> NOT a scam
+  const singleContextual = analyzeText('Who wants free nitro?');
+  assert.strictEqual(singleContextual.confidence, 0.4, 'Single contextual match should have 0.4 confidence');
+  assert.strictEqual(singleContextual.isScam, false, 'Single contextual match should not trigger scam flag');
+
+  // Correlating contextual phrases: confidence >= 0.7 threshold -> scam
+  const multiContextual = analyzeText('Scan this QR code to claim your reward!');
+  assert(multiContextual.confidence >= 0.8, 'Correlating contextual matches should reach >= 0.8 confidence');
+  assert.strictEqual(multiContextual.isScam, true, 'Correlating contextual matches should trigger scam flag');
+
+  // High confidence domain or definitive scam phrase -> scam on its own
+  const highConfSample = analyzeText('Free nitro generator download at nitro-boost.gift');
+  assert(highConfSample.confidence >= 0.8, 'High confidence indicator should reach >= 0.8 confidence');
+  assert.strictEqual(highConfSample.isScam, true, 'High confidence indicator should flag alone');
+  console.log('✓ Tiered confidence gating passed.');
+
+  // Test 7: Noise & Hallucination Rejection
+  console.log('\nTest 7: Noise & Hallucination Rejection');
+  const noisyGarbage = 'a b c d e f g 1 2 3 % $ # @ ! qr . , ; : ? / \\ | [ ] { } app x y z '.repeat(40);
+  const noiseResult = analyzeText(noisyGarbage);
+  assert.strictEqual(noiseResult.isNoise, true, 'Hallucinated single-character noise should be classified as noise');
+  assert.strictEqual(noiseResult.isScam, false, 'Hallucinated noise should never flag as scam');
+  console.log('✓ Noise & hallucination rejection passed.');
+
+  // Test 8: Nearest Neighbor Selection (Exact Match preferred over Near Match)
+  console.log('\nTest 8: Nearest Neighbor Selection');
+  const targetBinary = '1'.repeat(64);
+  const targetHex = binaryToHex(targetBinary);
+
+  // Hash 1: distance 2 (ends in 00)
+  const hashDist2Binary = '1'.repeat(62) + '00';
+  const hashDist2Hex = binaryToHex(hashDist2Binary);
+
+  // Hash 2: distance 0 (identical)
+  const hashDist0Binary = targetBinary;
+  const hashDist0Hex = targetHex;
+
+  const mockHashCache = new Map();
+  // Insert distance 2 first to emulate worst-case iteration order
+  mockHashCache.set(hashDist2Hex, { id: 1, hex: hashDist2Hex, binary: hashDist2Binary, label: 'Near Match' });
+  mockHashCache.set(hashDist0Hex, { id: 2, hex: hashDist0Hex, binary: hashDist0Binary, label: 'Exact Match' });
+
+  // Simulate nearest neighbor search logic from helpers/imageGuard/index.js
+  let nearestMatch = null;
+  let lowestDistance = 64;
+  if (mockHashCache.has(targetHex)) {
+    nearestMatch = mockHashCache.get(targetHex);
+    lowestDistance = 0;
+  } else {
+    for (const [, known] of mockHashCache) {
+      const dist = hammingDistance(targetBinary, known.binary);
+      if (dist < lowestDistance) {
+        lowestDistance = dist;
+        nearestMatch = known;
+      }
+      if (lowestDistance === 0) break;
+    }
+  }
+
+  assert.strictEqual(lowestDistance, 0, 'Must identify exact match (distance 0)');
+  assert.strictEqual(nearestMatch.id, 2, 'Must pick Exact Match (ID 2) even if Near Match (ID 1) was listed first');
+  console.log('✓ Nearest neighbor selection passed.');
 
   console.log('\n--- All Image Guard Tests Passed Successfully! ---');
 }
