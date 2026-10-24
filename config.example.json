@@ -27,6 +27,7 @@
     "mode": "review",
     "ocrUrl": "http://ocr:8080/file",
     "hammingThreshold": 8,
+    "ocrMinConfidence": 0.7,
     "autoBanExactMatch": true,
     "banAppealUrl": "https://bans.discordclique.com"
   },

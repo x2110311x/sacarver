@@ -75,7 +75,8 @@ module.exports = {
             } catch {
               ocrExtracted = raw;
             }
-            ocrAnalysis = analyzeText(ocrExtracted);
+            const minConfidence = client.config.imageGuard?.ocrMinConfidence ?? 0.7;
+            ocrAnalysis = analyzeText(ocrExtracted, minConfidence);
           } else {
             ocrExtracted = `Error: HTTP ${ocrResponse.status}`;
           }
@@ -99,7 +100,7 @@ module.exports = {
           },
           {
             name: 'OCR & Heuristics Analysis',
-            value: `• Scam Flagged: ${ocrAnalysis.isScam ? '🚨 **YES**' : '✅ **NO**'}\n• Triggers: ${ocrAnalysis.matchedPatterns.length > 0 ? ocrAnalysis.matchedPatterns.join(', ') : 'None'}\n• Extracted Text:\n\`\`\`${(ocrExtracted || 'None').trim().substring(0, 300)}\`\`\``,
+            value: `• Scam Flagged: ${ocrAnalysis.isScam ? '🚨 **YES**' : '✅ **NO**'}\n• Confidence: **${Math.round((ocrAnalysis.confidence || 0) * 100)}%** (Gate: ${Math.round((client.config.imageGuard?.ocrMinConfidence ?? 0.7) * 100)}%)\n• Triggers: ${ocrAnalysis.matchedPatterns.length > 0 ? ocrAnalysis.matchedPatterns.join(', ') : 'None'}\n• Extracted Text:\n\`\`\`${(ocrExtracted || 'None').trim().substring(0, 300)}\`\`\``,
             inline: false
           }
         )

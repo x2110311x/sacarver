@@ -159,7 +159,7 @@ async function checkMessage(client, message, isStaff = false) {
   }
 
   const scamLogChannelId = client.config.channels && client.config.channels.scamLog;
-  client.log.debug(`[ImageGuard] Active config: mode="${client.config.imageGuard.mode}", ocrUrl="${client.config.imageGuard.ocrUrl}", threshold=${client.config.imageGuard.hammingThreshold || 8}, scamLogChannel="${scamLogChannelId}"`);
+  client.log.debug(`[ImageGuard] Active config: mode="${client.config.imageGuard.mode}", ocrUrl="${client.config.imageGuard.ocrUrl}", threshold=${client.config.imageGuard.hammingThreshold || 8}, minConfidence=${client.config.imageGuard.ocrMinConfidence ?? 0.7}, scamLogChannel="${scamLogChannelId}"`);
 
   const imageAttachments = message.attachments.filter(att => {
     const name = (att.name || '').toLowerCase();
@@ -205,28 +205,40 @@ async function checkMessage(client, message, isStaff = false) {
 
       // 1. Layer 1: pHash comparison against cached database
       client.log.debug(`[ImageGuard] Comparing against ${cachedHashes.size} known scam hash(es) (threshold: ${threshold})...`);
+      let nearestMatch = null;
       let lowestDistance = 64;
-      for (const [, known] of cachedHashes) {
-        const distance = hammingDistance(binaryHash, known.binary);
-        if (distance < lowestDistance) lowestDistance = distance;
-        client.log.debug(`[ImageGuard] Hash compare: distance=${distance} to [ID ${known.id}] ${known.hex} ("${known.label}")`);
-        if (distance <= threshold) {
-          client.log.info(`[ImageGuard] pHash MATCH FOUND! Distance ${distance} <= threshold ${threshold} for [ID ${known.id}] "${known.label}"`);
-          known.matchCount++;
-          client.DB.ScamImageHashes.increment('MatchCount', { where: { ID: known.id } }).catch(() => {});
-          flagDetails = {
-            matchType: 'pHash',
-            distance: distance,
-            hexHash: hexHash,
-            matchedHash: known.hex,
-            label: known.label,
-            attachmentName: attachment.name || 'image.png'
-          };
-          break;
+
+      // Fast-path: O(1) exact match check
+      if (cachedHashes.has(hexHash)) {
+        nearestMatch = cachedHashes.get(hexHash);
+        lowestDistance = 0;
+        client.log.info(`[ImageGuard] Exact pHash MATCH FOUND! (distance 0) for [ID ${nearestMatch.id}] "${nearestMatch.label}"`);
+      } else {
+        // Complete nearest-neighbor search across all cached hashes
+        for (const [, known] of cachedHashes) {
+          const distance = hammingDistance(binaryHash, known.binary);
+          if (distance < lowestDistance) {
+            lowestDistance = distance;
+            nearestMatch = known;
+          }
+          client.log.debug(`[ImageGuard] Hash compare: distance=${distance} to [ID ${known.id}] ${known.hex} ("${known.label}")`);
+          if (lowestDistance === 0) break; // Perfect match found
         }
       }
 
-      if (!flagDetails) {
+      if (nearestMatch && lowestDistance <= threshold) {
+        client.log.info(`[ImageGuard] pHash MATCH FOUND! Distance ${lowestDistance} <= threshold ${threshold} for [ID ${nearestMatch.id}] "${nearestMatch.label}"`);
+        nearestMatch.matchCount++;
+        client.DB.ScamImageHashes.increment('MatchCount', { where: { ID: nearestMatch.id } }).catch(() => {});
+        flagDetails = {
+          matchType: 'pHash',
+          distance: lowestDistance,
+          hexHash: hexHash,
+          matchedHash: nearestMatch.hex,
+          label: nearestMatch.label,
+          attachmentName: attachment.name || 'image.png'
+        };
+      } else {
         client.log.debug(`[ImageGuard] No pHash match for ${attachment.name}. Lowest distance seen was ${lowestDistance} (threshold: ${threshold}).`);
       }
 
@@ -234,34 +246,41 @@ async function checkMessage(client, message, isStaff = false) {
       if (!flagDetails && client.config.imageGuard.ocrUrl) {
         client.log.debug(`[ImageGuard] Querying OCR microservice at ${client.config.imageGuard.ocrUrl}...`);
         try {
+          const minConfidence = client.config.imageGuard.ocrMinConfidence ?? 0.7;
+
           // Pass 1: Original image
           let extractedText = await requestOcr(client.config.imageGuard.ocrUrl, buffer, attachment.name);
-          let analysis = analyzeText(extractedText);
+          let analysis = analyzeText(extractedText, minConfidence);
 
-          client.log.debug(`[ImageGuard] Pass 1 OCR extracted text (${(extractedText || '').length} chars): "${(extractedText || '').trim().replace(/\n+/g, ' ')}"`);
-          client.log.debug(`[ImageGuard] Pass 1 Heuristics: isScam=${analysis.isScam}, patterns=${JSON.stringify(analysis.matchedPatterns)}, confidence=${analysis.confidence}`);
+          client.log.debug(`[ImageGuard] Pass 1 OCR extracted text (${(extractedText || '').length} chars): "${(extractedText || '').trim().replace(/\\n+/g, ' ')}"`);
+          client.log.debug(`[ImageGuard] Pass 1 Heuristics: isScam=${analysis.isScam}, patterns=${JSON.stringify(analysis.matchedPatterns)}, confidence=${analysis.confidence}, isNoise=${analysis.isNoise}`);
 
-          // Pass 2: Inverted image (critical for dark mode / dark screen photos where Tesseract fails)
-          if (!analysis.isScam) {
+          // Pass 2: Inverted image (ONLY for dark images where Tesseract fails, avgLuminance < 128)
+          if (!analysis.isScam && !analysis.isNoise) {
             try {
               const { invertedBuffer, avgLuminance } = await invertImageBuffer(buffer);
-              client.log.debug(`[ImageGuard] Image average luminance: ${avgLuminance.toFixed(1)} (dark mode: ${avgLuminance < 128}). Running inverted OCR pass...`);
-              const invertedText = await requestOcr(client.config.imageGuard.ocrUrl, invertedBuffer, 'inverted.png');
-              const invertedAnalysis = analyzeText(invertedText);
-              client.log.debug(`[ImageGuard] Pass 2 (Inverted) OCR extracted text (${(invertedText || '').length} chars): "${(invertedText || '').trim().replace(/\n+/g, ' ')}"`);
-              client.log.debug(`[ImageGuard] Pass 2 Heuristics: isScam=${invertedAnalysis.isScam}, patterns=${JSON.stringify(invertedAnalysis.matchedPatterns)}, confidence=${invertedAnalysis.confidence}`);
+              client.log.debug(`[ImageGuard] Image average luminance: ${avgLuminance.toFixed(1)} (dark mode: ${avgLuminance < 128})`);
+              if (avgLuminance < 128) {
+                client.log.debug('[ImageGuard] Dark image detected. Running inverted OCR pass...');
+                const invertedText = await requestOcr(client.config.imageGuard.ocrUrl, invertedBuffer, 'inverted.png');
+                const invertedAnalysis = analyzeText(invertedText, minConfidence);
+                client.log.debug(`[ImageGuard] Pass 2 (Inverted) OCR extracted text (${(invertedText || '').length} chars): "${(invertedText || '').trim().replace(/\\n+/g, ' ')}"`);
+                client.log.debug(`[ImageGuard] Pass 2 Heuristics: isScam=${invertedAnalysis.isScam}, patterns=${JSON.stringify(invertedAnalysis.matchedPatterns)}, confidence=${invertedAnalysis.confidence}, isNoise=${invertedAnalysis.isNoise}`);
 
-              if (invertedAnalysis.isScam) {
-                extractedText = invertedText;
-                analysis = invertedAnalysis;
+                if (invertedAnalysis.isScam) {
+                  extractedText = invertedText;
+                  analysis = invertedAnalysis;
+                }
+              } else {
+                client.log.debug('[ImageGuard] Image luminance is light/normal. Skipping inverted OCR pass to prevent artifact noise.');
               }
             } catch (invErr) {
               client.log.warn({ message: '[ImageGuard] Error during inverted OCR pass', error: invErr });
             }
           }
 
-          if (analysis.isScam) {
-            client.log.info(`[ImageGuard] OCR Heuristic MATCH FOUND! Patterns: ${analysis.matchedPatterns.join(', ')}`);
+          if (analysis.isScam && analysis.confidence >= minConfidence) {
+            client.log.info(`[ImageGuard] OCR Heuristic MATCH FOUND! Patterns: ${analysis.matchedPatterns.join(', ')} (Confidence: ${analysis.confidence} >= ${minConfidence})`);
             flagDetails = {
               matchType: 'OCR',
               hexHash: hexHash,
@@ -270,6 +289,8 @@ async function checkMessage(client, message, isStaff = false) {
               confidence: analysis.confidence,
               attachmentName: attachment.name || 'image.png'
             };
+          } else if (analysis.matchedPatterns && analysis.matchedPatterns.length > 0) {
+            client.log.debug(`[ImageGuard] OCR matched patterns but confidence ${analysis.confidence} < threshold ${minConfidence}. Suppressing flag.`);
           }
         } catch (ocrErr) {
           client.log.warn({ message: `[ImageGuard] OCR microservice call failed to ${client.config.imageGuard.ocrUrl}`, error: ocrErr });
