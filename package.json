@@ -30,11 +30,11 @@
   "homepage": "https://github.com/x2110311x/sacarver/tree/d.js",
   "dependencies": {
     "@discordjs/builders": "^1.14.0",
-    "@discordjs/rest": "^2.6.1",
+    "@discordjs/rest": "^2.6.3",
     "better-profane-words": "^1.0.7",
     "canvas": "^2.11.2",
     "discord-api-types": "^0.38.42",
-    "discord.js": "^14.25.1",
+    "discord.js": "^14.27.0",
     "hex-color-to-color-name": "^1.0.2",
     "imghash": "^1.1.5",
     "profane-words": "^2.1.0",
