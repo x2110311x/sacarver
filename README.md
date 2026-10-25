@@ -48,7 +48,7 @@
 | **Database** | MariaDB + Sequelize ORM | Persistent storage for notes, scam hashes, and bans |
 | **Cache** | Redis 6.2 | Fast in-memory message and binary attachment caching |
 | **OCR Service** | `otiai10/ocrserver` | Tesseract-based OCR microservice for image text extraction |
-| **Logging** | Winston + Winston-Loki | Structured application logging with daily rotation |
+| **Logging** | Winston | Structured application logging with daily rotation |
 | **Containerization** | Docker & Docker Compose | Multi-container stack (`bot`, `db`, `redis`, `ocr`, `adminer`) |
 
 ---

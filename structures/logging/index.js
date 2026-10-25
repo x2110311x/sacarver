@@ -2,7 +2,6 @@ let instance = null;
 
 const winston = require('winston');
 require('winston-daily-rotate-file');
-//const LokiTransport = require("winston-loki");
 const { combine, timestamp, json, errors, cli } = winston.format;
 
 //const config = require("../../config.json");
