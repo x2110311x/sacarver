@@ -70,6 +70,7 @@ async function runTests() {
     'ocrUrl',
     'hammingThreshold',
     'autoBanExactMatch',
+    'autoBanNearMatch',
     'banAppealUrl'
   ];
   for (const igKey of requiredImageGuard) {
@@ -77,6 +78,8 @@ async function runTests() {
   }
   assert(typeof config.imageGuard.enabled === 'boolean', 'imageGuard.enabled should be boolean');
   assert(typeof config.imageGuard.hammingThreshold === 'number', 'imageGuard.hammingThreshold should be number');
+  assert.strictEqual(config.imageGuard.hammingThreshold, 6, 'imageGuard.hammingThreshold should be 6');
+  assert(typeof config.imageGuard.autoBanNearMatch === 'boolean', 'imageGuard.autoBanNearMatch should be boolean');
   console.log('✓ ImageGuard configuration verified.');
 
   // 5. DB structure

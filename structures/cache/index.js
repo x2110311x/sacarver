@@ -39,8 +39,77 @@ class RedisCache {
       const msgJson = JSON.stringify(msg);
       await this.client.set(message.id, msgJson, {EX:config.cacheExpiration, NX: true});
 
+      const authorId = msg.author;
+      const channelId = msg.channel;
+      if (authorId && channelId && message.id) {
+        await this.trackUserMessage(authorId, channelId, message.id);
+      }
+
       if (rawAttachments.length > 0) {
         await this.downloadAndCacheAttachments(rawAttachments);
+      }
+    }
+
+    async trackUserMessage(userId, channelId, messageId) {
+      if (!userId || !channelId || !messageId) return;
+
+      // Always track in in-memory Map for instantaneous zero-latency cross-channel lookup
+      if (!this.userMessageMap) this.userMessageMap = new Map();
+      const userList = this.userMessageMap.get(userId) || [];
+      userList.push({ channelId, messageId, timestamp: Date.now() });
+      if (userList.length > 50) userList.shift();
+      this.userMessageMap.set(userId, userList);
+
+      // Also persist to Redis list if supported
+      if (this.client && typeof this.client.rPush === 'function') {
+        const key = `user_msgs:${userId}`;
+        const payload = JSON.stringify({ channelId, messageId, timestamp: Date.now() });
+        try {
+          await this.client.rPush(key, payload);
+          if (typeof this.client.expire === 'function') {
+            await this.client.expire(key, 1800); // 30 minutes TTL
+          }
+        } catch (err) {
+          log.warn({ message: `Failed to track user message in Redis for user ${userId}`, error: err });
+        }
+      }
+    }
+
+    async getUserRecentMessages(userId) {
+      if (!userId) return [];
+      const memoryList = (this.userMessageMap && this.userMessageMap.get(userId)) || [];
+      if (this.client && typeof this.client.lRange === 'function') {
+        try {
+          const key = `user_msgs:${userId}`;
+          const rawList = await this.client.lRange(key, 0, -1);
+          if (rawList && rawList.length > 0) {
+            const redisList = rawList.map(item => {
+              try { return JSON.parse(item); } catch { return null; }
+            }).filter(Boolean);
+            const combined = new Map();
+            for (const item of memoryList) combined.set(item.messageId, item);
+            for (const item of redisList) combined.set(item.messageId, item);
+            return Array.from(combined.values());
+          }
+        } catch (err) {
+          log.warn({ message: `Failed to fetch user messages from Redis for user ${userId}`, error: err });
+        }
+      }
+      return memoryList;
+    }
+
+    async clearUserRecentMessages(userId) {
+      if (!userId) return;
+      if (this.userMessageMap) {
+        this.userMessageMap.delete(userId);
+      }
+      if (this.client && typeof this.client.del === 'function') {
+        try {
+          const key = `user_msgs:${userId}`;
+          await this.client.del(key);
+        } catch (err) {
+          log.warn({ message: `Failed to clear user messages from Redis for user ${userId}`, error: err });
+        }
       }
     }
 
