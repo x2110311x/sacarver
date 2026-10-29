@@ -187,6 +187,192 @@ async function runTests() {
   assert.strictEqual(nearestMatch.id, 2, 'Must pick Exact Match (ID 2) even if Near Match (ID 1) was listed first');
   console.log('✓ Nearest neighbor selection passed.');
 
+  // Test 9: Near Image Match & Threshold Gating
+  console.log('\nTest 9: Near Image Match & Threshold Gating (Distance <= 6)');
+  const threshold = 6;
+  const testScenarios = [
+    { distance: 0, autoBanExact: true, autoBanNear: false, isStaff: false, expectedBan: true, label: 'Exact match (dist 0)' },
+    { distance: 4, autoBanExact: true, autoBanNear: true, isStaff: false, expectedBan: true, label: 'Near match (dist 4 <= 6) with autoBanNear' },
+    { distance: 6, autoBanExact: true, autoBanNear: true, isStaff: false, expectedBan: true, label: 'Near match boundary (dist 6 <= 6) with autoBanNear' },
+    { distance: 4, autoBanExact: true, autoBanNear: false, isStaff: false, expectedBan: false, label: 'Near match (dist 4 <= 6) with autoBanNear=false' },
+    { distance: 4, autoBanExact: true, autoBanNear: true, isStaff: true, expectedBan: false, label: 'Near match (dist 4) staff preview protection' },
+    { distance: 7, autoBanExact: true, autoBanNear: true, isStaff: false, expectedMatch: false, label: 'Distance 7 > threshold 6' }
+  ];
+
+  for (const s of testScenarios) {
+    const isMatch = s.distance <= threshold;
+    if (s.expectedMatch !== undefined) {
+      assert.strictEqual(isMatch, s.expectedMatch, `${s.label} match check`);
+    } else {
+      const isPerfect = s.distance === 0;
+      const isNear = s.distance > 0 && s.distance <= threshold;
+      const shouldAutoBan = (isPerfect && s.autoBanExact) || (isNear && s.autoBanNear);
+      const willBan = shouldAutoBan && !s.isStaff;
+      assert.strictEqual(willBan, s.expectedBan, `${s.label} moderation decision`);
+    }
+  }
+  console.log('✓ Near image match & threshold gating passed.');
+
+  // Test 10: Message Deletion & Cross-Channel Sweeping
+  console.log('\nTest 10: Cross-Channel Message Deletion & Purge Lag Protection');
+  const { executeBanAndPurge } = require('../helpers/imageGuard');
+
+  let deletedMessageIds = [];
+  let bulkDeletedMessageIds = [];
+  let userBannedWithReason = null;
+  let userBannedDeleteSeconds = null;
+  let noteCreated = null;
+
+  const mockTriggerMessage = {
+    id: 'msg_trigger_100',
+    channelId: 'chan_general',
+    author: { id: 'scammer_1', createDM: async () => ({ send: async () => {} }) },
+    channel: {
+      id: 'chan_general',
+      async bulkDelete(messages) {
+        for (const [id] of messages) {
+          bulkDeletedMessageIds.push(id);
+        }
+      },
+      messages: {
+        async fetch() {
+          const m1 = { id: 'msg_trigger_100', author: { id: 'scammer_1' }, delete: async () => { deletedMessageIds.push('msg_trigger_100'); } };
+          const mInnocent = { id: 'msg_innocent_103', author: { id: 'innocent_user' }, delete: async () => { deletedMessageIds.push('msg_innocent_103'); } };
+
+          const map = new Map();
+          map.set(m1.id, m1);
+          map.set(mInnocent.id, mInnocent);
+          return map;
+        }
+      }
+    },
+    async delete() {
+      deletedMessageIds.push('msg_trigger_100');
+    }
+  };
+
+  const channelMusic = {
+    id: 'chan_music',
+    isTextBased: () => true,
+    messages: {
+      cache: new Map(),
+      async fetch(id) {
+        if (id === 'msg_cross_music') {
+          return { id, delete: async () => { deletedMessageIds.push('msg_cross_music'); } };
+        }
+        return null;
+      }
+    }
+  };
+
+  const msgMemes = {
+    id: 'msg_cross_memes',
+    author: { id: 'scammer_1' },
+    delete: async () => { deletedMessageIds.push('msg_cross_memes'); }
+  };
+  const channelMemes = {
+    id: 'chan_memes',
+    isTextBased: () => true,
+    messages: {
+      cache: new Map([['msg_cross_memes', msgMemes]])
+    }
+  };
+
+  const mockClientForPurge = {
+    config: {
+      guildID: 'guild_123',
+      clientID: 'bot_client',
+      channels: { banLog: 'chan_banlog', scamLog: 'chan_scamlog' },
+      imageGuard: { banAppealUrl: 'https://appeal.test' }
+    },
+    cache: {
+      async getUserRecentMessages(userId) {
+        if (userId === 'scammer_1') {
+          return [
+            { channelId: 'chan_general', messageId: 'msg_trigger_100' },
+            { channelId: 'chan_music', messageId: 'msg_cross_music' }
+          ];
+        }
+        return [];
+      },
+      async clearUserRecentMessages() {}
+    },
+    users: {
+      async fetch() {
+        return mockTriggerMessage.author;
+      }
+    },
+    guilds: {
+      cache: new Map([
+        ['guild_123', {
+          channels: {
+            cache: new Map([
+              ['chan_general', mockTriggerMessage.channel],
+              ['chan_music', channelMusic],
+              ['chan_memes', channelMemes]
+            ])
+          }
+        }]
+      ]),
+      async fetch() {
+        return {
+          channels: {
+            cache: new Map([
+              ['chan_general', mockTriggerMessage.channel],
+              ['chan_music', channelMusic],
+              ['chan_memes', channelMemes]
+            ])
+          },
+          members: {
+            async ban(userId, options) {
+              userBannedWithReason = options.reason;
+              userBannedDeleteSeconds = options.deleteMessageSeconds;
+            }
+          }
+        };
+      }
+    },
+    channels: {
+      async fetch(id) {
+        if (id === 'chan_music') return channelMusic;
+        if (id === 'chan_memes') return channelMemes;
+        return {
+          id,
+          send: async () => {}
+        };
+      }
+    },
+    DB: {
+      Notes: {
+        async create(noteData) {
+          noteCreated = noteData;
+        }
+      }
+    },
+    log: {
+      debug: () => {},
+      info: () => {},
+      warn: () => {},
+      error: () => {}
+    }
+  };
+
+  await executeBanAndPurge(
+    mockClientForPurge,
+    mockTriggerMessage,
+    Buffer.from('dummy'),
+    { matchType: 'pHash', distance: 4, hexHash: 'a1b2', label: 'Discord Nitro Scam' }
+  );
+
+  assert(deletedMessageIds.includes('msg_trigger_100'), 'Triggering message in #general must be deleted');
+  assert(deletedMessageIds.includes('msg_cross_music'), 'Message in #music spread across channel must be deleted');
+  assert(deletedMessageIds.includes('msg_cross_memes'), 'Message in #memes spread across channel must be deleted');
+  assert(!deletedMessageIds.includes('msg_innocent_103'), 'Innocent user message must NOT be deleted');
+  assert.strictEqual(userBannedDeleteSeconds, 300, 'Guild ban must request 300s purge');
+  assert(userBannedWithReason.includes('pHash near match'), 'Ban reason must specify near match');
+  assert(noteCreated && noteCreated.User === 'scammer_1', 'DB Note must be recorded for scammer');
+  console.log('✓ Cross-channel message deletion & purge lag protection passed.');
+
   console.log('\n--- All Image Guard Tests Passed Successfully! ---');
 }
 

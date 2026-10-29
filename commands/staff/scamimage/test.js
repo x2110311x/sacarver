@@ -50,7 +50,7 @@ module.exports = {
         }
       }
 
-      const threshold = client.config.imageGuard?.hammingThreshold || 8;
+      const threshold = client.config.imageGuard?.hammingThreshold ?? 6;
       const isPHashMatch = nearestMatch && lowestDistance <= threshold;
 
       // Run OCR diagnostics if configured

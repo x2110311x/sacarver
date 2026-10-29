@@ -159,7 +159,7 @@ async function checkMessage(client, message, isStaff = false) {
   }
 
   const scamLogChannelId = client.config.channels && client.config.channels.scamLog;
-  client.log.debug(`[ImageGuard] Active config: mode="${client.config.imageGuard.mode}", ocrUrl="${client.config.imageGuard.ocrUrl}", threshold=${client.config.imageGuard.hammingThreshold || 8}, minConfidence=${client.config.imageGuard.ocrMinConfidence ?? 0.7}, scamLogChannel="${scamLogChannelId}"`);
+  client.log.debug(`[ImageGuard] Active config: mode="${client.config.imageGuard.mode}", ocrUrl="${client.config.imageGuard.ocrUrl}", threshold=${client.config.imageGuard.hammingThreshold ?? 6}, minConfidence=${client.config.imageGuard.ocrMinConfidence ?? 0.7}, scamLogChannel="${scamLogChannelId}"`);
 
   const imageAttachments = message.attachments.filter(att => {
     const name = (att.name || '').toLowerCase();
@@ -198,7 +198,7 @@ async function checkMessage(client, message, isStaff = false) {
       client.log.debug(`[ImageGuard] Computing 2D DCT pHash for ${attachment.name}...`);
       const binaryHash = await computePHash(buffer);
       const hexHash = binaryToHex(binaryHash);
-      const threshold = client.config.imageGuard.hammingThreshold || 8;
+      const threshold = client.config.imageGuard.hammingThreshold ?? 6;
       client.log.debug(`[ImageGuard] Computed pHash for ${attachment.name}: hex="${hexHash}" (binary length: ${binaryHash.length})`);
 
       let flagDetails = null;
@@ -311,15 +311,18 @@ async function checkMessage(client, message, isStaff = false) {
 
         const mode = client.config.imageGuard.mode || 'review';
         const autoBanExact = client.config.imageGuard.autoBanExactMatch !== false;
+        const autoBanNear = client.config.imageGuard.autoBanNearMatch === true || client.config.imageGuard.autoBanNearImage === true;
         const isPerfectPHashMatch = flagDetails.matchType === 'pHash' && flagDetails.distance === 0;
+        const isNearPHashMatch = flagDetails.matchType === 'pHash' && flagDetails.distance > 0 && flagDetails.distance <= threshold;
+        const shouldAutoBan = (isPerfectPHashMatch && autoBanExact) || (isNearPHashMatch && autoBanNear);
 
-        client.log.debug(`[ImageGuard] Moderation decision: mode="${mode}", isPerfectPHashMatch=${isPerfectPHashMatch}, autoBanExact=${autoBanExact}, isStaff=${isStaff}`);
+        client.log.debug(`[ImageGuard] Moderation decision: mode="${mode}", isPerfectPHashMatch=${isPerfectPHashMatch}, isNearPHashMatch=${isNearPHashMatch}, autoBanExact=${autoBanExact}, autoBanNear=${autoBanNear}, shouldAutoBan=${shouldAutoBan}, isStaff=${isStaff}`);
 
-        // Perfect pHash matches (distance 0) automatically ban non-staff users immediately
-        if (isPerfectPHashMatch && autoBanExact && !isStaff) {
-          client.log.info(`[ImageGuard] Perfect pHash match (distance 0) for message ${message.id} from user ${message.author.id}. Automatically executing ban, purge, manual delete, and dual logging to ban-log and scam-log.`);
+        // Exact pHash match (distance 0) or near pHash match (distance <= threshold) automatically ban non-staff users when enabled
+        if (shouldAutoBan && !isStaff) {
+          client.log.info(`[ImageGuard] ${isPerfectPHashMatch ? 'Perfect' : 'Near'} pHash match (distance ${flagDetails.distance}) for message ${message.id} from user ${message.author.id}. Automatically executing ban, purge, manual delete, and dual logging to ban-log and scam-log.`);
           await executeBanAndPurge(client, message, buffer, flagDetails);
-        } else if (mode === 'review' || (isPerfectPHashMatch && isStaff)) {
+        } else if (mode === 'review' || (shouldAutoBan && isStaff)) {
           client.log.debug(`[ImageGuard] Calling sendReviewCard for message ${message.id}...`);
           await sendReviewCard(client, message, buffer, flagDetails, isStaff);
         } else if (mode === 'enforce') {
@@ -447,7 +450,142 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
   let dmd = false;
   let banned = false;
 
-  // 1. DM User
+  // 1. Immediately Delete Triggering Message & Sweep Offender Messages Across Channels
+  // Scammers typically post one message per channel spread across multiple channels.
+  // Because Discord's native ban purge (deleteMessageSeconds) often lags behind,
+  // we discover and delete all messages from this user across all channels immediately.
+  try {
+    const channelMap = new Map(); // Map<channelId, { channelId, channel, messageIds: Set<string>, messageObjects: Map<string, Message> }>
+
+    const addTarget = (cId, mId, msgObj = null) => {
+      if (!cId || !mId) return;
+      if (!channelMap.has(cId)) {
+        channelMap.set(cId, { channelId: cId, channel: null, messageIds: new Set(), messageObjects: new Map() });
+      }
+      const entry = channelMap.get(cId);
+      entry.messageIds.add(mId);
+      if (msgObj) entry.messageObjects.set(mId, msgObj);
+    };
+
+    // A. Triggering message
+    if (channelId && messageId) {
+      addTarget(channelId, messageId, message);
+    }
+
+    // B. Check tracked recent messages from client.cache across all channels
+    if (client.cache && typeof client.cache.getUserRecentMessages === 'function') {
+      try {
+        const trackedMessages = await client.cache.getUserRecentMessages(userId);
+        if (trackedMessages && trackedMessages.length > 0) {
+          for (const item of trackedMessages) {
+            if (item.channelId && item.messageId) {
+              addTarget(item.channelId, item.messageId);
+            }
+          }
+        }
+      } catch (cacheFetchErr) {
+        client.log.warn({ message: `[ImageGuard] Error getting tracked messages for user ${userId}`, error: cacheFetchErr });
+      }
+    }
+
+    // C. Scan guild channels cache for any cached messages from this user across all text channels
+    try {
+      const guild = (client.guilds?.cache && client.guilds.cache.get(client.config.guildID)) ||
+                    (client.guilds?.fetch ? await client.guilds.fetch(client.config.guildID).catch(() => null) : null);
+      if (guild && guild.channels?.cache) {
+        for (const [, ch] of guild.channels.cache) {
+          if (ch && ch.isTextBased && ch.isTextBased() && ch.messages?.cache) {
+            for (const [, msg] of ch.messages.cache) {
+              const msgAuthorId = msg.author?.id ?? msg.author;
+              if (msgAuthorId === userId) {
+                addTarget(ch.id, msg.id, msg);
+              }
+            }
+          }
+        }
+      }
+    } catch (guildScanErr) {
+      client.log.warn({ message: `[ImageGuard] Error scanning cached channels for user ${userId}`, error: guildScanErr });
+    }
+
+    // D. In the triggering channel, sweep recent messages in case multiple exist
+    if (channelId) {
+      try {
+        const trigChannel = (message && message.channel) || (client.channels?.fetch ? await client.channels.fetch(channelId).catch(() => null) : null);
+        if (trigChannel && trigChannel.messages) {
+          const entry = channelMap.get(channelId);
+          if (entry) entry.channel = trigChannel;
+          const recent = await trigChannel.messages.fetch({ limit: 50 }).catch(() => null);
+          if (recent) {
+            for (const [id, msg] of recent) {
+              const author = msg.author?.id ?? msg.author;
+              if (author === userId) {
+                addTarget(channelId, id, msg);
+              }
+            }
+          }
+        }
+      } catch (trigErr) {
+        client.log.warn({ message: `[ImageGuard] Error checking triggering channel messages for user ${userId}`, error: trigErr });
+      }
+    }
+
+    // Now delete all gathered messages across all identified channels concurrently
+    const deletionPromises = [];
+    let totalMessagesToDelete = 0;
+
+    for (const [cId, entry] of channelMap) {
+      totalMessagesToDelete += entry.messageIds.size;
+      deletionPromises.push((async () => {
+        try {
+          const ch = entry.channel || (message && message.channelId === cId ? message.channel : null) || (client.channels?.fetch ? await client.channels.fetch(cId).catch(() => null) : null);
+          if (!ch) return;
+
+          // If multiple messages in this channel, try bulkDelete
+          if (entry.messageIds.size > 1 && ch.bulkDelete) {
+            const idsToDelete = Array.from(entry.messageIds);
+            await ch.bulkDelete(idsToDelete, true).catch(async () => {
+              // Fallback to individual deletes
+              for (const mId of idsToDelete) {
+                const msgObj = entry.messageObjects.get(mId);
+                if (msgObj) {
+                  await msgObj.delete().catch(() => {});
+                } else if (ch.messages) {
+                  const m = await ch.messages.fetch(mId).catch(() => null);
+                  if (m) await m.delete().catch(() => {});
+                }
+              }
+            });
+          } else {
+            // Single message or no bulkDelete support
+            for (const mId of entry.messageIds) {
+              const msgObj = entry.messageObjects.get(mId);
+              if (msgObj) {
+                await msgObj.delete().catch(() => {});
+              } else if (ch.messages) {
+                const m = await ch.messages.fetch(mId).catch(() => null);
+                if (m) await m.delete().catch(() => {});
+              }
+            }
+          }
+        } catch (channelDelErr) {
+          client.log.warn({ message: `[ImageGuard] Error deleting messages in channel ${cId} for user ${userId}`, error: channelDelErr });
+        }
+      })());
+    }
+
+    await Promise.allSettled(deletionPromises);
+    client.log.info(`[ImageGuard] Executed instant cross-channel deletion for user ${userId}: ${totalMessagesToDelete} message(s) across ${channelMap.size} channel(s).`);
+
+    // Clear tracked messages from cache
+    if (client.cache && typeof client.cache.clearUserRecentMessages === 'function') {
+      await client.cache.clearUserRecentMessages(userId).catch(() => {});
+    }
+  } catch (delErr) {
+    client.log.warn({ message: `[ImageGuard] Failed during cross-channel deletion for user ${userId}`, error: delErr });
+  }
+
+  // 2. DM User
   try {
     const user = await client.users.fetch(userId);
     if (user) {
@@ -462,10 +600,13 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
     client.log.warn({ message: `[ImageGuard] Failed to DM user ${userId} about ban`, error: dmErr });
   }
 
-  // 2. Ban Member
+  // 3. Ban Member
   try {
     const guild = await client.guilds.fetch(client.config.guildID);
-    const matchType = (flagDetails && flagDetails.matchType) || 'manual review';
+    let matchType = (flagDetails && flagDetails.matchType) || 'manual review';
+    if (flagDetails && flagDetails.matchType === 'pHash') {
+      matchType = flagDetails.distance === 0 ? 'pHash exact match' : `pHash near match (distance ${flagDetails.distance})`;
+    }
     await guild.members.ban(userId, {
       deleteMessageSeconds: 300,
       reason: `Scam image detected by Image Guard (${matchType})${staffUser ? ` by ${staffUser.tag}` : ''}`
@@ -475,25 +616,14 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
     client.log.error({ message: `[ImageGuard] Failed to ban user ${userId}`, error: banErr });
   }
 
-  // 3. Delete Message
-  try {
-    if (message) {
-      await message.delete().catch(() => {});
-    } else {
-      const channel = await client.channels.fetch(channelId);
-      if (channel) {
-        const msg = await channel.messages.fetch(messageId).catch(() => {});
-        if (msg) await msg.delete().catch(() => {});
-      }
-    }
-  } catch (delErr) {
-    client.log.warn({ message: `[ImageGuard] Failed to delete scam message ${messageId}`, error: delErr });
-  }
-
   // 4. Record Note in DB.Notes
   try {
     const actionType = (flagDetails && flagDetails.matchType) || 'review';
-    const noteText = `User was banned for posting a scam image (${actionType}).${staffUser ? ` Action confirmed by ${staffUser.tag}.` : ' Automatically enforced.'}`;
+    let noteTrigger = actionType;
+    if (flagDetails && flagDetails.matchType === 'pHash') {
+      noteTrigger = flagDetails.distance === 0 ? 'exact pHash match' : `near pHash match (distance ${flagDetails.distance})`;
+    }
+    const noteText = `User was banned for posting a scam image (${noteTrigger}).${staffUser ? ` Action confirmed by ${staffUser.tag}.` : ' Automatically enforced.'}`;
     await client.DB.Notes.create({
       User: userId,
       Date: Math.floor(Date.now() / 1000),
@@ -511,6 +641,15 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
     const banLogChannel = await client.channels.fetch(client.config.channels.banLog);
     if (banLogChannel) {
       const filename = `banned_scam_${messageId}.png`;
+      let triggerText = (flagDetails && flagDetails.matchType) || 'Manual Review';
+      if (flagDetails && flagDetails.matchType === 'pHash') {
+        triggerText = flagDetails.distance === 0
+          ? 'Exact pHash Match (Distance 0)'
+          : `Near pHash Match (Distance ${flagDetails.distance} / 64)`;
+      } else if (flagDetails && flagDetails.matchType === 'OCR') {
+        triggerText = 'OCR Heuristics';
+      }
+
       const banEmbed = new EmbedBuilder()
         .setColor(0xff0000)
         .setTitle('User Banned for Scam Image')
@@ -520,7 +659,7 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
         )
         .addFields(
           { name: 'User', value: `<@${userId}> - ${userId}`, inline: true },
-          { name: 'Trigger', value: (flagDetails && flagDetails.matchType) || 'Manual Review', inline: true },
+          { name: 'Trigger', value: triggerText, inline: true },
           { name: 'Moderator', value: staffUser ? `<@${staffUser.id}>` : 'Image Guard Auto', inline: true }
         )
         .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: client.icon })
@@ -548,14 +687,29 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
         if (scamLogChannel) {
           const filename = `autoban_scam_${messageId}.png`;
           const isExact = flagDetails && flagDetails.distance === 0;
+          const isNear = flagDetails && flagDetails.matchType === 'pHash' && flagDetails.distance > 0;
+          let title = '🔨 User Automatically Banned for Scam Image';
+          if (isExact) {
+            title = '⚡ Automatic Ban: Exact Scam Image Match';
+          } else if (isNear) {
+            title = '⚡ Automatic Ban: Near Scam Image Match';
+          }
+
+          let triggerDesc = (flagDetails && flagDetails.matchType) || 'Automatic Enforce';
+          if (isExact) {
+            triggerDesc = '**Exact pHash Match (Distance 0)**';
+          } else if (isNear) {
+            triggerDesc = `**Near pHash Match (Distance ${flagDetails.distance} / 64)**`;
+          }
+
           const scamEmbed = new EmbedBuilder()
             .setColor(0xff0000)
-            .setTitle(isExact ? '⚡ Automatic Ban: Exact Scam Image Match' : '🔨 User Automatically Banned for Scam Image')
+            .setTitle(title)
             .setDescription(
               `A confirmed scam image was detected in <#${channelId}> posted by <@${userId}>.\n\n` +
-              `• **Action Taken:** User automatically banned, purge (300s) executed, message deleted.\n` +
+              `• **Action Taken:** User automatically banned, purge (300s) executed, message(s) deleted.\n` +
               `• **Appeal DM:** ${dmd ? "Sent to user" : "Unable to DM user"}\n` +
-              `• **Trigger:** ${isExact ? '**Exact pHash Match (Distance 0)**' : ((flagDetails && flagDetails.matchType) || 'Automatic Enforce')}\n` +
+              `• **Trigger:** ${triggerDesc}\n` +
               ((flagDetails && flagDetails.label) ? `• **Database Label:** *${flagDetails.label}*\n` : '') +
               ((flagDetails && flagDetails.hexHash) ? `• **pHash:** \`${flagDetails.hexHash}\`\n` : '')
             )

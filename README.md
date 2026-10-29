@@ -14,7 +14,7 @@
 ### 🛡️ ImageGuard (Automated Scam Image Detection)
 - **2D DCT Perceptual Hashing (pHash)**: Converts images into 64-bit perceptual hashes invariant to resizing, recompression, and minor watermarking. Compares incoming images against verified scam hashes using bitwise Hamming Distance.
 - **OCR Heuristic Analysis**: Integrates with a local OCR microservice to extract and evaluate image text against known scam patterns (fake Discord Nitro gifts, Steam wallet giveaways, compromised casino promotions, QR phishing).
-- **Automated Moderation & Quarantine**: Supports automated banning on exact pHash matches (distance = 0) and staff review escalation (`scamLog` / `chatModeration`) for close matches and flagged keywords.
+- **Automated Moderation & Quarantine**: Supports automated banning and instant message deletion for exact pHash matches (distance = 0) and near matches (distance ≤ 6), sweeping recent offender messages to prevent lag during Discord purges. Staff review escalation (`scamLog` / `chatModeration`) is provided for OCR and test modes.
 
 ### 🍯 Honeypot Channel Protection
 - Monitors decoy channels to immediately intercept and eliminate automated scam bots.
@@ -95,8 +95,9 @@ Edit `config.json` with your Discord credentials, guild ID, role IDs, channel ID
     "enabled": true,
     "mode": "review",
     "ocrUrl": "http://ocr:8080/file",
-    "hammingThreshold": 8,
+    "hammingThreshold": 6,
     "autoBanExactMatch": true,
+    "autoBanNearMatch": true,
     "banAppealUrl": "https://bans.discordclique.com"
   }
 }
