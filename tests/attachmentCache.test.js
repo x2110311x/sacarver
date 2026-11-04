@@ -160,19 +160,18 @@ async function runTests() {
   }
 
   console.log('\n--- All Attachment Cache Tests Passed Successfully! ---');
+  if (tempConfigCreated && fs.existsSync(configPath)) {
+    try {
+      fs.unlinkSync(configPath);
+    } catch (_err) {
+      // ignore
+    }
+  }
+  process.exit(0);
 }
 
 runTests()
   .catch((err) => {
     console.error('Test failed:', err);
     process.exit(1);
-  })
-  .finally(() => {
-    if (tempConfigCreated && fs.existsSync(configPath)) {
-      try {
-        fs.unlinkSync(configPath);
-      } catch (_err) {
-        // ignore
-      }
-    }
   });

@@ -8,6 +8,7 @@ const {
 const { createCanvas, loadImage } = require('canvas');
 const { computePHash, hammingDistance, binaryToHex, hexToBinary } = require('./phash');
 const { analyzeText } = require('./heuristics');
+const { reactToRecentMessages } = require('../autoModReact');
 
 /**
  * Inverts an image buffer and calculates average luminance.
@@ -449,6 +450,9 @@ async function executeBanAndPurge(client, messageOrIds, buffer, flagDetails, sta
   const appealUrl = client.config.imageGuard.banAppealUrl || 'https://bans.discordclique.com';
   let dmd = false;
   let banned = false;
+
+  // React immediately before deleting or banning so chat knows it's being handled
+  await reactToRecentMessages(client, userId, message);
 
   // 1. Immediately Delete Triggering Message & Sweep Offender Messages Across Channels
   // Scammers typically post one message per channel spread across multiple channels.
