@@ -1,4 +1,5 @@
 const { EmbedBuilder, AttachmentBuilder } = require("discord.js");
+const { reactToRecentMessages } = require("../autoModReact");
 
 
 async function processHoneypot(client, message, preloadedAttachment = null) {
@@ -6,6 +7,9 @@ async function processHoneypot(client, message, preloadedAttachment = null) {
     client.log.info(`Staff member ${message.author.tag} sent message in honeypot channel, ignoring.`);
     return;
   }
+
+  // React immediately before any other processing so chat knows it's being handled
+  await reactToRecentMessages(client, message.author.id, message);
 
   // Capture attachment buffer BEFORE message deletion so image survives
   const attachedFiles = [];
@@ -140,7 +144,7 @@ async function staffLog(client, data) {
       { name: 'Message Text', value: `${(data.message == "") ? "No text content" : data.message}` },
       { name: 'Date banned', value: `<t:${data.dateAdded}:F>` }
     )
-    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: `${client.icon}` });
+    .setFooter({ text: `© ${new Date().getFullYear()} x2110311x`, iconURL: client.icon || undefined });
 
   const banLog = await client.channels.fetch(client.config.channels.banLog);
   const scamLog = await client.channels.fetch(client.config.channels.scamLog);

@@ -42,5 +42,10 @@
   "cacheExpiration": 2419200,
   "attachmentCacheExpiration": 86400,
   "maxAttachmentCacheSize": 26214400,
-  "swearJarChannels": []
+  "swearJarChannels": [],
+  "autoModReactions": [
+    "860015991031463947",
+    "587034603861049604"
+  ],
+  "autoModReactionWindowMs": 60000
 }
