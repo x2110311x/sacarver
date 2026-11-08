@@ -43,6 +43,50 @@ async function runTests() {
     console.log(`✓ Validated ${files.length} subcommand files in /${folder}.`);
   }
 
+  // Test /staff info role execution
+  const { Collection } = require('discord.js');
+  const staffInfoRole = require('../commands/staff/info/role');
+  const mockMembers = new Collection();
+  mockMembers.set('1', {
+    id: '1',
+    user: { username: 'alice' },
+    roles: { cache: new Collection([['role_mod', { id: 'role_mod' }]]) }
+  });
+  mockMembers.set('2', {
+    id: '2',
+    user: { username: 'bob' },
+    roles: { cache: new Collection([['role_other', { id: 'role_other' }]]) }
+  });
+  mockMembers.set('3', {
+    id: '3',
+    user: { username: 'charlie' },
+    roles: { cache: new Collection([['role_mod', { id: 'role_mod' }]]) }
+  });
+
+  let deferred = false;
+  let editedPayload = null;
+  const mockInteraction = {
+    deferReply: async () => { deferred = true; },
+    editReply: async (payload) => { editedPayload = payload; },
+    options: {
+      getRole: (name) => name === 'role' ? { id: 'role_mod', name: 'Moderators' } : null
+    },
+    guild: {
+      id: 'guild_1',
+      members: {
+        fetch: async () => mockMembers
+      }
+    }
+  };
+
+  await staffInfoRole.execute(mockInteraction);
+  assert.strictEqual(deferred, true, '/staff info role should defer reply');
+  assert(editedPayload && Array.isArray(editedPayload.files) && editedPayload.files.length === 1, '/staff info role should reply with one file attachment');
+  const attachment = editedPayload.files[0];
+  assert.strictEqual(attachment.name, 'Moderators.txt', 'Attachment name should match sanitized role name');
+  assert.strictEqual(attachment.attachment.toString('utf-8'), 'alice\ncharlie', 'Attachment content should contain matching usernames separated by newline');
+  console.log('✓ Validated /staff info role execution and text file attachment output.');
+
   console.log('\n--- All Slash Commands Validated Successfully ---');
 }
 
