@@ -85,7 +85,35 @@ async function runTests() {
   const attachment = editedPayload.files[0];
   assert.strictEqual(attachment.name, 'Moderators.txt', 'Attachment name should match sanitized role name');
   assert.strictEqual(attachment.attachment.toString('utf-8'), 'alice\ncharlie', 'Attachment content should contain matching usernames separated by newline');
-  console.log('✓ Validated /staff info role execution and text file attachment output.');
+
+  // Test GatewayRateLimitError retry handling
+  staffInfoRole._clearCache();
+  let fetchAttempts = 0;
+  const rateLimitedInteraction = {
+    deferReply: async () => { },
+    editReply: async (payload) => { editedPayload = payload; },
+    options: {
+      getRole: (name) => name === 'role' ? { id: 'role_mod', name: 'Moderators' } : null
+    },
+    guild: {
+      id: 'guild_ratelimit',
+      members: {
+        fetch: async () => {
+          fetchAttempts++;
+          if (fetchAttempts === 1) {
+            const err = new Error('Gateway rate limit');
+            err.name = 'GatewayRateLimitError';
+            err.data = { retry_after: 0.05 };
+            throw err;
+          }
+          return mockMembers;
+        }
+      }
+    }
+  };
+  await staffInfoRole.execute(rateLimitedInteraction);
+  assert.strictEqual(fetchAttempts, 2, 'Should retry guild.members.fetch() after GatewayRateLimitError');
+  console.log('✓ Validated /staff info role execution, caching, and GatewayRateLimitError retry.');
 
   console.log('\n--- All Slash Commands Validated Successfully ---');
 }
