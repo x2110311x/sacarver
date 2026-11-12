@@ -11,3 +11,4 @@ database-dump.sql
 backups/
 *.sql
 *.tar.gz
+configbak.json
