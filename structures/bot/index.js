@@ -13,7 +13,6 @@ class Sacarver {
           GatewayIntentBits.DirectMessages,
           GatewayIntentBits.MessageContent,
           GatewayIntentBits.GuildMembers,
-          GatewayIntentBits.GuildPresences,
           GatewayIntentBits.GuildVoiceStates,
           GatewayIntentBits.GuildModeration,
         ],
